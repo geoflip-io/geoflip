@@ -1,0 +1,39 @@
+services:
+  db:
+    container_name: geoflip-db
+    image: postgres:15
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    container_name: geoflip-api
+    env_file:
+      - ../.env
+    build:
+      context: ../server
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV_STATE=${ENV_STATE}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_SSL=${DB_SSL}
+      - FRONTEND_URL=${FRONTEND_URL}
+    depends_on:
+      db:
+        condition: service_started
+    volumes:
+      - ../server:/app
+
+volumes:
+  postgres_data:
