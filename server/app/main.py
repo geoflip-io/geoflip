@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
 
 from app.database import database
 from app.routers.user import router as user_router
+from app.routers.transform import router as transform_router
 from app.config import config
 from app.logging_conf import configure_logging
 
@@ -42,6 +43,7 @@ app.add_middleware(CorrelationIdMiddleware)
 
 # Include routers
 app.include_router(user_router)
+app.include_router(transform_router)
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler_logging(request, exc):
