@@ -12,3 +12,4 @@ python-json-logger
 python-jose
 python-multipart
 passlib[bcrypt]
+werkzeug
