@@ -1,4 +1,13 @@
 services:
+  redis:
+    container_name: geoflip-redis
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
   db:
     container_name: geoflip-db
     image: postgres:15
@@ -31,6 +40,8 @@ services:
       - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       db:
+        condition: service_started
+      redis:
         condition: service_started
     volumes:
       - ../server:/app

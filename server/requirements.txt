@@ -13,3 +13,5 @@ python-jose
 python-multipart
 passlib[bcrypt]
 werkzeug
+celery
+redis

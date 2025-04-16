@@ -12,6 +12,8 @@ from app.routers.transform import router as transform_router
 from app.config import config
 from app.logging_conf import configure_logging
 
+from app.celery_worker import celery_app
+
 logger = logging.getLogger(__name__)
 
 
@@ -44,6 +46,9 @@ app.add_middleware(CorrelationIdMiddleware)
 # Include routers
 app.include_router(user_router)
 app.include_router(transform_router)
+
+from app.routers.test_celery import router as test_celery_router
+app.include_router(test_celery_router)
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler_logging(request, exc):
