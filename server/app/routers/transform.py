@@ -12,8 +12,14 @@ from pydantic import ValidationError
 
 from app.models.transform import TransformIn
 
+from app.celery_worker import celery_app
+from app.operations.transform import transform_operation
+
 router = APIRouter()
 logger = logging.getLogger("api")
+
+string_input_types = ["geojson"]
+binary_input_types = ["shp"]
 
 
 @router.post("/transform", status_code=200)
@@ -21,6 +27,9 @@ async def create_transformation(
     config: Annotated[str, Form(...)],
     input_file: Optional[UploadFile] = File(None),
 ):
+    filePath = None
+    data = None
+    
     # Step 1: Parse and validate config
     try:
         transform = TransformIn.model_validate(json.loads(config))
@@ -30,16 +39,18 @@ async def create_transformation(
 
     input_type = transform.input.type
 
-    # Step 2: File validation
-    if input_type == "shp" and not input_file:
-        raise HTTPException(status_code=400, detail="input_file is required for 'shp' input type")
-    if input_type == "geojson" and input_file:
-        raise HTTPException(status_code=400, detail="input_file should not be provided for 'geojson' input")
-    
+    # Step 2: File/Data validation
+    if input_type in binary_input_types and not input_file:
+        raise HTTPException(status_code=400, detail=f"input_file is required for {binary_input_types.join("/")} input type")
+    if input_type in string_input_types and input_file:
+        raise HTTPException(status_code=400, detail=f"input_file should not be provided for {string_input_types.join("/")} input")
+    if input_type in string_input_types:
+        data = transform.input.data
+        if not data:
+            raise HTTPException(status_code=400, detail=f"data is required for {string_input_types.join("/")} input type")
+
     # Step 3: Create job directory
     job_id = str(uuid.uuid4())
-
-    #  make a folder to extract the zip file
     upload_dir = os.path.join(os.getenv("UPLOADS_PATH"), job_id)
     os.makedirs(upload_dir, exist_ok=True)
 
@@ -59,16 +70,27 @@ async def create_transformation(
         except FileNotFoundError as e:
             logger.error(f"File save failed or file not accessible: {e}")
             HTTPException(status_code=400, description="File save failed or not accessible.")
-
         
-
     # Step 6: TODO - Queue Celery task here
-    # celery_worker.process_transform.delay(job_id)
+    result = transform_operation.apply_async(
+        args=[filePath, data],
+        expires=3600,  # 1 hour
+        task_id=job_id
+    )
+    logger.info(f"Dispatched celery transform task: {result.id} for job_id: {job_id}")
+
+    # Step 7: schedule a cleanup task to remove the old files after expiry
+    # Also schedule a cleanup task 1 hour later example:
+    # cleanup_task.apply_async(
+    #     args=["/uploads/input.gpkg"],
+    #     countdown=3600
+    # )
 
     logger.info(f"Queued transformation job: {job_id}")
 
     return JSONResponse({
         "job_id": job_id,
+        "task_id": result.id,
         "status": "queued",
         "message": "Transformation job has been accepted"
     })

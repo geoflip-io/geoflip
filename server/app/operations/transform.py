@@ -6,19 +6,37 @@ from app.celery_worker import celery_app # Good practice to import the app insta
 
 logger = logging.getLogger("api") # Use a logger specific to tasks if desired
 
-@shared_task(bind=True, name='app.routers.tasks.fake_task') # Optionally explicitly name it
-def fake_task(self):
-    logger.info(f"Task {self.request.id}: Starting fake_task")
+@shared_task(bind=True, name="app.routers.tasks.transform_task")
+def transform_operation(self, input_filepath: str = None, data: str = None):
+    logger.info(f"Task {self.request.id}: Starting transform_task")
+
     try:
-        self.update_state(state="PROGRESS", meta={"msg": "Working..."})
-        time.sleep(5) # Maybe increase sleep for easier testing
-        result_msg = {"msg": "Task complete"}
-        logger.info(f"Task {self.request.id}: Finished fake_task successfully")
-        # The return value automatically sets the state to SUCCESS
+        self.update_state(state="PROGRESS", meta={"message": "Transform task started."})
+
+        if input_filepath:
+            logger.info(f"Reading from file: {input_filepath}")
+            # simulate reading file
+            time.sleep(3)
+        elif data:
+            logger.info(f"Processing inline data string of length {len(data)}")
+            # simulate processing raw data
+            time.sleep(3)
+        else:
+            raise ValueError("Either input_filepath or data must be provided.")
+
+        result_msg = {
+            "message": "Data transformed successfully",
+            "input_filepath": input_filepath,
+            "used_data": bool(data),
+            "output_filepath": "/path/to/output/file.gdf",
+        }
+        logger.info(f"Task {self.request.id}: Finished transform_task successfully")
         return result_msg
+
     except Exception as e:
         logger.error(f"Task {self.request.id}: Failed with error: {e}", exc_info=True)
-        # Update state to FAILURE on error
-        self.update_state(state='FAILURE', meta={'exc_type': type(e).__name__, 'exc_message': str(e)})
-        # Reraise the exception so Celery knows it failed
+        self.update_state(
+            state="FAILURE",
+            meta={"exc_type": type(e).__name__, "exc_message": str(e)},
+        )
         raise
