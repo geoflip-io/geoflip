@@ -49,7 +49,7 @@ Before you run pytest, make sure you have a database already created in your doc
     - `docker-compose up -d`
     - Note: this will also start up a docker version of the application, you can use this to test against as well. 
 4. run celery in a separeate terminal first:
-`celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO `
+    - `celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO `
 
 5. start the local dev environment with (note that the port is 8001 because docker will run on 8000)
     - `uvicorn app.main:app --reload --port 8001`

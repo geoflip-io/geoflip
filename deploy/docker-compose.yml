@@ -35,6 +35,7 @@ services:
       - DB_HOST=db
       - DB_PORT=${DB_PORT}
       - DB_SSL=${DB_SSL}
+      - UPLOADS_PATH=/home/uploads
       - FRONTEND_URL=${FRONTEND_URL}
       - REDIS_HOST=geoflip-redis
       - REDIS_PORT=${REDIS_PORT}
