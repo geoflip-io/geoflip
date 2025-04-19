@@ -4,25 +4,27 @@ import logging
 from celery import shared_task
 from app.celery_worker import celery_app # Good practice to import the app instance if using bind=True or specific app features
 
+import geopandas as gpd
+
+from app.operations.geoprocessing.reader import input_to_gdf
+
 logger = logging.getLogger("api") # Use a logger specific to tasks if desired
 
 @shared_task(bind=True, name="app.routers.tasks.transform_task")
-def transform_operation(self, input_filepath: str = None, data: str = None):
+def transform_operation(self, input_type: str, input_filepath: str = None, data: dict = None):
+    input_gdf: gpd.GeoDataFrame = None
+
+
     logger.info(f"Task {self.request.id}: Starting transform_task")
 
     try:
         self.update_state(state="PROGRESS", meta={"message": "Transform task started."})
 
-        if input_filepath:
-            logger.info(f"Reading from file: {input_filepath}")
-            # simulate reading file
-            time.sleep(3)
-        elif data:
-            logger.info(f"Processing inline data string of length {len(data)}")
-            # simulate processing raw data
-            time.sleep(3)
+        if (input_filepath or data) and not(input_filepath and data):
+            input_gdf = input_to_gdf(input_type, input_filepath, data)
+            logger.info(f"Task {self.request.id}: Data read successfully {input_gdf.head()}")
         else:
-            raise ValueError("Either input_filepath or data must be provided.")
+            raise ValueError("Either input_filepath or data must be provided - not both.")        
 
         result_msg = {
             "message": "Data transformed successfully",

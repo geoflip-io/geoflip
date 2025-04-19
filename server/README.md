@@ -79,3 +79,13 @@ There is a startup script already setup in this project called `startup.sh` you 
     - environment variables (they should be the same as your .env but use the values of the database created with the app service app)
     - startup.sh script start up command in the settings
 4. test the api works using the register user route
+
+## ToDo
+
+- Setup mechanism for file handling 
+    - modular way to convert files or data (ie geojson) to a geodataframe for further processing
+- Handle file output
+    - once in GDF handle conversion back to desired output format into output folder
+- Create route to retrieve output file
+- Cleanup processes
+    - clean up redis records and trigger clean up process on celery job expiry
