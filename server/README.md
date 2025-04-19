@@ -49,7 +49,7 @@ Before you run pytest, make sure you have a database already created in your doc
     - `docker-compose up -d`
     - Note: this will also start up a docker version of the application, you can use this to test against as well. 
 4. run celery in a separeate terminal first:
-    - `celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO `
+    - `celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
 
 5. start the local dev environment with (note that the port is 8001 because docker will run on 8000)
     - `uvicorn app.main:app --reload --port 8001`
@@ -82,8 +82,8 @@ There is a startup script already setup in this project called `startup.sh` you 
 
 ## ToDo
 
-- Setup mechanism for file handling 
-    - modular way to convert files or data (ie geojson) to a geodataframe for further processing
+~~- Setup mechanism for file handling~~
+~~- clean up __init__.py  and .env usage ~~
 - Handle file output
     - once in GDF handle conversion back to desired output format into output folder
 - Create route to retrieve output file

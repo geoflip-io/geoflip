@@ -22,6 +22,14 @@ class GlobalConfig(BaseConfig):
 
     DATABASE_URL: str = ""
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_PASSWORD: str
+    REDIS_SSL: bool = False
+
+    UPLOADS_PATH: str
+
     model_config = SettingsConfigDict(env_prefix="")
 
     def __init__(self, **values):

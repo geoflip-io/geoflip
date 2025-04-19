@@ -28,15 +28,11 @@ database = databases.Database(DATABASE_URL, force_rollback=DB_FORCE_ROLL_BACK, m
 
 
 # Redis connection setup
-is_testing = os.getenv("ENV_STATE") == "test"
+is_testing = config.ENV_STATE == "test"
 
-redis_host = "localhost" if is_testing else os.getenv("REDIS_HOST")
-redis_port = int(os.getenv("REDIS_PORT", 6379))
-redis_db = int(os.getenv("REDIS_DB", 0))
-redis_password = os.getenv("REDIS_PASSWORD")
-redis_ssl = os.getenv("REDIS_SSL", "False")
+redis_host = "localhost" if is_testing else config.REDIS_HOST
 
-scheme = "rediss" if redis_ssl.lower() == "true" else "redis"
-redis_url = f"{scheme}://:{redis_password}@{redis_host}:{redis_port}/{redis_db}"
+scheme = "rediss" if config.REDIS_SSL == True else "redis"
+redis_url = f"{scheme}://:{config.REDIS_PASSWORD}@{redis_host}:{config.REDIS_PORT}/{config.REDIS_DB}"
 
 redis_client = redis.StrictRedis.from_url(redis_url, decode_responses=True)
