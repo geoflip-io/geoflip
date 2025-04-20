@@ -32,6 +32,7 @@ def geojson_to_gdf(geojson_dict: dict) -> gpd.GeoDataFrame:
 
         # Convert directly to GeoDataFrame
         gdf = gpd.GeoDataFrame.from_features(geojson_dict["features"])
+        gdf.set_crs(epsg=4326, inplace=True)
         return gdf
 
     except Exception as e:

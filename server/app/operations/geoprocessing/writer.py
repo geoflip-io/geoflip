@@ -1,0 +1,44 @@
+import os
+import logging
+import geopandas as gpd
+from app.config import config as app_config
+
+def gdf_to_shp(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
+    """
+    Reproject and save a GeoDataFrame to a shapefile.
+    """
+    output_file_name = f"geoflip_shp_{output_epsg}"
+    output_path = os.path.join(output_dir, f"{output_file_name}.shp")
+    
+    # Reproject if needed
+    if gdf.crs is None:
+        raise ValueError("Input GeoDataFrame has no CRS defined.")
+    
+    if gdf.crs.to_epsg() != output_epsg:
+        gdf = gdf.to_crs(epsg=output_epsg)
+
+    gdf.to_file(output_path, driver="ESRI Shapefile")
+    return output_path
+
+def gdf_to_geojson(gdf: gpd.GeoDataFrame) -> str:
+	"""
+	Convert a GeoDataFrame to GeoJSON format.
+	"""
+	geojson_string = gdf.to_json()
+	return geojson_string
+
+# returns the path to the output file or the content of the file
+def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str) -> str:
+	output_dir = os.path.join(app_config.DATA_PATH, job_id, "output")
+	os.makedirs(output_dir, exist_ok=True)
+	
+	output = None
+	match output_format:
+		case "shp":
+			output_shp_path = gdf_to_shp(gdf, output_dir, output_epsg)
+			return ("filepath",output_shp_path)
+		case "geojson":
+			output = gdf_to_geojson(gdf)
+			return ("data",output)
+		case _:
+			raise ValueError(f"Unsupported output format: {output_format}")

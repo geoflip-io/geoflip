@@ -3,6 +3,8 @@ import time
 import logging
 from celery import shared_task
 from app.celery_worker import celery_app # Good practice to import the app instance if using bind=True or specific app features
+from fastapi import HTTPException
+from app.operations.geoprocessing.writer import gdf_to_output
 
 import geopandas as gpd
 
@@ -11,27 +13,55 @@ from app.operations.geoprocessing.reader import input_to_gdf
 logger = logging.getLogger("api") # Use a logger specific to tasks if desired
 
 @shared_task(bind=True, name="app.routers.tasks.transform_task")
-def transform_operation(self, input_type: str, input_filepath: str = None, data: dict = None):
+def transform_operation(self, 
+        job_id: str,
+        input_type: str, 
+        output_format: str,
+        output_epsg:int,
+        input_file_path: str = None, 
+        data: dict = None,
+    ) -> dict:
     input_gdf: gpd.GeoDataFrame = None
-
 
     logger.info(f"Task {self.request.id}: Starting transform_task")
 
     try:
         self.update_state(state="PROGRESS", meta={"message": "Transform task started."})
 
-        if (input_filepath or data) and not(input_filepath and data):
-            input_gdf = input_to_gdf(input_type, input_filepath, data)
+        # Read input data
+        if (input_file_path or data) and not(input_file_path and data):
+            input_gdf = input_to_gdf(input_type, input_file_path, data)
             logger.info(f"Task {self.request.id}: Data read successfully {input_gdf.head()}")
         else:
-            raise ValueError("Either input_filepath or data must be provided - not both.")        
+            raise ValueError("Either input_file_path or data must be provided - not both.")
 
-        result_msg = {
-            "message": "Data transformed successfully",
-            "input_filepath": input_filepath,
-            "used_data": bool(data),
-            "output_filepath": "/path/to/output/file.gdf",
-        }
+        # write to desired output format
+        if input_gdf is not None:
+            output_type, output = gdf_to_output(input_gdf, output_format, output_epsg, job_id)
+        else:
+            logger.warning(f"Task {self.request.id}: input_gdf is None, no data to write.")
+            raise ValueError("No data to write.")
+
+
+        if output_type == "filepath":
+            result_msg = {
+                "message": "Data transformed successfully",
+                "input_filepath": input_file_path,
+                "used_data": bool(data),
+                "output_filepath": output,
+                "output_data": None
+            }
+        elif output_type == "data":
+            result_msg = {
+                "message": "Data transformed successfully",
+                "input_filepath": input_file_path,
+                "used_data": bool(data),
+                "output_filepath": None,
+                "output_data": output
+            }
+        else:
+            raise ValueError(f"invalid output_type was returned: {output_type}")
+        
         logger.info(f"Task {self.request.id}: Finished transform_task successfully")
         return result_msg
 

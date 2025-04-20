@@ -3,7 +3,7 @@ import json
 import os
 import uuid
 from typing import Annotated, Optional
-from app.utils.file_handling import save_file
+from app.utils.file_handling import save_input
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
@@ -36,8 +36,10 @@ async def create_transformation(
 
     input_type:str = transform.input.type
     job_id:str = str(uuid.uuid4())
-    filePath:str = None
+    input_file_path:str = None
     data:dict = None
+    output_format:str = transform.output.format
+    output_epsg:int = transform.output.epsg
 
     if input_type not in string_input_types + binary_input_types:
         raise HTTPException(status_code=400, detail=f"Unsupported input type: {input_type}")
@@ -51,14 +53,21 @@ async def create_transformation(
     # Step 4: Save input_file if present
     if input_type in binary_input_types:
         if input_file:
-            filePath = await save_file(input_file, job_id)
+            input_file_path = await save_input(input_file, job_id)
         else:
             raise HTTPException(status_code=400, detail="input_file is required for binary input type")
         
     # Step 6: Que the celery task
     logger.info(f"job_id: {job_id} - Queuing transformation task for input type: {input_type}")
     result = transform_operation.apply_async(
-        args=[input_type, filePath, data],
+        args=[
+            job_id, 
+            input_type,
+            transform.output.format,
+            transform.output.epsg,
+            input_file_path, 
+            data
+        ],
         expires=3600,  # 1 hour
         task_id=job_id
     )

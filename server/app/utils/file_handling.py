@@ -23,7 +23,7 @@ def wait_for_file(file_path:str, timeout:int=10, check_interval:float=0.5):
         time.sleep(check_interval)
     raise FileNotFoundError(f"File not accessible: {file_path}")
 
-async def save_file(input_file: UploadFile, job_id: str) -> str:
+async def save_input(input_file: UploadFile, job_id: str) -> str:
     job_dir = os.path.join(app_config.DATA_PATH, job_id)
     os.makedirs(job_dir, exist_ok=True)
 
