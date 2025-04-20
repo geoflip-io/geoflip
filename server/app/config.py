@@ -28,7 +28,7 @@ class GlobalConfig(BaseConfig):
     REDIS_PASSWORD: str
     REDIS_SSL: bool = False
 
-    UPLOADS_PATH: str
+    DATA_PATH: str
 
     model_config = SettingsConfigDict(env_prefix="")
 

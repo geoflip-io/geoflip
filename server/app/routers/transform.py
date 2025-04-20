@@ -3,8 +3,7 @@ import json
 import os
 import uuid
 from typing import Annotated, Optional
-from werkzeug.utils import secure_filename
-from app.utils.file_handling import wait_for_file
+from app.utils.file_handling import save_file
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
@@ -52,20 +51,7 @@ async def create_transformation(
     # Step 4: Save input_file if present
     if input_type in binary_input_types:
         if input_file:
-            upload_dir = os.path.join(app_config.UPLOADS_PATH, job_id)
-            os.makedirs(upload_dir, exist_ok=True)
-
-            filename = secure_filename(input_file.filename)
-            filePath = os.path.join(upload_dir, filename)
-            with open(filePath, "wb") as f:
-                f.write(await input_file.read())
-
-            # Check if the file is accessible
-            try:
-                wait_for_file(filePath)
-            except FileNotFoundError as e:
-                logger.error(f"File save failed or file not accessible: {e}")
-                HTTPException(status_code=400, description="File save failed or not accessible.")
+            filePath = await save_file(input_file, job_id)
         else:
             raise HTTPException(status_code=400, detail="input_file is required for binary input type")
         
