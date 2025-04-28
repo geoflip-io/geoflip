@@ -1,24 +1,37 @@
 import os
-import logging
+import zipfile
+import glob
 import geopandas as gpd
 from app.config import config as app_config
 
 def gdf_to_shp(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     """
-    Reproject and save a GeoDataFrame to a shapefile.
+    Reproject and save a GeoDataFrame to a shapefile and zip all related files.
     """
     output_file_name = f"geoflip_shp_{output_epsg}"
     output_path = os.path.join(output_dir, f"{output_file_name}.shp")
-    
+
     # Reproject if needed
     if gdf.crs is None:
         raise ValueError("Input GeoDataFrame has no CRS defined.")
-    
+
     if gdf.crs.to_epsg() != output_epsg:
         gdf = gdf.to_crs(epsg=output_epsg)
 
+    # Save to .shp
     gdf.to_file(output_path, driver="ESRI Shapefile")
-    return output_path
+
+    # Now zip all related files (.shp, .shx, .dbf, .prj, etc.)
+    base_name = os.path.splitext(output_path)[0]  # remove .shp
+    shapefile_parts = glob.glob(f"{base_name}.*")
+
+    zip_output_path = os.path.join(output_dir, f"{output_file_name}.zip")
+    with zipfile.ZipFile(zip_output_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for filepath in shapefile_parts:
+            arcname = os.path.basename(filepath)  # filename inside zip
+            zipf.write(filepath, arcname=arcname)
+
+    return zip_output_path
 
 def gdf_to_geojson(gdf: gpd.GeoDataFrame) -> str:
 	"""

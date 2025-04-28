@@ -1,6 +1,5 @@
 import databases
 import sqlalchemy
-import os
 import redis
 
 from app.config import config
@@ -32,7 +31,7 @@ is_testing = config.ENV_STATE == "test"
 
 redis_host = "localhost" if is_testing else config.REDIS_HOST
 
-scheme = "rediss" if config.REDIS_SSL == True else "redis"
+scheme = "rediss" if config.REDIS_SSL else "redis"
 redis_url = f"{scheme}://:{config.REDIS_PASSWORD}@{redis_host}:{config.REDIS_PORT}/{config.REDIS_DB}"
 
 redis_client = redis.StrictRedis.from_url(redis_url, decode_responses=True)

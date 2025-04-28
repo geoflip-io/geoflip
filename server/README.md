@@ -26,17 +26,21 @@ Before you run pytest, make sure you have a database already created in your doc
 3. now setup setup your `.env` in the root of the project:
     ```
     ENV_STATE=global
+
+    COMPOSE_PROJECT_NAME=geoflip
+
+    JWT_SECRET=1234abcd
+    FRONTEND_URL=http://localhost:3000
+    BACKEND_URL=http://localhost:8001
+    DATA_PATH=data
+
+    # database details 
     DB_NAME=api-db
     DB_HOST=localhost
     DB_PORT=5432 
     DB_SSL=prefer 
     DB_USER=postgres
     DB_PASSWORD=pa55word
-
-    FRONTEND_URL=http://127.0.0.1:8080
-    JWT_SECRET=1234abcd
-
-    UPLOADS_PATH=uploads
 
     # Redis connection
     REDIS_HOST=localhost

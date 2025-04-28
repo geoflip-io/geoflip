@@ -18,6 +18,8 @@ class GlobalConfig(BaseConfig):
     DB_FORCE_ROLL_BACK: bool = False
 
     FRONTEND_URL: str
+    BACKEND_URL: str
+
     JWT_SECRET: str
 
     DATABASE_URL: str = ""

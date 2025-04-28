@@ -1,9 +1,6 @@
 # app/routers/tasks.py
-import time
 import logging
 from celery import shared_task
-from app.celery_worker import celery_app # Good practice to import the app instance if using bind=True or specific app features
-from fastapi import HTTPException
 from app.operations.geoprocessing.writer import gdf_to_output
 
 import geopandas as gpd
@@ -46,16 +43,14 @@ def transform_operation(self,
         if output_type == "filepath":
             result_msg = {
                 "message": "Data transformed successfully",
-                "input_filepath": input_file_path,
-                "used_data": bool(data),
+                "output_type": output_type,
                 "output_filepath": output,
                 "output_data": None
             }
         elif output_type == "data":
             result_msg = {
                 "message": "Data transformed successfully",
-                "input_filepath": input_file_path,
-                "used_data": bool(data),
+                "output_type": output_type,
                 "output_filepath": None,
                 "output_data": output
             }

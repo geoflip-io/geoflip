@@ -1,6 +1,5 @@
 import logging
 import json
-import os
 import uuid
 from typing import Annotated, Optional
 from app.utils.file_handling import save_input
@@ -9,10 +8,8 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-from app.config import config as app_config
 from app.models.transform import TransformIn
 
-from app.celery_worker import celery_app
 from app.operations.transform import transform_operation
 
 router = APIRouter()
@@ -59,19 +56,19 @@ async def create_transformation(
         
     # Step 6: Que the celery task
     logger.info(f"job_id: {job_id} - Queuing transformation task for input type: {input_type}")
-    result = transform_operation.apply_async(
+    transform_operation.apply_async(
         args=[
             job_id, 
             input_type,
-            transform.output.format,
-            transform.output.epsg,
+            output_format,
+            output_epsg,
             input_file_path, 
             data
         ],
         expires=3600,  # 1 hour
         task_id=job_id
     )
-    logger.info(f"Dispatched celery transform task: {result.id} for job_id: {job_id}")
+    logger.info(f"Dispatched celery transform task with job_id: {job_id}")
 
     # TODO: Step 7: schedule a cleanup task to remove the old files after expiry
     # Also schedule a cleanup task 1 hour later example:
@@ -84,7 +81,6 @@ async def create_transformation(
 
     return JSONResponse({
         "job_id": job_id,
-        "task_id": result.id,
         "status": "queued",
         "message": "Transformation job has been accepted"
     })
