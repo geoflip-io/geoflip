@@ -11,6 +11,9 @@ from pydantic import ValidationError
 from app.models.transform import TransformIn
 
 from app.operations.transform import transform_operation
+from app.operations.cleanup import cleanup_operation
+
+from app.config import config as app_config
 
 router = APIRouter()
 logger = logging.getLogger("api")
@@ -65,17 +68,16 @@ async def create_transformation(
             input_file_path, 
             data
         ],
-        expires=3600,  # 1 hour
+        expires=app_config.JOB_EXPIRY_TIME,
         task_id=job_id
     )
     logger.info(f"Dispatched celery transform task with job_id: {job_id}")
 
-    # TODO: Step 7: schedule a cleanup task to remove the old files after expiry
-    # Also schedule a cleanup task 1 hour later example:
-    # cleanup_task.apply_async(
-    #     args=["/uploads/input.gpkg"],
-    #     countdown=3600
-    # )
+    # Also schedule a cleanup task to clean up expired job data:
+    cleanup_operation.apply_async(
+        args=[job_id],
+        countdown=app_config.JOB_EXPIRY_TIME
+    )
 
     logger.info(f"Queued transformation job: {job_id}")
 

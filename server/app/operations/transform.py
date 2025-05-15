@@ -32,6 +32,8 @@ def transform_operation(self,
         else:
             raise ValueError("Either input_file_path or data must be provided - not both.")
 
+        # TODO: now we have the data as a gdf we can apply transformations
+
         # write to desired output format
         if input_gdf is not None:
             output_type, output = gdf_to_output(input_gdf, output_format, output_epsg, job_id)

@@ -48,6 +48,9 @@ Before you run pytest, make sure you have a database already created in your doc
     REDIS_DB=0
     REDIS_PASSWORD=pa55word
     REDIS_SSL=False
+
+    # Operational Adjustments
+    JOB_EXPIRY_TIME = 30
     ```
 3. make sure docker desktop is running then start the database via docker-compose:
     - `docker-compose up -d`
@@ -88,8 +91,24 @@ There is a startup script already setup in this project called `startup.sh` you 
 
 ~~- Setup mechanism for file handling~~
 ~~- clean up __init__.py  and .env usage ~~
-- Handle file output
-    - once in GDF handle conversion back to desired output format into output folder
-- Create route to retrieve output file
+- ~~Handle file output~~
+    - ~~once in GDF handle conversion back to desired output format into output folder~~
+    - ~~cleanup output handling~~
+- ~~Create route to retrieve output file~~
 - Cleanup processes
-    - clean up redis records and trigger clean up process on celery job expiry
+    - clean up redis records and trigger clean up process on celery job expire
+- Add in transformations pipeline into the transform operation
+    - support Buffer and Dissolve for now only
+- Add string  format to_file option
+- Support addtional data formats
+    - DXF
+    - KML
+    - EsriJSON
+    - Geopackage
+- Additional Operations
+    - append
+    - merge
+    - erase
+    - clip
+- Additional transformations
+    - explode

@@ -5,6 +5,7 @@ from app.database import redis_url
 # List all modules containing tasks here
 TASK_MODULES = [
     'app.operations.transform',
+	'app.operations.cleanup',
     # Add any other module containing task definitions
 ]
 
