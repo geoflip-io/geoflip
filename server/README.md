@@ -95,8 +95,8 @@ There is a startup script already setup in this project called `startup.sh` you 
     - ~~once in GDF handle conversion back to desired output format into output folder~~
     - ~~cleanup output handling~~
 - ~~Create route to retrieve output file~~
-- Cleanup processes
-    - clean up redis records and trigger clean up process on celery job expire
+- ~~Cleanup processes~~
+    - ~~clean up redis records and trigger clean up process on celery job expire~~
 - Add in transformations pipeline into the transform operation
     - support Buffer and Dissolve for now only
 - Add string  format to_file option
