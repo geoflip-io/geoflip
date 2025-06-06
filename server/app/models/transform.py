@@ -24,7 +24,10 @@ class BufferTransformation(BaseModel):
     type: Literal["buffer"]
     params: BufferParams
 
-TransformationModel = Union[BufferTransformation]
+class UnionTransformation(BaseModel):
+    type: Literal["union"]
+
+TransformationModel = Union[BufferTransformation, UnionTransformation]
 
 # --- Output Section ---
 

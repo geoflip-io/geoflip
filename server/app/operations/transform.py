@@ -41,7 +41,6 @@ def transform_operation(self,
             logger.warning(f"Task {self.request.id}: input_gdf is None, no data to write.")
             raise ValueError("No data to write.")
 
-
         if output_type == "filepath":
             result_msg = {
                 "message": "Data transformed successfully",
