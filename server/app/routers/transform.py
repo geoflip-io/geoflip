@@ -40,6 +40,8 @@ async def create_transformation(
     data:dict = None
     output_format:str = transform.output.format
     output_epsg:int = transform.output.epsg
+    # convert transformations to a list of dictionaries to pass to the celery task
+    transformations: list = [t.model_dump(mode="json") for t in transform.transformations]
 
     if input_type not in string_input_types + binary_input_types:
         raise HTTPException(status_code=400, detail=f"Unsupported input type: {input_type}")
@@ -63,6 +65,7 @@ async def create_transformation(
         args=[
             job_id, 
             input_type,
+            transformations,
             output_format,
             output_epsg,
             input_file_path, 
@@ -76,7 +79,8 @@ async def create_transformation(
     # Also schedule a cleanup task to clean up expired job data:
     cleanup_operation.apply_async(
         args=[job_id],
-        countdown=app_config.JOB_EXPIRY_TIME
+        countdown=app_config.JOB_EXPIRY_TIME,
+        ignore_result=True
     )
 
     logger.info(f"Queued transformation job: {job_id}")

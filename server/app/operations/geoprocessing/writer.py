@@ -38,6 +38,13 @@ def gdf_to_geojson(gdf: gpd.GeoDataFrame) -> str:
 	"""
 	Convert a GeoDataFrame to GeoJSON dict format.
 	"""
+    # Reproject if needed
+	if gdf.crs is None:
+		raise ValueError("Input GeoDataFrame has no CRS defined.")
+
+	if gdf.crs.to_epsg() != 4326:
+		gdf = gdf.to_crs(epsg=4326)
+
 	geojson_dict = json.loads(gdf.to_json())
 	return geojson_dict
 

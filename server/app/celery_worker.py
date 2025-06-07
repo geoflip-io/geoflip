@@ -21,4 +21,5 @@ celery_app.conf.update(
     task_serializer="json",
     result_serializer="json",
     accept_content=["json"],
+    result_expires=3600,  # expire task results after 1 hour
 )

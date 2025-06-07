@@ -15,8 +15,9 @@ def apply_transformations(gdf: gpd.GeoDataFrame, transformations: List[Dict]) ->
     for transform in transformations:
         match transform["type"]:
             case "buffer":
-                distance = transform["distance"]
-                units = transform["units"]
+                params = transform['params']
+                distance = params["distance"]
+                units = params["units"]
 
                 try:
                     simplify_tolerance = transform["simplify_tolerance"]

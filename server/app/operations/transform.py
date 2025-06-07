@@ -6,13 +6,15 @@ from app.operations.geoprocessing.writer import gdf_to_output
 import geopandas as gpd
 
 from app.operations.geoprocessing.reader import input_to_gdf
+from app.operations.geoprocessing.transformation_manager import apply_transformations
 
 logger = logging.getLogger("api") # Use a logger specific to tasks if desired
 
 @shared_task(bind=True, name="app.routers.tasks.transform_task")
 def transform_operation(self, 
         job_id: str,
-        input_type: str, 
+        input_type: str,
+        transformations: list,
         output_format: str,
         output_epsg:int,
         input_file_path: str = None, 
@@ -33,6 +35,8 @@ def transform_operation(self,
             raise ValueError("Either input_file_path or data must be provided - not both.")
 
         # TODO: now we have the data as a gdf we can apply transformations
+        input_gdf, transformations_applied = apply_transformations(gdf=input_gdf, transformations=transformations)
+        logger.info(f"Task {self.request.id}: Transformations applied: {transformations_applied}")
 
         # write to desired output format
         if input_gdf is not None:
