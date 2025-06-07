@@ -8,7 +8,7 @@ from app.models.user import UserIn, User
 from app.security import get_user, get_password_hash, authenticate_user, create_access_token, get_current_user
 
 router = APIRouter()
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("api")
 
 
 @router.post("/register", status_code=201)

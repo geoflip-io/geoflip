@@ -1,8 +1,8 @@
 import logging
 import json
-import os
 import uuid
 from typing import Annotated, Optional
+from app.utils.file_handling import save_input
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
@@ -10,8 +10,16 @@ from pydantic import ValidationError
 
 from app.models.transform import TransformIn
 
+from app.operations.transform import transform_operation
+from app.operations.cleanup import cleanup_operation
+
+from app.config import config as app_config
+
 router = APIRouter()
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("api")
+
+string_input_types = ["geojson"]
+binary_input_types = ["shp"]
 
 
 @router.post("/transform", status_code=200)
@@ -26,27 +34,54 @@ async def create_transformation(
         logger.warning(f"Validation failed for config: {e}")
         raise HTTPException(status_code=400, detail=e.errors())
 
-    input_type = transform.input.type
+    input_type:str = transform.input.type
+    job_id:str = str(uuid.uuid4())
+    input_file_path:str = None
+    data:dict = None
+    output_format:str = transform.output.format
+    output_epsg:int = transform.output.epsg
+    # convert transformations to a list of dictionaries to pass to the celery task
+    transformations: list = [t.model_dump(mode="json") for t in transform.transformations]
 
-    # Step 2: File validation
-    if input_type == "shp" and not input_file:
-        raise HTTPException(status_code=400, detail="input_file is required for 'shp' input type")
-    if input_type == "geojson" and input_file:
-        raise HTTPException(status_code=400, detail="input_file should not be provided for 'geojson' input")
-    
-    # Step 3: Create job directory
-    job_id = str(uuid.uuid4())
-    job_dir = os.path.join("/data/jobs", job_id)
-    os.makedirs(job_dir, exist_ok=True)
+    if input_type not in string_input_types + binary_input_types:
+        raise HTTPException(status_code=400, detail=f"Unsupported input type: {input_type}")
+
+    # if input_type is a string input type then data is required
+    if input_type in string_input_types:
+        data = getattr(transform.input, "data", None)
+        if data is None:
+            raise HTTPException(status_code=400, detail=f"data is required for {"/".join(string_input_types)} input type")
 
     # Step 4: Save input_file if present
-    if input_file:
-        input_path = os.path.join(job_dir, input_file.filename)
-        with open(input_path, "wb") as f:
-            f.write(await input_file.read())
+    if input_type in binary_input_types:
+        if input_file:
+            input_file_path = await save_input(input_file, job_id)
+        else:
+            raise HTTPException(status_code=400, detail="input_file is required for binary input type")
+        
+    # Step 6: Que the celery task
+    logger.info(f"job_id: {job_id} - Queuing transformation task for input type: {input_type}")
+    transform_operation.apply_async(
+        args=[
+            job_id, 
+            input_type,
+            transformations,
+            output_format,
+            output_epsg,
+            input_file_path, 
+            data
+        ],
+        expires=app_config.JOB_EXPIRY_TIME,
+        task_id=job_id
+    )
+    logger.info(f"Dispatched celery transform task with job_id: {job_id}")
 
-    # Step 6: TODO - Queue Celery task here
-    # celery_worker.process_transform.delay(job_id)
+    # Also schedule a cleanup task to clean up expired job data:
+    cleanup_operation.apply_async(
+        args=[job_id],
+        countdown=app_config.JOB_EXPIRY_TIME,
+        ignore_result=True
+    )
 
     logger.info(f"Queued transformation job: {job_id}")
 

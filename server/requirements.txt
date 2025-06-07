@@ -12,3 +12,7 @@ python-json-logger
 python-jose
 python-multipart
 passlib[bcrypt]
+werkzeug
+celery
+redis
+geopandas

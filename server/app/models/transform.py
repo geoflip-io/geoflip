@@ -24,18 +24,21 @@ class BufferTransformation(BaseModel):
     type: Literal["buffer"]
     params: BufferParams
 
-TransformationModel = Union[BufferTransformation]
+class UnionTransformation(BaseModel):
+    type: Literal["union"]
+
+TransformationModel = Union[BufferTransformation, UnionTransformation]
 
 # --- Output Section ---
 
 class FileOutput(BaseModel):
-    type: Literal["shp", "geojson"]
-    output_crs: Optional[str] = None
+    format: Literal["shp", "geojson"]
+    epsg: Optional[int] = 4326  # Default to WGS84
 
     @model_validator(mode="after")
     def require_crs_unless_geojson(cls, values):
-        if values.type != "geojson" and not values.output_crs:
-            raise ValueError(f"`output_crs` is required when output type is '{values.type}'")
+        if values.format != "geojson" and not values.epsg:
+            raise ValueError(f"`epsg` is required when output type is '{values.format}'")
         return values
 
 OutputModel = Union[FileOutput]

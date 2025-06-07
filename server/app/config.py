@@ -16,11 +16,20 @@ class GlobalConfig(BaseConfig):
     DB_PORT: int
     DB_NAME: str
     DB_FORCE_ROLL_BACK: bool = False
-
-    FRONTEND_URL: str
-    JWT_SECRET: str
-
     DATABASE_URL: str = ""
+
+    JWT_SECRET: str
+    FRONTEND_URL: str
+    BACKEND_URL: str
+    DATA_PATH: str
+
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_PASSWORD: str
+    REDIS_SSL: bool = False
+
+    JOB_EXPIRY_TIME: int = 3600
 
     model_config = SettingsConfigDict(env_prefix="")
 

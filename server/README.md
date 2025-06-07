@@ -26,6 +26,15 @@ Before you run pytest, make sure you have a database already created in your doc
 3. now setup setup your `.env` in the root of the project:
     ```
     ENV_STATE=global
+
+    COMPOSE_PROJECT_NAME=geoflip
+
+    JWT_SECRET=1234abcd
+    FRONTEND_URL=http://localhost:3000
+    BACKEND_URL=http://localhost:8001
+    DATA_PATH=data
+
+    # database details 
     DB_NAME=api-db
     DB_HOST=localhost
     DB_PORT=5432 
@@ -33,14 +42,25 @@ Before you run pytest, make sure you have a database already created in your doc
     DB_USER=postgres
     DB_PASSWORD=pa55word
 
-    FRONTEND_URL=http://127.0.0.1:8080
-    JWT_SECRET=1234abcd
+    # Redis connection
+    REDIS_HOST=localhost
+    REDIS_PORT=6379
+    REDIS_DB=0
+    REDIS_PASSWORD=pa55word
+    REDIS_SSL=False
+
+    # Operational Adjustments
+    JOB_EXPIRY_TIME = 30
     ```
 3. make sure docker desktop is running then start the database via docker-compose:
     - `docker-compose up -d`
     - Note: this will also start up a docker version of the application, you can use this to test against as well. 
-4.  start the local dev environment with (note that the port is 8001 because docker will run on 8000)
+4. run celery in a separeate terminal first:
+    - `celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
+
+5. start the local dev environment with (note that the port is 8001 because docker will run on 8000)
     - `uvicorn app.main:app --reload --port 8001`
+
 
 ## How to build stuff
 
@@ -66,3 +86,29 @@ There is a startup script already setup in this project called `startup.sh` you 
     - environment variables (they should be the same as your .env but use the values of the database created with the app service app)
     - startup.sh script start up command in the settings
 4. test the api works using the register user route
+
+## ToDo
+
+~~- Setup mechanism for file handling~~
+~~- clean up __init__.py  and .env usage ~~
+- ~~Handle file output~~
+    - ~~once in GDF handle conversion back to desired output format into output folder~~
+    - ~~cleanup output handling~~
+- ~~Create route to retrieve output file~~
+- ~~Cleanup processes~~
+    - ~~clean up redis records and trigger clean up process on celery job expire~~
+- Add in transformations pipeline into the transform operation
+    - support Buffer and Dissolve for now only
+- Add string  format to_file option
+- Support addtional data formats
+    - DXF
+    - KML
+    - EsriJSON
+    - Geopackage
+- Additional Operations
+    - append
+    - merge
+    - erase
+    - clip
+- Additional transformations
+    - explode
