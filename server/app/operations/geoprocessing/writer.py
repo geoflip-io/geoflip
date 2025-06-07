@@ -1,6 +1,7 @@
 import os
 import zipfile
 import glob
+import json
 import geopandas as gpd
 from app.config import config as app_config
 
@@ -35,10 +36,10 @@ def gdf_to_shp(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
 
 def gdf_to_geojson(gdf: gpd.GeoDataFrame) -> str:
 	"""
-	Convert a GeoDataFrame to GeoJSON format.
+	Convert a GeoDataFrame to GeoJSON dict format.
 	"""
-	geojson_string = gdf.to_json()
-	return geojson_string
+	geojson_dict = json.loads(gdf.to_json())
+	return geojson_dict
 
 # returns the path to the output file or the content of the file
 def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str) -> str:
