@@ -54,7 +54,9 @@ Before you run pytest, make sure you have a database already created in your doc
     ```
 3. make sure docker desktop is running then start the database via docker-compose:
     - `docker-compose up -d`
-    - Note: this will also start up a docker version of the application, you can use this to test against as well. 
+    - Note: this will also start up a docker version of the application, you can use this to test against as well.
+
+Next if you want to run it in your own dev environment for easy debugging stop the application in docker (leave redis and postgres running) then follow the below: 
 4. run celery in a separeate terminal first:
     - `celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
 
