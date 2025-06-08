@@ -37,6 +37,8 @@ services:
       - DB_SSL=${DB_SSL}
       - DATA_PATH=/home/data
       - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
+      - JWT_SECRET=http://localhost:8000
       - REDIS_HOST=geoflip-redis
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_DB=${REDIS_DB}

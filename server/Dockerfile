@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Start both Celery worker and FastAPI app
-CMD /bin/bash -c "\
+CMD /bin/sh -c "\
   celery -A app.celery_worker.celery_app worker --concurrency=4 --loglevel=INFO & \
   gunicorn --workers=1 --threads=4 --timeout=200 \
     --worker-class=uvicorn.workers.UvicornWorker \
