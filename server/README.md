@@ -58,7 +58,7 @@ Before you run pytest, make sure you have a database already created in your doc
 
 Next if you want to run it in your own dev environment for easy debugging stop the application in docker (leave redis and postgres running) then follow the below: 
 4. run celery in a separeate terminal first:
-    - `celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
+    - `celery -A app.core.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
 
 5. start the local dev environment with (note that the port is 8001 because docker will run on 8000)
     - `uvicorn app.main:app --reload --port 8001`

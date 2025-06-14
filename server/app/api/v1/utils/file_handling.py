@@ -1,7 +1,7 @@
 import os
 import time
 import logging
-from app.config import config as app_config
+from app.core.config import config as app_config
 from werkzeug.utils import secure_filename
 from fastapi import HTTPException, UploadFile
 

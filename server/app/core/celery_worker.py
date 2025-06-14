@@ -1,11 +1,11 @@
 # celery_worker.py
 from celery import Celery
-from app.database import redis_url
+from app.core.database import redis_url
 
 # List all modules containing tasks here
 TASK_MODULES = [
-    'app.operations.transform',
-	'app.operations.cleanup',
+    'app.api.v1.operations.transform',
+	'app.api.v1.operations.cleanup',
     # Add any other module containing task definitions
 ]
 

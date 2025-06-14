@@ -6,14 +6,14 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
 
-from app.database import database
-from app.routers.user import router as user_router
+from app.core.database import database
+from app.accounts.routers.user import router as user_router
 from app.api.v1.routers.transform import router as transform_router
 from app.api.v1.routers.result import router as result_router
-from app.config import config
-from app.logging_conf import configure_logging
+from app.core.config import config
+from app.core.logging_conf import configure_logging
 
-from app.celery_worker import celery_app
+from app.core.celery_worker import celery_app
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ import zipfile
 import glob
 import json
 import geopandas as gpd
-from app.config import config as app_config
+from app.core.config import config as app_config
 
 def gdf_to_shp(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     """

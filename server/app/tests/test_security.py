@@ -1,5 +1,5 @@
 import pytest
-from app import security
+from app.core import security
 from jose import jwt
 
 def test_access_token_expire_minutes():
