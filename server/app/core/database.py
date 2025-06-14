@@ -2,7 +2,7 @@ import databases
 import sqlalchemy
 import redis
 
-from app.config import config
+from app.core.config import config
 
 
 # Database connection and ORM setup

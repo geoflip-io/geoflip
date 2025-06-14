@@ -3,8 +3,8 @@ from typing import List, Tuple, Dict
 import geopandas as gpd
 from fastapi import HTTPException
 
-from app.operations.geoprocessing.buffer import apply_buffer
-from app.operations.geoprocessing.union import apply_union
+from app.api.v1.operations.geoprocessing.buffer import apply_buffer
+from app.api.v1.operations.geoprocessing.union import apply_union
 
 logger = logging.getLogger("api")
 

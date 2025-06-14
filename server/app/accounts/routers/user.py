@@ -3,9 +3,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from app.database import database, user_table
-from app.models.user import UserIn, User
-from app.security import get_user, get_password_hash, authenticate_user, create_access_token, get_current_user
+from app.core.database import database, user_table
+from app.accounts.models.user import UserIn, User
+from app.core.security import get_user, get_password_hash, authenticate_user, create_access_token, get_current_user
 
 router = APIRouter()
 logger = logging.getLogger("api")

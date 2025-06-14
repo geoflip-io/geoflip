@@ -5,8 +5,8 @@ from fastapi import HTTPException
 from fastapi import APIRouter
 from celery.result import AsyncResult
 
-from app.celery_worker import celery_app
-from app.config import config
+from app.core.celery_worker import celery_app
+from app.core.config import config
 
 router = APIRouter()
 logger = logging.getLogger("api")
