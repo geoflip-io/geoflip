@@ -2,16 +2,16 @@ import logging
 import json
 import uuid
 from typing import Annotated, Optional
-from app.utils.file_handling import save_input
+from app.api.v1.utils.file_handling import save_input
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-from app.models.transform import TransformIn
+from app.api.v1.models.transform import TransformIn
 
-from app.operations.transform import transform_operation
-from app.operations.cleanup import cleanup_operation
+from app.api.v1.operations.transform import transform_operation
+from app.api.v1.operations.cleanup import cleanup_operation
 
 from app.config import config as app_config
 

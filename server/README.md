@@ -99,8 +99,7 @@ There is a startup script already setup in this project called `startup.sh` you 
 - ~~Create route to retrieve output file~~
 - ~~Cleanup processes~~
     - ~~clean up redis records and trigger clean up process on celery job expire~~
-- Add in transformations pipeline into the transform operation
-    - support Buffer and Dissolve for now only
+- ~~Add in transformations pipeline into the transform operation~~
 - Add string  format to_file option
 - Support addtional data formats
     - DXF

@@ -1,12 +1,12 @@
 # app/routers/tasks.py
 import logging
 from celery import shared_task
-from app.operations.geoprocessing.writer import gdf_to_output
+from app.api.v1.operations.geoprocessing.writer import gdf_to_output
 
 import geopandas as gpd
 
-from app.operations.geoprocessing.reader import input_to_gdf
-from app.operations.geoprocessing.transformation_manager import apply_transformations
+from app.api.v1.operations.geoprocessing.reader import input_to_gdf
+from app.api.v1.operations.geoprocessing.transformation_manager import apply_transformations
 
 logger = logging.getLogger("api") # Use a logger specific to tasks if desired
 
