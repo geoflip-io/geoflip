@@ -99,7 +99,7 @@ async def create_transformation(
 
     logger.info(f"Queued transformation job: {job_id}")
     
-    # TODO: log the job into usage logs
+    # log the request into usage logs
     end_time = datetime.datetime.now()
     elapsed = (end_time - start_time).total_seconds()
     await log_usage(

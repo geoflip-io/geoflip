@@ -56,7 +56,7 @@ def transform_operation(self,
                 "output_type": output_type,
                 "output_filepath": output,
                 "output_data": None,
-                "elapsed_seconds": elapsed
+                "processing_time_seconds": elapsed
             }
         elif output_type == "data":
             result_msg = {
@@ -64,7 +64,7 @@ def transform_operation(self,
                 "output_type": output_type,
                 "output_filepath": None,
                 "output_data": output,
-                "elapsed_seconds": elapsed
+                "processing_time_seconds": elapsed
             }
         else:
             raise ValueError(f"invalid output_type was returned: {output_type}")
