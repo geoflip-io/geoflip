@@ -3,8 +3,10 @@ import json
 import uuid
 from typing import Annotated, Optional
 from app.api.v1.utils.file_handling import save_input
+from app.core.security import get_current_user
+from app.accounts.models.user import User
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
@@ -24,8 +26,9 @@ binary_input_types = ["shp"]
 
 @router.post("/transform", status_code=200)
 async def create_transformation(
+    current_user: Annotated[User, Depends(get_current_user)],
     config: Annotated[str, Form(...)],
-    input_file: Optional[UploadFile] = File(None),
+    input_file: Optional[UploadFile] = File(None)
 ):
     # Step 1: Parse and validate config
     try:
@@ -50,7 +53,7 @@ async def create_transformation(
     if input_type in string_input_types:
         data = getattr(transform.input, "data", None)
         if data is None:
-            raise HTTPException(status_code=400, detail=f"data is required for {"/".join(string_input_types)} input type")
+            raise HTTPException(status_code=400, detail=f"data is required for {'/'.join(string_input_types)} input type")
 
     # Step 4: Save input_file if present
     if input_type in binary_input_types:
@@ -60,7 +63,7 @@ async def create_transformation(
             raise HTTPException(status_code=400, detail="input_file is required for binary input type")
         
     # Step 6: Que the celery task
-    logger.info(f"job_id: {job_id} - Queuing transformation task for input type: {input_type}")
+    logger.info(f"job_id: ({current_user.email}){job_id} - Queuing transformation task for input type: {input_type}")
     transform_operation.apply_async(
         args=[
             job_id, 

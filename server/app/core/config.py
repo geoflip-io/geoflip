@@ -10,6 +10,8 @@ class BaseConfig(BaseSettings):
 
 
 class GlobalConfig(BaseConfig):
+    IS_PUBLIC_INSTANCE: bool = True
+
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
