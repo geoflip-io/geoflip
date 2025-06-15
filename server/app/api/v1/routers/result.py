@@ -31,10 +31,12 @@ async def get_output(job_id: str):
     result = AsyncResult(job_id, app=celery_app)
 
     if not result.successful():
+        # TODO: log the failure into usage logs
         raise HTTPException(status_code=400, detail="Task not yet completed or failed.")
     
     output_type = result.result.get("output_type")
 
+    #TODO: log the successful output retrieval into usage logs
     match output_type:
         case "filepath":
             output_filepath = result.result.get("output_filepath")

@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from app.core.database import database, user_table
 from app.core.config import config
-from app.core.constants import OPEN_TENANT_ID, OPEN_USER_EMAIL, OPEN_USER_ROLE 
+from app.core.constants import OPEN_TENANT_ID, OPEN_USER_EMAIL, OPEN_USER_ROLE, OPEN_USER_ID
 
 from app.accounts.models.user import User, UserOut
 
@@ -89,6 +89,7 @@ async def get_current_user_secure(token: Annotated[str, Depends(oauth2_scheme)])
 async def get_current_user(request: Request) -> User:
     if config.IS_PUBLIC_INSTANCE:
         return UserOut(
+            id=OPEN_USER_ID,
             email=OPEN_USER_EMAIL,
             tenant_id=OPEN_TENANT_ID,
             role=OPEN_USER_ROLE,

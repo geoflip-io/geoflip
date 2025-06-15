@@ -15,6 +15,7 @@ class UserIn(BaseModel):
     password: str
 
 class UserOut(BaseModel):
+    id: int
     email: str
     role: str
     tenant_id: int
