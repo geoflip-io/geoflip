@@ -1,10 +1,22 @@
 from pydantic import BaseModel
-
+from datetime import datetime
+from typing import Optional
 
 class User(BaseModel):
-    id: int | None = None
+    id: Optional[int]
     email: str
-
-
-class UserIn(User):
     password: str
+    role: str
+    tenant_id: int
+    created_at: Optional[datetime]
+
+class UserIn(BaseModel):
+    email: str
+    password: str
+
+class UserOut(BaseModel):
+    id: int
+    email: str
+    role: str
+    tenant_id: int
+    created_at: Optional[datetime]

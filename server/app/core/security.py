@@ -2,11 +2,14 @@ import logging
 import datetime
 from typing import Annotated
 from jose import jwt, ExpiredSignatureError, JWTError
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from app.core.database import database, user_table
 from app.core.config import config
+from app.core.constants import OPEN_TENANT_ID, OPEN_USER_EMAIL, OPEN_USER_ROLE, OPEN_USER_ID
+
+from app.accounts.models.user import User, UserOut
 
 
 logger = logging.getLogger(__name__)
@@ -25,10 +28,15 @@ credentials_exception = HTTPException(
 def access_token_expire_minutes() -> int:
     return 30
 
-def create_access_token(email: str):
+def create_access_token(email: str, role: str, tenant_id: int):
     logger.debug("Creating access token", extra={"id": email})
     expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=access_token_expire_minutes())
-    jwt_data = {"sub": email, "exp": expire}
+    jwt_data = {
+        "sub": email,
+        "exp": expire,
+        "role": role,
+        "tenant_id": tenant_id
+    }
     encoded_jwt = jwt.encode(jwt_data, SECRET_KEY, algorithm=ALGORITHM)
 
     return encoded_jwt
@@ -48,7 +56,7 @@ async def get_user(email: str):
     result = await database.fetch_one(query)
 
     if result:
-        return result
+        return User(**result)
 
 async def authenticate_user(email: str, password: str) -> dict:
     user = await get_user(email)
@@ -59,7 +67,7 @@ async def authenticate_user(email: str, password: str) -> dict:
 
     return user
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user_secure(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
         payload = jwt.decode(token, key=SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
@@ -67,15 +75,33 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"},
         ) from e
     except JWTError as e:
         raise credentials_exception from e
-    
-    user = await get_user(email=email)
-    if user is None:
-        raise credentials_exception
-    return user
 
+    user_data = await get_user(email=email)
+    if user_data is None:
+        raise credentials_exception
+
+    return user_data
+
+async def get_current_user(request: Request) -> User:
+    if config.IS_PUBLIC_INSTANCE:
+        return UserOut(
+            id=OPEN_USER_ID,
+            email=OPEN_USER_EMAIL,
+            tenant_id=OPEN_TENANT_ID,
+            role=OPEN_USER_ROLE,
+            created_at=None
+        )
+
+    # Extract token manually
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise credentials_exception
+
+    token = auth_header.split("Bearer ")[1]
+    return await get_current_user_secure(token)
 
 
