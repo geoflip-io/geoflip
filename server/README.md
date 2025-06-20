@@ -54,9 +54,11 @@ Before you run pytest, make sure you have a database already created in your doc
     ```
 3. make sure docker desktop is running then start the database via docker-compose:
     - `docker-compose up -d`
-    - Note: this will also start up a docker version of the application, you can use this to test against as well. 
+    - Note: this will also start up a docker version of the application, you can use this to test against as well.
+
+Next if you want to run it in your own dev environment for easy debugging stop the application in docker (leave redis and postgres running) then follow the below: 
 4. run celery in a separeate terminal first:
-    - `celery -A app.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
+    - `celery -A app.core.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
 
 5. start the local dev environment with (note that the port is 8001 because docker will run on 8000)
     - `uvicorn app.main:app --reload --port 8001`
@@ -97,8 +99,7 @@ There is a startup script already setup in this project called `startup.sh` you 
 - ~~Create route to retrieve output file~~
 - ~~Cleanup processes~~
     - ~~clean up redis records and trigger clean up process on celery job expire~~
-- Add in transformations pipeline into the transform operation
-    - support Buffer and Dissolve for now only
+- ~~Add in transformations pipeline into the transform operation~~
 - Add string  format to_file option
 - Support addtional data formats
     - DXF

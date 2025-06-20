@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 from celery import shared_task
-from app.config import config as app_config
+from app.core.config import config as app_config
 
 logger = logging.getLogger("api")  # Use a logger specific to tasks if desired
 

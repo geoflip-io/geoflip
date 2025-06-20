@@ -1,13 +1,13 @@
 import pytest
-from app import security
+from app.core import security
 from jose import jwt
 
 def test_access_token_expire_minutes():
     assert security.access_token_expire_minutes() == 30
 
 def test_create_access_token():
-    token = security.create_access_token("123")
-    assert {"sub": "123"}.items() <= jwt.decode(
+    token = security.create_access_token("user@email.com", "admin", 1)
+    assert {"sub": "user@email.com"}.items() <= jwt.decode(
         token, key=security.SECRET_KEY, algorithms=[security.ALGORITHM]
     ).items()
 
@@ -56,7 +56,7 @@ async def test_authenticate_user_wrong_pass(registered_user: dict):
 
 @pytest.mark.anyio
 async def test_get_current_user(registered_user: dict):
-    token = security.create_access_token(registered_user["email"])
+    token = security.create_access_token(registered_user["email"], "admin", 1)
     user = await security.get_current_user(token)
     assert user.email == registered_user["email"]
 

@@ -7,8 +7,8 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 
-from app.database import database
-from app.database import user_table
+from app.core.database import database
+from app.core.database import user_table
 from app.main import app
 
 
