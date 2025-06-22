@@ -1,6 +1,7 @@
 # app/routers/tasks.py
 import logging
 import datetime
+from typing import Optional 
 from celery import shared_task
 from app.api.v1.operations.geoprocessing.writer import gdf_to_output
 
@@ -18,6 +19,7 @@ def transform_operation(self,
         transformations: list,
         output_format: str,
         output_epsg:int,
+        input_epsg: Optional[int] = None, 
         input_file_path: str = None, 
         data: dict = None,
     ) -> dict:
@@ -31,7 +33,7 @@ def transform_operation(self,
 
         # Read input data
         if (input_file_path or data) and not(input_file_path and data):
-            input_gdf = input_to_gdf(input_format, input_file_path, data)
+            input_gdf = input_to_gdf(input_format, input_file_path, input_epsg, data)
             logger.info(f"Task {self.request.id}: Data read successfully {input_gdf.head()}")
         else:
             raise ValueError("Either input_file_path or data must be provided - not both.")

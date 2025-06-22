@@ -24,7 +24,7 @@ router = APIRouter()
 logger = logging.getLogger("api")
 
 string_input_types = ["geojson"]
-binary_input_types = ["shp"]
+binary_input_types = ["shp", "dxf"]
 
 
 @router.post("/transform", status_code=200)
@@ -44,6 +44,7 @@ async def create_transformation(
         raise HTTPException(status_code=400, detail=e.errors())
 
     input_format:str = transform.input.format
+    input_epsg: int = transform.input.epsg
     job_id:str = str(uuid.uuid4())
     input_file_path:str = None
     data:dict = None
@@ -82,6 +83,7 @@ async def create_transformation(
             transformations,
             output_format,
             output_epsg,
+            input_epsg,
             input_file_path, 
             data
         ],
