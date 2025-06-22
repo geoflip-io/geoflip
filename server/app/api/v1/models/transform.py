@@ -4,18 +4,12 @@ from fastapi import HTTPException
 
 
 # --- Input Section ---
-SUPPORTED_INPUT_FORMATS = ["geojson", "shp"]
-
-class GeoJSONInput(BaseModel):
-    format: Literal["geojson"]
-    data: Dict[str, Any]  # FeatureCollection
-
-class ShapefileInput(BaseModel):
-    format: Literal["shp"]
+SUPPORTED_INPUT_FORMATS = ["geojson", "shp", "dxf"]
 
 class InputModel(BaseModel):
     format: str
     data: Any = None  # Only required if type is 'geojson'
+    epsg: Optional[int] = None
 
     @model_validator(mode="after")
     def validate_format(cls, values):
@@ -25,11 +19,19 @@ class InputModel(BaseModel):
                 detail=f"Unsupported input format: '{values.format}'. Supported formats are: {', '.join(SUPPORTED_INPUT_FORMATS)}"
             )
         
-        if values.format == "geojson" and values.data == None:
-            raise HTTPException(
-                status_code=400,
-                detail=f"field 'input.data' is required for {values.format}"
-            )            
+        match values.format:
+            case "geojson":
+                if values.data == None:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"field 'input.data' is required for {values.format}"
+                    )
+            case "dxf":
+                if values.epsg == None:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"field 'input.epsg' is required for {values.format}"
+                    )
         return values
 
 # --- Transformation Section ---
