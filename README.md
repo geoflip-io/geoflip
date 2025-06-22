@@ -41,7 +41,8 @@ cd geoflip
 # Copy environment config
 cp .env-example .env
 
-# Start API, Redis, and Worker
+# Start API, Redis, and Worker (from the deploy folder)
+cd /deploy
 docker compose up --build -d
 
 # Confirm service is live
@@ -56,8 +57,9 @@ curl http://localhost:8000/health
 # Clone repo and enter directory
 git clone https://github.com/geoflip-io/geoflip.git
 cd geoflip
+cd server
 
-# Create virtual environment and install dependencies
+# Create virtual environment and install dependencies (from the /server folder)
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
