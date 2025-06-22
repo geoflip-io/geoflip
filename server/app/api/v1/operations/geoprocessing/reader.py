@@ -39,8 +39,8 @@ def geojson_to_gdf(geojson_dict: dict) -> gpd.GeoDataFrame:
         raise ValueError(f"Error converting GeoJSON to GeoDataFrame: {e}")
 
 
-def input_to_gdf(input_type: str, input_filepath: str = None, data: str = None) -> gpd.GeoDataFrame:
-	match input_type:
+def input_to_gdf(input_format: str, input_filepath: str = None, data: str = None) -> gpd.GeoDataFrame:
+	match input_format:
 		case "shp":
 			return shp_to_gdf(input_filepath)
 		case "geojson":

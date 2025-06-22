@@ -14,7 +14,7 @@ logger = logging.getLogger("api") # Use a logger specific to tasks if desired
 @shared_task(bind=True, name="app.routers.tasks.transform_task")
 def transform_operation(self, 
         job_id: str,
-        input_type: str,
+        input_format: str,
         transformations: list,
         output_format: str,
         output_epsg:int,
@@ -31,7 +31,7 @@ def transform_operation(self,
 
         # Read input data
         if (input_file_path or data) and not(input_file_path and data):
-            input_gdf = input_to_gdf(input_type, input_file_path, data)
+            input_gdf = input_to_gdf(input_format, input_file_path, data)
             logger.info(f"Task {self.request.id}: Data read successfully {input_gdf.head()}")
         else:
             raise ValueError("Either input_file_path or data must be provided - not both.")

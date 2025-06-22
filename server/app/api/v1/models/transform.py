@@ -4,37 +4,33 @@ from fastapi import HTTPException
 
 
 # --- Input Section ---
-SUPPORTED_INPUT_TYPES = ["geojson", "shp"]
+SUPPORTED_INPUT_FORMATS = ["geojson", "shp"]
 
 class GeoJSONInput(BaseModel):
-    type: Literal["geojson"]
+    format: Literal["geojson"]
     data: Dict[str, Any]  # FeatureCollection
 
 class ShapefileInput(BaseModel):
-    type: Literal["shp"]
+    format: Literal["shp"]
 
 class InputModel(BaseModel):
-    type: str
+    format: str
     data: Any = None  # Only required if type is 'geojson'
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_type(cls, values):
-        input_type = values.get("type")
-        if input_type not in SUPPORTED_INPUT_TYPES:
+    @model_validator(mode="after")
+    def validate_format(cls, values):
+        if values.format not in SUPPORTED_INPUT_FORMATS:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unsupported input type: '{input_type}'. Supported types are: {', '.join(SUPPORTED_INPUT_TYPES)}"
+                detail=f"Unsupported input format: '{values.format}'. Supported formats are: {', '.join(SUPPORTED_INPUT_FORMATS)}"
             )
+        
+        if values.format == "geojson" and values.data == None:
+            raise HTTPException(
+                status_code=400,
+                detail=f"field 'input.data' is required for {values.format}"
+            )            
         return values
-
-    def to_model(self) -> BaseModel:
-        data = self.model_dump()
-        if self.type == "geojson":
-            return GeoJSONInput(**data)
-        elif self.type == "shp":
-            return ShapefileInput(**data)
-
 
 # --- Transformation Section ---
 
@@ -52,15 +48,19 @@ class UnionTransformation(BaseModel):
 TransformationModel = Union[BufferTransformation, UnionTransformation]
 
 # --- Output Section ---
+SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp"]
 
 class FileOutput(BaseModel):
-    format: Literal["shp", "geojson"]
+    format: str
     epsg: Optional[int] = 4326  # Default to WGS84
 
     @model_validator(mode="after")
-    def require_crs_unless_geojson(cls, values):
-        if values.format != "geojson" and not values.epsg:
-            raise ValueError(f"`epsg` is required when output type is '{values.format}'")
+    def validate_type(cls, values):
+        if values.format not in SUPPORTED_OUTPUT_FORMATS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported output format: '{values.format}'. Supported formats are: {', '.join(SUPPORTED_OUTPUT_FORMATS)}"
+            )
         return values
 
 OutputModel = Union[FileOutput]

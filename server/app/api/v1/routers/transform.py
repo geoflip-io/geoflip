@@ -43,7 +43,7 @@ async def create_transformation(
         logger.warning(f"Validation failed for config: {e}")
         raise HTTPException(status_code=400, detail=e.errors())
 
-    input_type:str = transform.input.type
+    input_format:str = transform.input.format
     job_id:str = str(uuid.uuid4())
     input_file_path:str = None
     data:dict = None
@@ -53,18 +53,18 @@ async def create_transformation(
     # convert transformations to a list of dictionaries to pass to the celery task
     transformations: list = [t.model_dump(mode="json") for t in transform.transformations]
 
-    if input_type not in string_input_types + binary_input_types:
-        raise HTTPException(status_code=400, detail=f"Unsupported input type: {input_type}")
+    if input_format not in string_input_types + binary_input_types:
+        raise HTTPException(status_code=400, detail=f"Unsupported input type: {input_format}")
 
     # if input_type is a string input type then data is required
-    if input_type in string_input_types:
+    if input_format in string_input_types:
         data = getattr(transform.input, "data", None)
         payload_size_bytes = len(json.dumps(data).encode("utf-8"))
         if data is None:
             raise HTTPException(status_code=400, detail=f"data is required for {'/'.join(string_input_types)} input type")
 
     # Step 4: Save input_file if present
-    if input_type in binary_input_types:
+    if input_format in binary_input_types:
         if input_file:
             input_file_path = await save_input(input_file, job_id)
             input_file.file.seek(0, io.SEEK_END)
@@ -74,11 +74,11 @@ async def create_transformation(
             raise HTTPException(status_code=400, detail="input_file is required for binary input type")
         
     # Step 6: Que the celery task
-    logger.info(f"job_id: ({current_user.email}){job_id} - Queuing transformation task for input type: {input_type}")
+    logger.info(f"job_id: ({current_user.email}){job_id} - Queuing transformation task for input type: {input_format}")
     transform_operation.apply_async(
         args=[
             job_id, 
-            input_type,
+            input_format,
             transformations,
             output_format,
             output_epsg,
