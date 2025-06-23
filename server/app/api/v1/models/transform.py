@@ -1,5 +1,5 @@
-from typing import Literal, Union, Optional, List, Dict, Any
-from pydantic import BaseModel, model_validator, ValidationError
+from typing import Literal, Union, Optional, List, Any
+from pydantic import BaseModel, model_validator
 from fastapi import HTTPException
 
 
@@ -21,13 +21,13 @@ class InputModel(BaseModel):
         
         match values.format:
             case "geojson":
-                if values.data == None:
+                if values.data is None:
                     raise HTTPException(
                         status_code=400,
                         detail=f"field 'input.data' is required for {values.format}"
                     )
             case "dxf":
-                if values.epsg == None:
+                if values.epsg is None:
                     raise HTTPException(
                         status_code=400,
                         detail=f"field 'input.epsg' is required for {values.format}"

@@ -9,13 +9,12 @@ Geoflip is built with developers in mind — stateless, simple to deploy, and bu
 ## ✅ Features
 
 - 🗂 Input formats: **GeoJSON**, **Shapefile (SHP)**
-- 🔧 Supported transformations:
+- 🔧 Currently Supported transformations:
   - `buffer`
   - `union`
-- 🌐 Reprojection via `output.crs` (e.g. `EPSG:4326`)
+- 🌐 Reprojection via transformation endpoint, and specifiying desired output format and crs
 - ⚙️ Asynchronous job processing with Celery + Redis
 - 🐳 Dockerized services for local deployment
-- 🚀 FastAPI backend with Swagger UI (`/docs`)
 
 ---
 
@@ -36,7 +35,7 @@ Geoflip is built with developers in mind — stateless, simple to deploy, and bu
 
 ```bash
 git clone https://github.com/geoflip-io/geoflip.git
-cd geoflip
+cd geoflip/deploy
 
 # Copy environment config
 cp .env-example .env
@@ -44,37 +43,9 @@ cp .env-example .env
 # Start API, Redis, and Worker (from the deploy folder)
 cd /deploy
 docker compose up --build -d
-
-# Confirm service is live
-curl http://localhost:8000/health
 ```
 
----
-
-## 🧪 Local Development (No Docker)
-
-```bash
-# Clone repo and enter directory
-git clone https://github.com/geoflip-io/geoflip.git
-cd geoflip
-cd server
-
-# Create virtual environment and install dependencies (from the /server folder)
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Copy environment config
-cp .env-example .env
-
-# Start Celery worker (separate terminal)
-celery -A app.core.celery_worker.celery_app worker --pool=solo --loglevel=INFO
-
-# Start FastAPI server
-uvicorn app.main:app --reload --port 8001
-```
-
+Refer to /server.readme.md for additional local development details
 ---
 
 ## 🔁 Example Transform Requests
