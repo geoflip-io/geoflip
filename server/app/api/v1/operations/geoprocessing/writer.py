@@ -2,6 +2,8 @@ import os
 import zipfile
 import glob
 import json
+import ezdxf
+from shapely.geometry import Point, LineString, Polygon
 import geopandas as gpd
 from app.core.config import config as app_config
 
@@ -48,6 +50,38 @@ def gdf_to_geojson(gdf: gpd.GeoDataFrame) -> str:
 	geojson_dict = json.loads(gdf.to_json())
 	return geojson_dict
 
+def gdf_to_dxf(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
+    """
+    Reproject and save a GeoDataFrame to a DXF file (R2018) using ezdxf.
+    """
+    output_file_name = f"geoflip_dxf_{output_epsg}"
+    output_path = os.path.join(output_dir, f"{output_file_name}.dxf")
+
+    if gdf.crs is None:
+        raise ValueError("Input GeoDataFrame has no CRS defined.")
+
+    if gdf.crs.to_epsg() != output_epsg:
+        gdf = gdf.to_crs(epsg=output_epsg)
+
+    doc = ezdxf.new(dxfversion='R2018')
+    msp = doc.modelspace()
+
+    for geom in gdf.geometry:
+        if isinstance(geom, Point):
+            msp.add_point((geom.x, geom.y))
+        elif isinstance(geom, LineString):
+            msp.add_lwpolyline(list(geom.coords))
+        elif isinstance(geom, Polygon):
+            exterior = list(geom.exterior.coords)
+            msp.add_lwpolyline(exterior, close=True)
+            for interior in geom.interiors:
+                msp.add_lwpolyline(list(interior.coords), close=True)
+        else:
+            print(f"Skipping unsupported geometry type: {geom.geom_type}")
+
+    doc.saveas(output_path)
+    return output_path
+
 # returns the path to the output file or the content of the file
 def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str) -> str:
 	output_dir = os.path.join(app_config.DATA_PATH, job_id, "output")
@@ -61,5 +95,8 @@ def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job
 		case "geojson":
 			output = gdf_to_geojson(gdf)
 			return ("data",output)
+		case "dxf":
+			output_dxf_path = gdf_to_dxf(gdf, output_dir, output_epsg)
+			return ("filepath", output_dxf_path)
 		case _:
 			raise ValueError(f"Unsupported output format: {output_format}")

@@ -2,7 +2,6 @@ import geopandas as gpd
 import logging
 import os
 import zipfile
-from shapely.geometry import Point
 
 
 logger = logging.getLogger("api")

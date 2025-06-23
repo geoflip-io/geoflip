@@ -50,9 +50,9 @@ class UnionTransformation(BaseModel):
 TransformationModel = Union[BufferTransformation, UnionTransformation]
 
 # --- Output Section ---
-SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp"]
+SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp", "dxf"]
 
-class FileOutput(BaseModel):
+class OutputModel(BaseModel):
     format: str
     epsg: Optional[int] = 4326  # Default to WGS84
 
@@ -64,8 +64,6 @@ class FileOutput(BaseModel):
                 detail=f"Unsupported output format: '{values.format}'. Supported formats are: {', '.join(SUPPORTED_OUTPUT_FORMATS)}"
             )
         return values
-
-OutputModel = Union[FileOutput]
 
 # --- Config and JobIn ---
 

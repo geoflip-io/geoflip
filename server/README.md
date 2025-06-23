@@ -69,6 +69,12 @@ Follow the steps below to add new reader formats, reader formats is how geoflip 
 
 ### Adding writer formats
 
+1. update the `OutputModel` and `SUPPORTED_OUTPUT_FORMATS` for your new format in the `models\transform.py`:
+    - `\geoflip\server\app\api\v1\models\transform.py` 
+2. update the `writer.py` to support your new input format:
+    - `\geoflip\server\app\api\v1\operations\geoprocessing\writer.py`
+   create a new `gdf_to_[format]()` function here and update the `gdf_to_output` to use it.
+
 ### Adding transformations
 
 ### Adding operations
