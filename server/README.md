@@ -60,15 +60,11 @@ You will need to setup a local postgres database and redis instance for the appl
 
 Run a postgres and redis docker container locally (ie through the docker-compose in the deploy folder) before running pytest. The tests need to have database called "test-db" in the database to work properly so make sure you make that first.
 
-### Running pytest
-
-1. from the `/server` folder run:
-    `pytest`
-
 ### Running pytest with coverage report
 
 1. first make sure you install the dev dependancies in `requirements-dev.txt`
     `python -m pip install -r requirements-dev.txt`
+   Also make sure you are running your local celery instance (check step 6 of quick start above)
 2. then run pytest with coverage
     `coverage run -m pytest`
 3. now to view the report run
