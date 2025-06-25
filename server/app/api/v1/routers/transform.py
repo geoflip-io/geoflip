@@ -3,6 +3,7 @@ import json
 import io
 import uuid
 import datetime
+from celery import current_app
 from typing import Annotated, Optional
 from app.api.v1.utils.file_handling import save_input
 from app.core.security import get_current_user
@@ -93,11 +94,12 @@ async def create_transformation(
     logger.info(f"Dispatched celery transform task with job_id: {job_id}")
 
     # Also schedule a cleanup task to clean up expired job data:
-    cleanup_operation.apply_async(
-        args=[job_id],
-        countdown=app_config.JOB_EXPIRY_TIME,
-        ignore_result=True
-    )
+    if not current_app.conf.task_always_eager:
+        cleanup_operation.apply_async(
+            args=[job_id],
+            countdown=app_config.JOB_EXPIRY_TIME,
+            ignore_result=True
+        )
 
     logger.info(f"Queued transformation job: {job_id}")
     
