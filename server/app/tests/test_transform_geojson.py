@@ -1,9 +1,10 @@
 import pytest
 import json
 from httpx import AsyncClient
+from app.tests.utils import run_output_test
 
 @pytest.mark.anyio
-async def test_transform_geojson(celery_worker, async_client: AsyncClient):
+async def test_transform_geojson(async_client: AsyncClient):
     config = {
         "input": {
             "format": "geojson",
@@ -30,5 +31,7 @@ async def test_transform_geojson(celery_worker, async_client: AsyncClient):
     )
 
     assert response.status_code == 200
-    assert "job_id" in response.json()
-    celery_worker.reload()
+    job_id = response.json()["job_id"]
+
+    result = await run_output_test(job_id, async_client)
+    assert result == "success"

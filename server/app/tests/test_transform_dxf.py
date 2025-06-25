@@ -1,9 +1,11 @@
 import pytest
 import json
 from pathlib import Path
+from httpx import AsyncClient
+from app.tests.utils import run_output_test
 
 @pytest.mark.anyio
-async def test_transform_dxf(celery_worker, async_client):
+async def test_transform_dxf(async_client: AsyncClient):
     config = {
         "input": {"format": "dxf", "epsg": 4326},
         "transformations": [
@@ -24,5 +26,8 @@ async def test_transform_dxf(celery_worker, async_client):
         )
 
     assert response.status_code == 200
-    assert "job_id" in response.json()
-    celery_worker.reload()
+    job_id = response.json()["job_id"]
+
+    result = await run_output_test(job_id, async_client)
+    assert result == "success"
+
