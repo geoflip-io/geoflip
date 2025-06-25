@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 @pytest.mark.anyio
-async def test_transform_shp(async_client):
+async def test_transform_shp(celery_worker, async_client):
     config = {
         "input": {"format": "shp"},
         "transformations": [
@@ -25,3 +25,4 @@ async def test_transform_shp(async_client):
 
     assert response.status_code == 200
     assert "job_id" in response.json()
+    celery_worker.reload()

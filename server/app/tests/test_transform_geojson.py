@@ -3,7 +3,7 @@ import json
 from httpx import AsyncClient
 
 @pytest.mark.anyio
-async def test_transform_geojson(async_client: AsyncClient):
+async def test_transform_geojson(celery_worker, async_client: AsyncClient):
     config = {
         "input": {
             "format": "geojson",
@@ -31,3 +31,4 @@ async def test_transform_geojson(async_client: AsyncClient):
 
     assert response.status_code == 200
     assert "job_id" in response.json()
+    celery_worker.reload()
