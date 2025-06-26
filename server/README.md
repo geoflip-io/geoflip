@@ -106,9 +106,11 @@ Follow the steps below to add new reader formats, reader formats is how geoflip 
 - ~~Cleanup processes~~
     - ~~clean up redis records and trigger clean up process on celery job expire~~
 - ~~Add in transformations pipeline into the transform operation~~
-- Add string  format to_file option
+- ~~Add string  format to_file option~~
+- need to validate input and output epsg values sent from the user
+    - should be in `\geoflip\server\app\api\v1\models\transform.py`
 - Support addtional data formats
-    - DXF
+    - ~~DXF~~
     - KML
     - EsriJSON
     - Geopackage
