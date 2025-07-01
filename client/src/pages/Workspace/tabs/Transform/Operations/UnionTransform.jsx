@@ -11,12 +11,10 @@ import {StyledButton} from "../../../../../utils/InputStyles";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import axios from "axios";
 import { handleAPIError } from "../utils/MapOperations";
-import { WorkspaceContext } from "../../../../Workspace/index";
 import { useNavigate } from 'react-router-dom';
 
 const UnionTransform = ({setLoading}) => {
     const navigate = useNavigate();
-    const { applyApiUsage } = useContext(WorkspaceContext);
 	const theme = useTheme();
     const { authState, dispatch } = useAuth();
     const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
@@ -59,7 +57,6 @@ const UnionTransform = ({setLoading}) => {
 					zoomToBounds(mapRef.current, features);
 
                     toast.info(`Union has been applied`);
-                    applyApiUsage();
                 } 
             } catch (error) {
                 const loginExpired = await handleAPIError(error);

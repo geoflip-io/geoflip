@@ -16,12 +16,10 @@ import { toast } from "react-toastify";
 import { StyledTextField, StyledSelect, StyledButton, StyledInputLabel, StyledUploadIcon, StyledLongButton } from "../../../../../utils/InputStyles";
 import { handleAPIError } from "../utils/MapOperations";
 import { useNavigate } from 'react-router-dom';
-import { WorkspaceContext } from "../../../../Workspace/index";
 import axios from "axios";
 
 const ClipTransform = ({ setLoading }) => {
     const navigate = useNavigate();
-    const { applyApiUsage } = useContext(WorkspaceContext);
     const theme = useTheme();
     const { authState, dispatch } = useAuth();
     const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures, clipFeatures, setClipFeatures } = useContext(TransformContext);
@@ -102,7 +100,6 @@ const ClipTransform = ({ setLoading }) => {
                     zoomToBounds(mapRef.current, features);
 
                     toast.info("Clip operation applied successfully");
-                    applyApiUsage();
                 }
             } catch (error) {
                 const loginExpired = await handleAPIError(error);
@@ -180,7 +177,6 @@ const ClipTransform = ({ setLoading }) => {
                 zoomToBounds(mapRef.current, combinedFeatures.features);
 
                 toast.info("File uploaded and features added successfully");
-                applyApiUsage();
             }
         } catch (error) {
             const loginExpired = await handleAPIError(error);

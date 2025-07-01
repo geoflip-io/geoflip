@@ -1,6 +1,4 @@
 import { useAuth } from "../../features/AuthManager";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import Navigation from "../../components/Navigation";
 import { useTheme } from "@mui/material/styles";
@@ -8,28 +6,8 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 
 function Dashboard() {
-  const { authState, isInitializing, dispatch } = useAuth();
-  const navigate = useNavigate();
+  const { isInitializing } = useAuth();
   const theme = useTheme();
-
-  useEffect(() => {
-    const checkAuthState = () => {
-      if (!authState.isAuthenticated) {
-        navigate("/login");
-        return;
-      }
-
-      const currentTime = Math.floor(Date.now() / 1000);
-      if (authState.expiry && authState.expiry < currentTime) {
-        dispatch({ type: "LOGOUT" });
-        navigate("/login");
-      }
-    };
-
-    if (!isInitializing) {
-      checkAuthState();
-    }
-  }, [authState, isInitializing, navigate, dispatch]);
 
   if (isInitializing) {
     return <p>Loading...</p>;

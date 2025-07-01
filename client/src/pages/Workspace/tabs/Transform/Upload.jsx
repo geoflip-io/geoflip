@@ -14,14 +14,12 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import axios from "axios";
 import { toast } from "react-toastify";
 import { zoomToBounds, handleAPIError } from "./utils/MapOperations";
-import { WorkspaceContext } from "../../../Workspace/index";
 import { useNavigate } from 'react-router-dom';
 import {StyledTextField, StyledInputLabel, StyledSelect, StyledButton, StyledLongButton, StyledUploadIcon} from "../../../../utils/InputStyles";
 
 const Upload = () => {
     const navigate = useNavigate();
     const theme = useTheme();
-    const { applyApiUsage } = useContext(WorkspaceContext);
     const { authState, dispatch } = useAuth();
     const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
     const [loading, setLoading] = useState(false);
@@ -104,7 +102,6 @@ const Upload = () => {
 				zoomToBounds(mapRef.current, features);
 
                 toast.info(`${inputFormat} uploaded successfully`);
-                applyApiUsage();
             }
 
             setSelectedFile(null);

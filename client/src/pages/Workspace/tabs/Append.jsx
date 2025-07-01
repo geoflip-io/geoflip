@@ -13,7 +13,6 @@ import { useAuth } from "../../../features/AuthManager";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useContext, useState, useRef } from "react";
-import { WorkspaceContext } from "../index";
 import { useTheme } from "@mui/material/styles";
 import { ContainerizedLoadingBackdrop } from "../../../components/Loader";
 import {StyledTextField, StyledSelect, StyledButton, StyledLongButton, StyledInputLabel, StyledUploadIcon, StyledExportIcon} from "../../../utils/InputStyles";
@@ -24,7 +23,6 @@ import { handleAPIError } from "./Transform/utils/MapOperations";
 const Append = ({handleExportTabChange}) => {
     const theme = useTheme();
     const navigate = useNavigate();
-    const {applyApiUsage, addExportJob, removeExportJob, exportJobs} = useContext(WorkspaceContext);
     const [outputCRS, setOutputCRS] = useState(4326);
     const [outputFormat, setOutputFormat] = useState("gpkg");
     const [loading, setLoading] = useState(false);
@@ -194,13 +192,7 @@ const Append = ({handleExportTabChange}) => {
             if (response.status === 202) {
                 try {
                     const task_id = response.data.task_id;
-                    addExportJob(
-                        `append_${inputFileFormat}_${new Date().toISOString().replace(/[:.]/g, '-')}`, 
-                        outputFormat,
-                        task_id
-                    );
         
-                    applyApiUsage();
                     setSelectedFiles([]);
                     setAppendFiles([]);
                     setSelectedTargetFile(null);

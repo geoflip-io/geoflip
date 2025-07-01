@@ -14,12 +14,10 @@ import {StyledTextField, StyledSelect, StyledButton, StyledInputLabel} from "../
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { handleAPIError } from "../utils/MapOperations";
 import { useNavigate } from 'react-router-dom';
-import { WorkspaceContext } from "../../../../Workspace/index";
 import axios from "axios";
 
 const BufferTransform = ({setLoading}) => {
     const navigate = useNavigate();
-    const { applyApiUsage } = useContext(WorkspaceContext);
 	const theme = useTheme();
     const { authState, dispatch } = useAuth();
 	const [units, setUnits] = useState("meters");
@@ -85,7 +83,6 @@ const BufferTransform = ({setLoading}) => {
 					zoomToBounds(mapRef.current, features);
 
                     toast.info(`applied a buffer of ${distance} ${units}`);
-                    applyApiUsage();
                 } 
             } catch (error) {
                 const loginExpired = await handleAPIError(error);

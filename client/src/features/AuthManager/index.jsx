@@ -190,16 +190,7 @@ const verify = async (dispatch, code, token) => {
 
 const AuthProvider = ({ children }) => {
 	const [authState, dispatch] = useReducer(authReducer, initialState);
-	const [isInitializing, setIsInitializing] = useState(true);
-
-	useEffect(() => {
-		const storedAuthState = getItem("authState");
-		if (storedAuthState) {
-			const parsedAuthState = JSON.parse(storedAuthState);
-			dispatch({ type: "SET_AUTH_STATE", payload: parsedAuthState });
-		}
-		setIsInitializing(false);
-	}, []);
+	const [isInitializing, setIsInitializing] = useState(false);
 
 	return (
 		<AuthContext.Provider value={{ authState, dispatch, isInitializing }}>

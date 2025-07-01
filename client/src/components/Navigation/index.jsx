@@ -16,17 +16,15 @@ import {
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { useAuth, logout, refreshToken } from "../../features/AuthManager";
+import { useAuth, refreshToken } from "../../features/AuthManager";
 import { setTheme } from "../../utils/theme";
 import { LoadingBackdrop } from "../../components/Loader";
-import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
-import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import IntegrationInstructionsOutlinedIcon from '@mui/icons-material/IntegrationInstructionsOutlined';
-import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+import PolicyOutlinedIcon from '@mui/icons-material/PolicyOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import LightModeIcon from '@mui/icons-material/LightModeOutlined';
+import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
-import { toast } from "react-toastify";
 import TermsModal from "../TermsModal";
 
 
@@ -111,24 +109,16 @@ function Navigation() {
 
 	const pages = [
 		{ name: "Workspace", path: "/workspace", icon: <PublicOutlinedIcon /> },
-		{ name: "Credentials", path: "/credentials", icon: <VpnKeyOutlinedIcon /> },
-		{ name: "Usage", path: "/usage", icon: <AnalyticsOutlinedIcon /> },
-		{ name: "Invoices", path: "/invoices", icon: <ReceiptLongOutlinedIcon /> },
-		{ name: "Settings", path: "/settings", icon: <SettingsOutlinedIcon /> }
+		{ name: "NavTemplate", path: "/nav-template", icon: <SettingsOutlinedIcon /> }
 	];
 
 	const bottomPages = [
-		{ name: "Request Calculator", path: "/request-calculator", icon: <IntegrationInstructionsOutlinedIcon /> },
-		{ name: "Help", path: "/help", icon: <HelpOutlineOutlinedIcon /> },
+		{ name: "API Documentation", path: "/api-docs", icon: <DescriptionOutlinedIcon /> },
 	];
 
 	const toggleDrawer = () => {
 		setOpen((prevOpen) => !prevOpen);
 		setDrawerClicked(true);
-	};
-
-	const handleMenuOpen = (event) => {
-		setuserMenuAnchor(event.currentTarget);
 	};
 
 	const handleMenuClose = () => {
@@ -141,27 +131,10 @@ function Navigation() {
 
 	const handleTOSClick = () => {
 		setTermsPage();
-		handleMenuClose();
 		setTermsModalOpen(true);
 	};
 
-	const handleLogout = async (e) => {
-		e.preventDefault();
-		setLoading(true);
-
-		const result = await logout(dispatch, authState.token);
-		if (result.message === "success") {
-			handleMenuClose();
-			toast.info("See you next time.");
-			setLoading(false);
-		} else {
-			setLoading(false);
-			toast.error(result.message);
-		}
-	};
-
 	const handleThemeToggle = () => {
-		handleMenuClose();
 		setTheme(theme.palette.mode === "light" ? "dark" : "light");
 	}
 
@@ -327,14 +300,13 @@ function Navigation() {
 							</ListItem>
 						))}
 
-
 						<ListItem
 							key="user_item"
 							disablePadding
 							sx={{ display: "block" }}
 						>
 							<ListItemButton
-								onClick={handleMenuOpen}
+								onClick={handleTOSClick}
 								sx={{
 									minHeight: 48,
 									justifyContent: open ? "initial" : "center",
@@ -351,47 +323,68 @@ function Navigation() {
 										color: theme.palette.primary.contrastText,
 									}}
 								>
-									<img src={brandmarkUrl} alt="Brandmark" width="22" />
+									<PolicyOutlinedIcon />
 								</ListItemIcon>
-								{authState.isAuthenticated && (
-									<ListItemText
-										primary={
-											<Typography sx={{ 
-												fontWeight: theme.palette.mode === "light" ? 600 : 500,  
-											}}>
-												{`${authState.user.first_name} ${authState.user.last_name}`}
-											</Typography>
-										}
-										sx={{ opacity: open ? 1 : 0 }}
-									/>
-								)}
+
+                                <ListItemText
+                                    primary={
+                                        <Typography sx={{ 
+                                            fontWeight: theme.palette.mode === "light" ? 600 : 500,  
+                                        }}>
+                                            {`Terms and Policies`}
+                                        </Typography>
+                                    }
+                                    sx={{ opacity: open ? 1 : 0 }}
+                                />
+
 							</ListItemButton>
 						</ListItem>
+
+						<ListItem
+							key="user_item"
+							disablePadding
+							sx={{ display: "block" }}
+						>
+							<ListItemButton
+								onClick={handleThemeToggle}
+								sx={{
+									minHeight: 48,
+									justifyContent: open ? "initial" : "center",
+									px: 2.5,
+									color: theme.palette.text.primary,
+								}}
+							>
+								<ListItemIcon
+									sx={{
+										minWidth: 0,
+										ml: "2px",
+										mr: open ? 3 : "auto",
+										justifyContent: "center",
+										color: theme.palette.primary.contrastText,
+									}}
+								>
+									
+                                    {/* {theme.palette.mode === "light" ? <DarkModeIcon /> : <LightModeIcon />} */}
+
+                                    <img src={brandmarkUrl} alt="geoflip" width="24"/>
+								</ListItemIcon>
+
+                                <ListItemText
+                                    primary={
+                                        <Typography sx={{ 
+                                            fontWeight: theme.palette.mode === "light" ? 600 : 500,  
+                                        }}>
+                                            {theme.palette.mode === "light" ? "Dark Mode" : "Light Mode"}
+                                        </Typography>
+                                    }
+                                    sx={{ opacity: open ? 1 : 0 }}
+                                />
+
+							</ListItemButton>
+						</ListItem>
+
 					</List>
 				</Box>
-				<Menu
-					anchorEl={userMenuAnchor}
-					open={Boolean(userMenuAnchor)}
-					onClose={handleMenuClose}
-					anchorOrigin={{
-						vertical: 'top',
-						horizontal: 'right',
-					}}
-					transformOrigin={{
-						vertical: 'top',
-						horizontal: 'left',
-					}}
-					sx={{
-						mt: '15px',
-						ml: '1px'
-					}}
-				>
-					<MenuItem onClick={handleThemeToggle}>
-						{theme.palette.mode === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
-					</MenuItem>
-					<MenuItem onClick={handleTOSClick}>Terms and Policies</MenuItem>
-					<MenuItem onClick={handleLogout}>Logout</MenuItem>
-				</Menu>
 			</Drawer>
 			<LoadingBackdrop isOpen={loading} />
 			<TermsModal open={termsModalOpen} handleClose={handleTermsModalClose} initialPage={termsPage} />

@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
-import { WorkspaceContext } from "./index";
+import { useState, useEffect } from 'react';
 import { useAuth, refreshToken } from "../../features/AuthManager";
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -10,13 +9,9 @@ import Tab from '@mui/material/Tab';
 import Transform from './tabs/Transform';
 import Append from './tabs/Append';
 import Merge from './tabs/Merge';
-import Exports from './tabs/Exports';
-import Pipeline from './tabs/Pipeline';
-import { Button, Divider, Tooltip } from '@mui/material';
-import StarsIcon from '@mui/icons-material/Stars';
-
-function WorkspaceApp({setFreePlan}) {
-    const { apiCallsRemaining } = useContext(WorkspaceContext);
+import { Divider, Tooltip } from '@mui/material';
+function WorkspaceApp() {
+    const { apiCallsRemaining } = 99
     const { authState, dispatch } = useAuth();
     const theme = useTheme();
     const [tabPage, setTabPage] = useState("transform");
@@ -43,10 +38,6 @@ function WorkspaceApp({setFreePlan}) {
 				return <Append handleExportTabChange={handleExportTabChange} />;
 			case "merge":
 				return <Merge handleExportTabChange={handleExportTabChange} />;
-            case "pipeline":
-                return <Pipeline handleExportTabChange={handleExportTabChange} />;
-            case "exports":
-                return <Exports />;
             default:
                 return null
         }
@@ -98,59 +89,6 @@ function WorkspaceApp({setFreePlan}) {
                     >
                         Upload/Draw, Transform and Export your data here
                     </Typography>
-                </Box>
-				<Box
-					sx={{
-						display: "flex",
-						alignItems: "center",
-						mb: 4,
-						mr: 2,
-					}}
-				>
-                    {authState.isAuthenticated && authState.user.subscription_active ? (
-						<Button
-							variant="outlined"
-							sx={{
-								borderRadius: 5,
-								padding: "8px 8px",
-								fontWeight: 400,
-								pointerEvents: "none", // Disable all pointer events
-								cursor: "default",
-                                borderWidth: "2px",
-                                '&:hover': {
-                                    borderWidth: "2px",
-                                },
-							}}
-						>
-							<StarsIcon
-								sx={{
-									mr: 1,
-								}}
-							/>
-							Pro Plan
-						</Button>
-					) : (
-						<Button
-							variant="contained"
-							onClick={() => {
-								setFreePlan(false);
-							}}
-							sx={{
-								borderRadius: 5,
-								padding: "8px 8px",
-                                pl: 1,
-                                pr: 1.5,
-                                fontWeight: 600,
-							}}
-						>
-							<StarsIcon
-								sx={{
-									mr: 1,
-								}}
-							/>
-							Upgrade to Pro
-						</Button>
-					)}
                 </Box>
             </Box>
             <Box sx={{ 
@@ -214,66 +152,7 @@ function WorkspaceApp({setFreePlan}) {
                                 value="merge" 
                                 sx={{ textTransform: 'none', color: theme.palette.text.primary }} 
                             />
-                            <Tab 
-                                label="Pipeline" 
-                                value="pipeline" 
-                                sx={{ textTransform: 'none', color: theme.palette.text.primary }} 
-                            />
-                            <Tab 
-                                label="Exports" 
-                                value="exports" 
-                                sx={{ textTransform: 'none', color: theme.palette.text.primary }} 
-                            />
                         </Tabs>
-                        
-                        <Box
-                            sx={{
-                                flex: 1,
-                                textAlign: "right",
-                                justifyItems: "right",
-                                alignItems: "center",
-                                mt: 2,
-                            }}
-                        >
-                                <Box
-                                    sx={{
-                                        color: theme.palette.text.secondary,
-                                        cursor: "default"
-                                    }}
-                                >
-                                    <Tooltip
-                                        title={
-                                            authState.user.subscription_active ? (
-                                                <span style={{ whiteSpace: 'pre-line' }}>
-                                                    {"Pro Plan: Unlimited API calls"}
-                                                </span>
-                                            ) : (
-                                                <span style={{ whiteSpace: 'pre-line' }}>
-                                                    {"Free tier API calls remaining\n on your account."}
-                                                </span>
-                                            )
-                                        }
-                                        placement="top"
-                                    >
-                                        <Typography component="span"
-                                            sx={{
-                                                fontSize: '0.9rem',
-                                                fontWeight: 400,
-                                            }}
-                                        >
-                                            API Calls Remaining: {
-                                                authState.user.subscription_active ? 
-                                                    <Typography component="span" sx={{fontWeight: 800, color: theme.palette.primary.main, fontSize: '0.9rem'}}>
-                                                        Unlimited
-                                                    </Typography> : 
-                                                    <Typography component="span" sx={{fontWeight: 800, color: theme.palette.primary.main, fontSize: '0.9rem'}}>
-                                                        {apiCallsRemaining}
-                                                    </Typography>
-                                            }
-                                        </Typography>
-                                    </Tooltip>
-                                </Box>
-                        </Box>
                     </Box>
                     <Divider />
 

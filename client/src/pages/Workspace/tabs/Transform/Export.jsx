@@ -12,7 +12,6 @@ import { useTheme } from "@mui/material/styles"
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {StyledTextField, StyledSelect, StyledButton, StyledLongButton, StyledInputLabel, StyledExportIcon} from "../../../../utils/InputStyles";
 import { handleAPIError } from "./utils/MapOperations";
-import { WorkspaceContext } from "../../../Workspace/index";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -20,7 +19,6 @@ import axios from "axios";
 const Export = () => {
     const navigate = useNavigate();
     const theme = useTheme();
-    const { applyApiUsage, removeExportJob, exportJobs } = useContext(WorkspaceContext);
     const { authState, dispatch } = useAuth();
     const { drawRef, activeFeatures } = useContext(TransformContext);
 	const [outputFormat, setOutputFormat] = useState("gpkg");
@@ -72,7 +70,6 @@ const Export = () => {
                     const url = window.URL.createObjectURL(response.data);
 					setDownloadUrl(url);
                     toast.info(`${outputFormat} download ready`);
-                    applyApiUsage();
                 } 
             } catch (error) {
                 const loginExpired = await handleAPIError(error);
@@ -119,8 +116,6 @@ const Export = () => {
 			document.body.removeChild(link);
 
             window.URL.revokeObjectURL(downloadUrl);
-            const jobId = exportJobs.findIndex(job => job.url === downloadUrl);
-            removeExportJob(jobId);
 
 			setDownloadUrl(null);
 		}
