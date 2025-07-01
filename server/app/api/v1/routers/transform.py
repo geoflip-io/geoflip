@@ -41,7 +41,10 @@ async def create_transformation(
         transform = TransformIn.model_validate(json.loads(config))
     except ValidationError as e:
         logger.warning(f"Validation failed for config: {e}")
-        raise HTTPException(status_code=400, detail=e.errors())
+        raise HTTPException(status_code=400, detail="input is invalid")
+    except Exception as e:
+        logger.warning(f"Bad request: {e}")
+        raise HTTPException(status_code=400, detail="Bad request, check your json")
 
     input_format:str = transform.input.format
     input_epsg: int = transform.input.epsg
@@ -50,6 +53,7 @@ async def create_transformation(
     data:dict = None
     output_format:str = transform.output.format
     output_epsg:int = transform.output.epsg
+    output_to_file: bool = transform.output.to_file
     payload_size_bytes = 0
     # convert transformations to a list of dictionaries to pass to the celery task
     transformations: list = [t.model_dump(mode="json") for t in transform.transformations]
@@ -85,7 +89,8 @@ async def create_transformation(
             output_epsg,
             input_epsg,
             input_file_path, 
-            data
+            data,
+            output_to_file
         ],
         expires=app_config.JOB_EXPIRY_TIME,
         task_id=job_id

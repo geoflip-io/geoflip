@@ -22,6 +22,7 @@ def transform_operation(self,
         input_epsg: Optional[int] = None, 
         input_file_path: str = None, 
         data: dict = None,
+        to_file: bool = False
     ) -> dict:
     input_gdf: gpd.GeoDataFrame = None
 
@@ -44,7 +45,7 @@ def transform_operation(self,
 
         # write to desired output format
         if input_gdf is not None:
-            output_type, output = gdf_to_output(input_gdf, output_format, output_epsg, job_id)
+            output_type, output = gdf_to_output(input_gdf, output_format, output_epsg, job_id, to_file)
         else:
             logger.warning(f"Task {self.request.id}: input_gdf is None, no data to write.")
             raise ValueError("No data to write.")

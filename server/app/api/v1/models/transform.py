@@ -55,6 +55,7 @@ SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp", "dxf"]
 class OutputModel(BaseModel):
     format: str
     epsg: Optional[int] = 4326  # Default to WGS84
+    to_file: Optional[bool] = False
 
     @model_validator(mode="after")
     def validate_type(cls, values):
