@@ -27,7 +27,6 @@ const Transform = () => {
 
     const handleStepChange = (step) => {
         setActiveStep(step);
-        refreshToken(dispatch, authState.token);
     };
 
 	return (

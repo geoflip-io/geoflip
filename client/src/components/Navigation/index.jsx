@@ -10,20 +10,15 @@ import {
 	List,
 	Drawer as MuiDrawer,
 	Box,
-	Typography,
-	Menu,
-	MenuItem
+	Typography
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { useAuth, refreshToken } from "../../features/AuthManager";
 import { setTheme } from "../../utils/theme";
 import { LoadingBackdrop } from "../../components/Loader";
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PolicyOutlinedIcon from '@mui/icons-material/PolicyOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import LightModeIcon from '@mui/icons-material/LightModeOutlined';
-import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
 import TermsModal from "../TermsModal";
 
@@ -79,10 +74,8 @@ const Drawer = styled(MuiDrawer, {
 
 function Navigation() {
 	const theme = useTheme();
-	const { authState, dispatch } = useAuth();
 	const location = useLocation();
 	const [open, setOpen] = useState(true);
-	const [userMenuAnchor, setuserMenuAnchor] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [termsModalOpen, setTermsModalOpen] = useState(false);
 	const [termsPage, setTermsPage] = useState(0);
@@ -121,10 +114,6 @@ function Navigation() {
 		setDrawerClicked(true);
 	};
 
-	const handleMenuClose = () => {
-		setuserMenuAnchor(null);
-	};
-
 	const handleTermsModalClose = () => {
 		setTermsModalOpen(false);
 	};
@@ -137,10 +126,6 @@ function Navigation() {
 	const handleThemeToggle = () => {
 		setTheme(theme.palette.mode === "light" ? "dark" : "light");
 	}
-
-	const handleItemClick = () => {
-		refreshToken(dispatch, authState.token);
-	};
 
 	const logoUrl = theme.palette.mode === "light" ? "/Geoflip_Logo.png" : "/Geoflip_Logo_inversed.png";
 	const brandmarkUrl = theme.palette.mode === "light" ? "/Geoflip_Brandmark_Black.png" : "/Geoflip_Brandmark_White.png";

@@ -4,7 +4,6 @@ import {
 	MenuItem, 
 	FormControl
 } from "@mui/material";
-import { useAuth, refreshToken } from "../../../../features/AuthManager";
 import { ContainerizedLoadingBackdrop } from "../../../../components/Loader";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import BufferTransform from "./Operations/BufferTransform";
@@ -17,7 +16,6 @@ import { StyledSelect, StyledInputLabel } from "../../../../utils/InputStyles";
 
 const Transformations = () => {
     const theme = useTheme();
-    const { authState, dispatch } = useAuth();
     const [loading, setLoading] = useState(false);
 	const [transformationType, setTransformationType] = useState("none");
 
@@ -25,7 +23,6 @@ const Transformations = () => {
 		const value = event.target.value;
 		if (value === "buffer" || value === "erase" || value === "clip" || value === "union" || value === "none") {
 			setTransformationType(value);
-            refreshToken(dispatch, authState.token);
 		}
 	}
 

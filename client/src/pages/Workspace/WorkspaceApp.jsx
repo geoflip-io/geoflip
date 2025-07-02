@@ -23,7 +23,6 @@ function WorkspaceApp() {
 
     const handleTabChange = (event, newPageValue) => {
 		setTabPage(newPageValue);
-        refreshToken(dispatch, authState.token);
 	};
 
     const handleExportTabChange = () => {

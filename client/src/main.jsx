@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider,responsiveFontSizes } from '@mui/material/styles';
 import { getInitialTheme } from './utils/theme';
-import { AuthProvider } from './features/AuthManager';
 import App from './App.jsx';
 import './index.css';
 import {lightTheme, darkTheme} from './themes';
@@ -27,7 +26,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <CssBaseline />
     <ThemeProvider theme={currentTheme}>
-      <AuthProvider>
       <ToastContainer 
         theme={currentTheme.palette.mode}
         closeButton={true}
@@ -41,7 +39,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         pauseOnHover
       />
         <App />
-      </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>,
 );
