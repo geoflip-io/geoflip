@@ -12,7 +12,6 @@ import { Divider } from '@mui/material';
 function WorkspaceApp() {
     const theme = useTheme();
     const [tabPage, setTabPage] = useState("transform");
-    const pageMaxWidth = 1400;
 
     useEffect(() => {
 		setTabPage("transform");
@@ -50,7 +49,6 @@ function WorkspaceApp() {
 					display: "flex",
 					flexDirection: "row",
 					justifyContent: "space-between",
-					maxWidth: pageMaxWidth,
 				}}
             >
                 <Box
@@ -91,7 +89,6 @@ function WorkspaceApp() {
                 display: 'flex', 
                 flex:1,
                 flexDirection: "row",
-                maxWidth: pageMaxWidth,
                 minWidth: 300,
                 height: '100vh',
             }}>

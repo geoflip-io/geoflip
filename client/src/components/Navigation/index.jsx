@@ -100,13 +100,29 @@ function Navigation() {
 		};
 	}, [drawerClicked]);
 
+	// this is to resize the mapbox map when the screen changes size
+	useEffect(() => {
+		const transitionMs =
+			Math.max(
+				theme.transitions.duration.enteringScreen,
+				theme.transitions.duration.leavingScreen
+			) + 20; // small safety buffer
+
+		const id = setTimeout(() => {
+			window.dispatchEvent(new Event('resize')); // Mapbox map.resize()
+		}, transitionMs);
+
+		return () => clearTimeout(id);
+	}, [open, theme.transitions.duration]);
+
 	const pages = [
 		{ name: "Workspace", path: "/workspace", icon: <PublicOutlinedIcon /> },
 		{ name: "NavTemplate", path: "/nav-template", icon: <SettingsOutlinedIcon /> }
 	];
 
+	// add pages in here like the below to create additional items at the bottom of the navbar
 	const bottomPages = [
-		{ name: "API Documentation", path: "/api-docs", icon: <DescriptionOutlinedIcon /> },
+		// { name: "API Documentation", path: "/api-docs", icon: <DescriptionOutlinedIcon /> },
 	];
 
 	const toggleDrawer = () => {
@@ -122,6 +138,10 @@ function Navigation() {
 		setTermsPage();
 		setTermsModalOpen(true);
 	};
+
+	const handleAPIDocsClick = () => {
+		window.open('https://docs.geoflip.io', '_blank');
+	}
 
 	const handleThemeToggle = () => {
 		setTheme(theme.palette.mode === "light" ? "dark" : "light");
@@ -282,6 +302,46 @@ function Navigation() {
 								</NavLink>
 							</ListItem>
 						))}
+
+						<ListItem
+							key="user_item"
+							disablePadding
+							sx={{ display: "block" }}
+						>
+							<ListItemButton
+								onClick={handleAPIDocsClick}
+								sx={{
+									minHeight: 48,
+									justifyContent: open ? "initial" : "center",
+									px: 2.5,
+									color: theme.palette.text.primary,
+								}}
+							>
+								<ListItemIcon
+									sx={{
+										minWidth: 0,
+										ml: "2px",
+										mr: open ? 3 : "auto",
+										justifyContent: "center",
+										color: theme.palette.primary.contrastText,
+									}}
+								>
+									<DescriptionOutlinedIcon />
+								</ListItemIcon>
+
+                                <ListItemText
+                                    primary={
+                                        <Typography sx={{ 
+                                            fontWeight: theme.palette.mode === "light" ? 600 : 500,  
+                                        }}>
+                                            {`API Documentation`}
+                                        </Typography>
+                                    }
+                                    sx={{ opacity: open ? 1 : 0 }}
+                                />
+
+							</ListItemButton>
+						</ListItem>
 
 						<ListItem
 							key="user_item"

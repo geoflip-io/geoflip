@@ -1,14 +1,11 @@
-import Box from '@mui/material/Box';
+import { useEffect } from 'react';
 
 function ApiDocs() {
-    return (
-        <Box sx={{
-            mt: 2,
-            overflow: 'auto',
-        }}>
-            <p>go to the docs</p>
-        </Box>
-    );
+    useEffect(() => {
+        window.open('https://docs.geoflip.io', '_blank');
+    }, []);
+
+    return null;
 }
 
 export default ApiDocs;
