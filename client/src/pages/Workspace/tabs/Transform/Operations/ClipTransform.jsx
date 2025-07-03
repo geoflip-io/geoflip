@@ -6,7 +6,6 @@ import {
     Typography
 } from "@mui/material";
 import { useState, useContext, useRef } from "react";
-import { useAuth } from "../../../../../features/AuthManager";
 import { TransformContext } from "../TransformContext";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { zoomToBounds } from "../utils/MapOperations";
@@ -14,14 +13,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useTheme } from "@mui/material/styles";
 import { toast } from "react-toastify";
 import { StyledTextField, StyledSelect, StyledButton, StyledInputLabel, StyledUploadIcon, StyledLongButton } from "../../../../../utils/InputStyles";
-import { handleAPIError } from "../utils/MapOperations";
-import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 const ClipTransform = ({ setLoading }) => {
-    const navigate = useNavigate();
     const theme = useTheme();
-    const { authState, dispatch } = useAuth();
     const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures, clipFeatures, setClipFeatures } = useContext(TransformContext);
     const [inputFormat, setInputFormat] = useState("shp");
     const [inputCRS, setInputCRS] = useState(4326);
@@ -79,8 +74,7 @@ const ClipTransform = ({ setLoading }) => {
                     payloadString,
                     {
                         headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${authState.token}`,
+                            "Content-Type": "application/json"
                         }
                     }
                 );
@@ -102,11 +96,7 @@ const ClipTransform = ({ setLoading }) => {
                     toast.info("Clip operation applied successfully");
                 }
             } catch (error) {
-                const loginExpired = await handleAPIError(error);
-                if (loginExpired) {
-                    dispatch({ type: "LOGOUT" });
-                    navigate('/login');
-                }
+                console.error(error);
             } finally {
                 setLoading(false);
             }
@@ -139,8 +129,7 @@ const ClipTransform = ({ setLoading }) => {
                 formData,
                 {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
-                        "Authorization": `Bearer ${authState.token}`,
+                        'Content-Type': 'multipart/form-data'
                     }
                 }
             );
@@ -179,10 +168,7 @@ const ClipTransform = ({ setLoading }) => {
                 toast.info("File uploaded and features added successfully");
             }
         } catch (error) {
-            const loginExpired = await handleAPIError(error);
-            if (loginExpired) {
-                navigate('/login');
-            }
+            console.log(error);
         } finally {
             setLoading(false);
         }

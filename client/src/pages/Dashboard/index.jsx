@@ -1,4 +1,3 @@
-import { useAuth } from "../../features/AuthManager";
 import { Outlet } from "react-router-dom";
 import Navigation from "../../components/Navigation";
 import { useTheme } from "@mui/material/styles";
@@ -6,12 +5,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 
 function Dashboard() {
-  const { isInitializing } = useAuth();
   const theme = useTheme();
-
-  if (isInitializing) {
-    return <p>Loading...</p>;
-  }
 
   const pageBgColor = theme.palette.mode === "light" ? theme.palette.secondary.main : theme.palette.background.default;
 

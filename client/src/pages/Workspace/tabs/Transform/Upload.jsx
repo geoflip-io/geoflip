@@ -7,20 +7,16 @@ import {
 } from "@mui/material";
 import {useState, useRef, useContext} from "react";
 import { TransformContext } from "./TransformContext";
-import { useAuth } from "../../../../features/AuthManager";
 import { useTheme } from "@mui/material/styles";
 import { ContainerizedLoadingBackdrop } from "../../../../components/Loader";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import axios from "axios";
 import { toast } from "react-toastify";
-import { zoomToBounds, handleAPIError } from "./utils/MapOperations";
-import { useNavigate } from 'react-router-dom';
+import { zoomToBounds } from "./utils/MapOperations";
 import {StyledTextField, StyledInputLabel, StyledSelect, StyledButton, StyledLongButton, StyledUploadIcon} from "../../../../utils/InputStyles";
 
 const Upload = () => {
-    const navigate = useNavigate();
     const theme = useTheme();
-    const { authState, dispatch } = useAuth();
     const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
     const [loading, setLoading] = useState(false);
 	const [inputFormat, setInputFormat] = useState("shp");
@@ -85,8 +81,7 @@ const Upload = () => {
                 formData,
                 {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
-                        "Authorization": `Bearer ${authState.token}`,
+                        'Content-Type': 'multipart/form-data'
                     }
                 }
             );
@@ -108,11 +103,7 @@ const Upload = () => {
             setUploadAvailable(false);
 
         } catch (error) {
-            const loginExpired = await handleAPIError(error);
-            if (loginExpired) {
-                dispatch({ type: "LOGOUT" });
-                navigate('/login');
-            }
+            console.error(error);
         } finally {
             setLoading(false);
         }

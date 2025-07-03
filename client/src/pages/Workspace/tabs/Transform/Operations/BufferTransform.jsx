@@ -4,7 +4,6 @@ import {
 	FormControl
 } from "@mui/material";
 import {useState, useContext } from "react";
-import { useAuth } from "../../../../../features/AuthManager";
 import { TransformContext } from "../TransformContext";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { zoomToBounds } from "../utils/MapOperations";
@@ -12,14 +11,10 @@ import { useTheme } from "@mui/material/styles"
 import { toast } from "react-toastify";
 import {StyledTextField, StyledSelect, StyledButton, StyledInputLabel} from "../../../../../utils/InputStyles";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import { handleAPIError } from "../utils/MapOperations";
-import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 const BufferTransform = ({setLoading}) => {
-    const navigate = useNavigate();
 	const theme = useTheme();
-    const { authState, dispatch } = useAuth();
 	const [units, setUnits] = useState("meters");
 	const [distance, setDistance] = useState(100);
     const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
@@ -67,8 +62,7 @@ const BufferTransform = ({setLoading}) => {
 					payloadString,
                     {
                         headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${authState.token}`,
+                            "Content-Type": "application/json"
                         }
                     }
                 );
@@ -85,11 +79,7 @@ const BufferTransform = ({setLoading}) => {
                     toast.info(`applied a buffer of ${distance} ${units}`);
                 } 
             } catch (error) {
-                const loginExpired = await handleAPIError(error);
-                if (loginExpired) {
-                    dispatch({ type: "LOGOUT" });
-                    navigate('/login');
-                }
+                console.log(error);
             } finally {
                 setLoading(false);
             }

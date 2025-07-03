@@ -6,7 +6,6 @@ import {
     Typography
 } from "@mui/material";
 import { useState, useContext, useRef } from "react";
-import { useAuth } from "../../../../../features/AuthManager";
 import { TransformContext } from "../TransformContext";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { zoomToBounds } from "../utils/MapOperations";
@@ -15,14 +14,11 @@ import { useTheme } from "@mui/material/styles";
 import { toast } from "react-toastify";
 import { StyledTextField, StyledSelect, StyledButton, StyledInputLabel, StyledUploadIcon, StyledLongButton } from "../../../../../utils/InputStyles";
 import axios from "axios";
-import { handleAPIError } from "../utils/MapOperations";
 import { useNavigate } from 'react-router-dom';
 
 
 const EraseTransform = ({ setLoading }) => {
-    const navigate = useNavigate();
     const theme = useTheme();
-    const { authState, dispatch } = useAuth();
     const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures, eraseFeatures, setEraseFeatures } = useContext(TransformContext);
     const [inputFormat, setInputFormat] = useState("shp");
     const [inputCRS, setInputCRS] = useState(4326);
@@ -80,8 +76,7 @@ const EraseTransform = ({ setLoading }) => {
                     payloadString,
                     {
                         headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${authState.token}`,
+                            "Content-Type": "application/json"
                         }
                     }
                 );
@@ -103,11 +98,7 @@ const EraseTransform = ({ setLoading }) => {
                     toast.info("Erase operation applied successfully");
                 }
             } catch (error) {
-                const loginExpired = await handleAPIError(error);
-                if (loginExpired) {
-                    dispatch({ type: "LOGOUT" });
-                    navigate('/login');
-                }
+                console.log(error);
             } finally {
                 setLoading(false);
             }
@@ -140,8 +131,7 @@ const EraseTransform = ({ setLoading }) => {
                 formData,
                 {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
-                        "Authorization": `Bearer ${authState.token}`,
+                        'Content-Type': 'multipart/form-data'
                     }
                 }
             );
@@ -180,10 +170,7 @@ const EraseTransform = ({ setLoading }) => {
                 toast.info("File uploaded and features added successfully");
             }
         } catch (error) {
-            const loginExpired = await handleAPIError(error);
-            if (loginExpired) {
-                navigate('/login');
-            }
+            console.error(error);
         } finally {
             setLoading(false);
         }

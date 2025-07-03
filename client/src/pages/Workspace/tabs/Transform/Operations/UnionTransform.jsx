@@ -2,22 +2,15 @@ import {
 	Box,
 } from "@mui/material";
 import {useContext } from "react";
-import { useAuth } from "../../../../../features/AuthManager";
 import { TransformContext } from "../TransformContext";
 import { zoomToBounds } from "../utils/MapOperations";
-import { useTheme } from "@mui/material/styles"
 import { toast } from "react-toastify";
 import {StyledButton} from "../../../../../utils/InputStyles";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import axios from "axios";
-import { handleAPIError } from "../utils/MapOperations";
-import { useNavigate } from 'react-router-dom';
 
 const UnionTransform = ({setLoading}) => {
-    const navigate = useNavigate();
-	const theme = useTheme();
-    const { authState, dispatch } = useAuth();
-    const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
+    const { mapRef, drawRef, stopRotationRef, activeFeatures } = useContext(TransformContext);
 
 	const handleApplyUnion = async () => {
 		const payload = {
@@ -42,8 +35,7 @@ const UnionTransform = ({setLoading}) => {
 					payloadString,
                     {
                         headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${authState.token}`,
+                            "Content-Type": "application/json"
                         }
                     }
                 );
@@ -59,11 +51,7 @@ const UnionTransform = ({setLoading}) => {
                     toast.info(`Union has been applied`);
                 } 
             } catch (error) {
-                const loginExpired = await handleAPIError(error);
-                if (loginExpired) {
-                    dispatch({ type: "LOGOUT" });
-                    navigate('/login');
-                }
+                console.error(error);
             } finally {
                 setLoading(false);
             }

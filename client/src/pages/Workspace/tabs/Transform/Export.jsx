@@ -2,24 +2,18 @@ import {
 	Box, 
 	MenuItem, 
 	FormControl, 
-    Tooltip,
 	InputAdornment } from "@mui/material";
 import { TransformContext } from "../Transform/TransformContext";
-import { useAuth } from "../../../../features/AuthManager";
 import { ContainerizedLoadingBackdrop } from "../../../../components/Loader";
 import { useContext, useState } from "react";
 import { useTheme } from "@mui/material/styles"
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {StyledTextField, StyledSelect, StyledButton, StyledLongButton, StyledInputLabel, StyledExportIcon} from "../../../../utils/InputStyles";
-import { handleAPIError } from "./utils/MapOperations";
-import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
 import axios from "axios";
 
 const Export = () => {
-    const navigate = useNavigate();
     const theme = useTheme();
-    const { authState, dispatch } = useAuth();
     const { drawRef, activeFeatures } = useContext(TransformContext);
 	const [outputFormat, setOutputFormat] = useState("gpkg");
 	const [outputCRS, setOutputCRS] = useState(4326);
@@ -61,7 +55,6 @@ const Export = () => {
                     {
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${authState.token}`,
                         },
 						responseType: "blob"
                     }
@@ -72,11 +65,7 @@ const Export = () => {
                     toast.info(`${outputFormat} download ready`);
                 } 
             } catch (error) {
-                const loginExpired = await handleAPIError(error);
-                if (loginExpired) {
-                    dispatch({ type: "LOGOUT" });
-                    navigate('/login');
-                }
+                console.error(error);
             } finally {
                 setLoading(false);
             }

@@ -180,7 +180,6 @@ function Navigation() {
 								style={{ color: theme.palette.text.primary, textDecoration: "none" }}
 							>
 								<ListItemButton
-									onClick={handleItemClick}
 									sx={{
 										minHeight: 48,
 										justifyContent: open ? "initial" : "center",
@@ -231,7 +230,6 @@ function Navigation() {
 								key={page.name}
 								disablePadding
 								sx={{ display: "block" }}
-								onClick={handleItemClick}
 							>
 								<NavLink
 									to={page.path}

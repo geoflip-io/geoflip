@@ -5,7 +5,6 @@ import {
 	Step,
 	StepConnector,
 } from "@mui/material";
-import { useAuth, refreshToken } from "../../../../features/AuthManager";
 import { StyledStepLabel, StyledStepContent } from "../../../../utils/InputStyles";
 import { useState } from "react";
 import MapContainer from "./MapContainer";
@@ -17,7 +16,6 @@ import { TransformContextProvider } from "./TransformContext";
 
 const Transform = () => {
 	const [activeStep, setActiveStep] = useState(0);
-    const { authState, dispatch } = useAuth();
 	const theme = useTheme();
 	const steps = [
 		{ label: "Upload", content: <Upload /> },

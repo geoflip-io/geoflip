@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuth, refreshToken } from "../../features/AuthManager";
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
@@ -9,10 +8,8 @@ import Tab from '@mui/material/Tab';
 import Transform from './tabs/Transform';
 import Append from './tabs/Append';
 import Merge from './tabs/Merge';
-import { Divider, Tooltip } from '@mui/material';
+import { Divider } from '@mui/material';
 function WorkspaceApp() {
-    const { apiCallsRemaining } = 99
-    const { authState, dispatch } = useAuth();
     const theme = useTheme();
     const [tabPage, setTabPage] = useState("transform");
     const pageMaxWidth = 1400;

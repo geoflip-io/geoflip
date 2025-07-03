@@ -9,24 +9,20 @@ import {
     Divider
 } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
-import { useAuth } from "../../../features/AuthManager";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import { useContext, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useTheme } from "@mui/material/styles";
 import { ContainerizedLoadingBackdrop } from "../../../components/Loader";
-import {StyledTextField, StyledSelect, StyledButton, StyledLongButton, StyledInputLabel, StyledUploadIcon, StyledExportIcon} from "../../../utils/InputStyles";
+import {StyledTextField, StyledSelect, StyledButton, StyledLongButton, StyledInputLabel, StyledUploadIcon} from "../../../utils/InputStyles";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
 import { handleAPIError } from "./Transform/utils/MapOperations";
 
 const Append = ({handleExportTabChange}) => {
     const theme = useTheme();
-    const navigate = useNavigate();
     const [outputCRS, setOutputCRS] = useState(4326);
     const [outputFormat, setOutputFormat] = useState("gpkg");
     const [loading, setLoading] = useState(false);
-    const { authState, dispatch } = useAuth();
     const [inputFileFormat, setInputFileFormat] = useState("gpkg");
     const [inputCRS, setInputCRS] = useState(4326);
     const currentFileRef = useRef(null);
@@ -181,12 +177,7 @@ const Append = ({handleExportTabChange}) => {
     
             const response = await axios.post(
                 `${import.meta.env.VITE_API_URL}/v1/transform/${inputFileFormat}/append?async=true`,
-                formData,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${authState.token}`,
-                    },
-                }
+                formData
             );
     
             if (response.status === 202) {
@@ -204,11 +195,6 @@ const Append = ({handleExportTabChange}) => {
             }
         } catch (error) {
             console.error('API call failed:', error);
-            const loginExpired = await handleAPIError(error);
-            if (loginExpired) {
-                dispatch({ type: "LOGOUT" });
-                navigate('/login');
-            }
         } finally {
             setLoading(false);
         }
