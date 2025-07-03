@@ -1,8 +1,32 @@
-# React + Vite
+# Geoflip Client – Dev README
+A Vite-powered React front-end for the Geoflip api.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## ✨ Prerequisites
+| Tool        | Version           |
+|-------------|-------------------|
+| **Node.js** | **22.x** (LTS)    |
+| npm         | Comes with Node 22 |
 
-Currently, two official plugins are available:
+> ⚠️ Using an older Node version will cause install/build issues.  
+> Check with: `node -v` → `22.*.*`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Also make sure you have docker running to run the backend api if you want it to work locally
+
+---
+
+## .ENV 
+setup a .env file in the `/client` directory it should have these values, you will need a mapbox api key so get that from mapbox:
+
+```
+VITE_API_URL=http://localhost:8000
+VITE_MAPBOX_TOKEN=pk.ey...
+```
+
+---
+
+## 🔧 Running the project
+
+1. cd into the `/client` folder
+2. run `npm install`
+3. run `npm run dev`
+
