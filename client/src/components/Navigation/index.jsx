@@ -16,10 +16,11 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { setTheme } from "../../utils/theme";
 import { LoadingBackdrop } from "../../components/Loader";
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
 import PolicyOutlinedIcon from '@mui/icons-material/PolicyOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import TermsModal from "../TermsModal";
 
 
@@ -116,8 +117,10 @@ function Navigation() {
 	}, [open, theme.transitions.duration]);
 
 	const pages = [
-		{ name: "Workspace", path: "/workspace", icon: <PublicOutlinedIcon /> },
-		{ name: "NavTemplate", path: "/nav-template", icon: <SettingsOutlinedIcon /> }
+		{ name: "Workspace", path: "/workspace", icon: <PublicOutlinedIcon />, disabled: false },
+		{ name: "Exports", path: "/exports", icon: <ExitToAppOutlinedIcon />, disabled: true },
+		{ name: "Enterprise", path: "/enterprise", icon: <BusinessCenterOutlinedIcon />, disabled: true },
+		// { name: "NavTemplate", path: "/nav-template", icon: <SettingsOutlinedIcon /> }
 	];
 
 	// add pages in here like the below to create additional items at the bottom of the navbar
@@ -190,57 +193,56 @@ function Navigation() {
 				</DrawerHeader>
 				<List>
 					{pages.map((page) => (
-						<ListItem
-							key={page.name}
-							disablePadding
-							sx={{ display: "block" }}
-						>
-							<NavLink
+						<ListItem key={page.name} disablePadding sx={{ display: "block" }}>
+							<ListItemButton
+								component={NavLink}
 								to={page.path}
-								style={{ color: theme.palette.text.primary, textDecoration: "none" }}
+								disabled={page.disabled}
+								sx={{
+								minHeight: 48,
+								justifyContent: open ? "initial" : "center",
+								px: 2.5,
+								color: location.pathname === page.path
+									? theme.palette.primary.main
+									: theme.palette.primary.contrastText,
+								"&:before": {
+									content: '""',
+									position: "absolute",
+									left: 0,
+									top: 0,
+									bottom: 0,
+									width: 4,
+									borderRadius: "0 4px 4px 0",
+									backgroundColor: location.pathname === page.path
+									? theme.palette.primary.main
+									: "transparent",
+								},
+								textDecoration: "none",
+								}}
 							>
-								<ListItemButton
-									sx={{
-										minHeight: 48,
-										justifyContent: open ? "initial" : "center",
-										px: 2.5,
-										color: location.pathname === page.path ? theme.palette.primary.main : theme.palette.primary.contrastText,
-										"&:before": {
-											content: '""',
-											position: "absolute",
-											left: 0,
-											top: 0,
-											bottom: 0,
-											width: 4,
-											borderRadius: "0 4px 4px 0",
-											backgroundColor: location.pathname === page.path ? theme.palette.primary.main : "transparent",
-										},
-									}}
+								<ListItemIcon
+								sx={{
+									minWidth: 0,
+									mr: open ? 3 : "auto",
+									justifyContent: "center",
+									color: location.pathname === page.path
+									? theme.palette.primary.main
+									: theme.palette.primary.contrastText,
+								}}
 								>
-									<ListItemIcon
-										sx={{
-											minWidth: 0,
-											mr: open ? 3 : "auto",
-											justifyContent: "center",
-											color: location.pathname === page.path ? theme.palette.primary.main : theme.palette.primary.contrastText,
-										}}
-									>
-										{page.icon}
-									</ListItemIcon>
-									<ListItemText
-										primary={
-											<Typography sx={{ 
-												fontWeight: 600, 
-											}}>
-												{page.name}
-											</Typography>
-										}
-										sx={{ opacity: open ? 1 : 0 }}
-									/>
-								</ListItemButton>
-							</NavLink>
+								{page.icon}
+								</ListItemIcon>
+								<ListItemText
+								primary={
+									<Typography sx={{ fontWeight: 600 }}>
+									{page.name}
+									</Typography>
+								}
+								sx={{ opacity: open ? 1 : 0 }}
+								/>
+							</ListItemButton>
 						</ListItem>
-					))}
+					))}	
 				</List>
 				<Box sx={{ flexGrow: 1 }} />
 				<Box>
@@ -310,6 +312,7 @@ function Navigation() {
 						>
 							<ListItemButton
 								onClick={handleAPIDocsClick}
+								disabled // UNDER CONSTRUCTION
 								sx={{
 									minHeight: 48,
 									justifyContent: open ? "initial" : "center",
@@ -329,19 +332,19 @@ function Navigation() {
 									<DescriptionOutlinedIcon />
 								</ListItemIcon>
 
-                                <ListItemText
-                                    primary={
-                                        <Typography sx={{ 
-                                            fontWeight: theme.palette.mode === "light" ? 600 : 500,  
-                                        }}>
-                                            {`API Documentation`}
-                                        </Typography>
-                                    }
-                                    sx={{ opacity: open ? 1 : 0 }}
-                                />
+								<ListItemText
+									primary={
+										<Typography sx={{ 
+											fontWeight: theme.palette.mode === "light" ? 600 : 500,  
+										}}>
+											{`API Documentation`}
+										</Typography>
+									}
+									sx={{ opacity: open ? 1 : 0 }}
+								/>
 
 							</ListItemButton>
-						</ListItem>
+						</ListItem>			
 
 						<ListItem
 							key="user_item"

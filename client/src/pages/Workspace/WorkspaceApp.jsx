@@ -8,7 +8,9 @@ import Tab from '@mui/material/Tab';
 import Transform from './tabs/Transform';
 import Append from './tabs/Append';
 import Merge from './tabs/Merge';
+import Donations from '../../components/Donations';
 import { Divider } from '@mui/material';
+
 function WorkspaceApp() {
     const theme = useTheme();
     const [tabPage, setTabPage] = useState("transform");
@@ -84,6 +86,16 @@ function WorkspaceApp() {
                         Upload/Draw, Transform and Export your data here
                     </Typography>
                 </Box>
+				<Box
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						mb: 4,
+						mr: 5,
+					}}
+				>
+                    <Donations />
+                </Box>
             </Box>
             <Box sx={{ 
                 display: 'flex', 
@@ -96,7 +108,7 @@ function WorkspaceApp() {
 					elevation={1}
 					sx={{
 						padding: 3,
-						mr: 2,
+						mr: 5,
 						borderRadius: 3,
 						boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)",
 						display: "flex",
@@ -137,12 +149,14 @@ function WorkspaceApp() {
                             />
                             <Tab 
                                 label="Append" 
-                                value="append" 
+                                value="append"
+                                disabled // UNDER CONSTRUCTION
                                 sx={{ textTransform: 'none', color: theme.palette.text.primary }}
                             />
                             <Tab 
                                 label="Merge" 
-                                value="merge" 
+                                value="merge"
+                                disabled // UNDER CONSTRUCTION
                                 sx={{ textTransform: 'none', color: theme.palette.text.primary }} 
                             />
                         </Tabs>

@@ -88,9 +88,6 @@ const Export = () => {
 				case 'dxf':
 					fileExtension = 'dxf';
 					break;
-                case 'csv':
-					fileExtension = 'csv';
-					break;
 				default:
 					fileExtension = outputFormat;
 			}
@@ -136,7 +133,6 @@ const Export = () => {
                     <MenuItem value={"shp"}>Shapefile</MenuItem>
                     <MenuItem value={"gpkg"}>Geopackage</MenuItem>
                     <MenuItem value={"dxf"}>DXF</MenuItem>
-                    <MenuItem value={"csv"}>CSV</MenuItem>
                 </StyledSelect> 
 
             </FormControl >

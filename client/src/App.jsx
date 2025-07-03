@@ -3,9 +3,10 @@ import Layout from "./layouts";
 import Dashboard from "./pages/Dashboard";
 import Error from "./pages/Error";
 import NavTemplate from "./pages/NavTemplate";
-import ApiDocs from "./pages/ApiDocs";
 import Workspace from "./pages/Workspace";
 import { Navigate } from "react-router-dom";
+import Exports from "./pages/Exports";
+import Enterprise from "./pages/Enterprise";
 
 const router = createBrowserRouter([
   {
@@ -20,9 +21,10 @@ const router = createBrowserRouter([
         path:"/",
         element:<Dashboard />,
         children:[
-		  {path:"/workspace", element:<Workspace />},
+		      {path:"/workspace", element:<Workspace />},
           {path:"/nav-template", element:<NavTemplate />},
-          {path:"/api-docs", element:<ApiDocs />},
+          {path:"/exports", element:<Exports />},
+          {path:"/enterprise", element: <Enterprise />}
         ]
       },
       {path:"*",element:<Error />}
