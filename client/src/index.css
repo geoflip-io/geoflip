@@ -1,0 +1,8 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  -webkit-text-size-adjust: 100%; /* For WebKit-based browsers */
+  text-size-adjust: 100%;         /* For standardized support */
+}

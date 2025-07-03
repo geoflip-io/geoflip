@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link id="favicon" rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png">
+    <script>
+      function updateFavicon(theme) {
+        const favicon = document.getElementById('favicon');
+        if (theme === 'dark') {
+          favicon.href = '/favicon-light-32x32.png';
+        } else {
+          favicon.href = '/favicon-dark-32x32.png';
+        }
+      }
+  
+      function detectTheme() {
+        // Check the initial theme
+        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        updateFavicon(darkModeMediaQuery.matches ? 'dark' : 'light');
+  
+        // Listen for changes in theme
+        darkModeMediaQuery.addEventListener('change', (event) => {
+          updateFavicon(event.matches ? 'dark' : 'light');
+        });
+      }
+  
+      document.addEventListener('DOMContentLoaded', detectTheme);
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geoflip.io</title>
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Geoflip.io - Easy spatial data processing for everyone." />
+    <meta property="og:description" content="Simplify spatial data processing with Geoflip’s 
+    powerful API and user-friendly interface." />
+    <meta property="og:image" content="https://account.geoflip.io/geoflip-social-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="675" />
+    <meta property="og:url" content="https://geoflip.io" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Geoflip.io - Easy spatial data processing for everyone." />
+    <meta name="twitter:description" content="Simplify spatial data processing with Geoflip’s 
+    powerful API and user-friendly interface." />
+    <meta name="twitter:image" content="https://account.geoflip.io/geoflip-social-card.png" />    
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
