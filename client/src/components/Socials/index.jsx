@@ -41,7 +41,7 @@ function Socials() {
             <Box>
                 <Button
                     variant="contained"
-                    // disabled
+                    disabled
                     sx={{
                         borderRadius: 5,
                         padding: "8px 8px",
