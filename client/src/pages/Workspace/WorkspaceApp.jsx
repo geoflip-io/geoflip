@@ -8,7 +8,7 @@ import Tab from '@mui/material/Tab';
 import Transform from './tabs/Transform';
 import Append from './tabs/Append';
 import Merge from './tabs/Merge';
-import Donations from '../../components/Donations';
+import Socials from '../../components/Socials';
 import { Divider } from '@mui/material';
 
 function WorkspaceApp() {
@@ -94,7 +94,7 @@ function WorkspaceApp() {
 						mr: 5,
 					}}
 				>
-                    <Donations />
+                    <Socials />
                 </Box>
             </Box>
             <Box sx={{ 
