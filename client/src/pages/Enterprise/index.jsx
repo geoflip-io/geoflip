@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Typography, Box, Tabs, Tab, Paper, Divider } from "@mui/material";
-import Donations from "../../components/Donations";
+import Socials from "../../components/Socials";
 import TabTwo from "./tabs/tabTwo";
 import TabOne from "./tabs/tabOne";
 
@@ -58,7 +58,7 @@ function Enterprise() {
 						mr: 5,
 					}}
 				>
-                    <Donations />
+                    <Socials />
                 </Box>
             </Box>
             <Paper
