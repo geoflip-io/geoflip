@@ -1,3 +1,5 @@
 pytest
 httpx
 pytest-mock
+coverage
+celery[pytest]

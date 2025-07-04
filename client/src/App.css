@@ -1,0 +1,24 @@
+body {
+  -webkit-text-size-adjust: 100%; /* For WebKit-based browsers */
+  text-size-adjust: 100%;         /* For standardized support */
+}
+
+:root {
+  --toastify-color-success: #3690EB;
+  --toastify-color-info: #3690EB;
+  --toastify-color-error: #EC6A5E;
+  --toastify-color-dark: #233241;
+  --toastify-color-light: #D9EAFB;
+  --toastify-font-family: "source-sans-pro", sans-serif;
+  --toastify-text-color-light: #555555;
+  --toastify-text-color-dark: #AAAAAA;
+  --toastify-toast-width: 220px;
+}
+
+.map-container {
+	top: 0;
+	bottom: 0;
+	width: 100%;
+    height: 100%;
+}
+
