@@ -98,8 +98,8 @@ const Transformations = () => {
 				>
 					<MenuItem value={"none"}>None</MenuItem>
 					<MenuItem value={"buffer"}>Buffer</MenuItem>
-					<MenuItem value={"erase"}>Erase</MenuItem>
-					<MenuItem value={"clip"}>Clip</MenuItem>
+					<MenuItem disabled value={"erase"}>Erase</MenuItem>
+					<MenuItem disabled value={"clip"}>Clip</MenuItem>
 					<MenuItem value={"union"}>Union</MenuItem>
 				</StyledSelect>
 			</FormControl>

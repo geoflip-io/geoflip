@@ -15,7 +15,7 @@ import axios from "axios";
 export async function runGeoflipJob(
   apiBase,
   formData,
-  { pollInterval = 1000, timeout = 10000 } = {}
+  { pollInterval = 300, timeout = 10000 } = {}
 ) {
   const t0 = Date.now();
 

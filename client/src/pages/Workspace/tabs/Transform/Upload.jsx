@@ -10,7 +10,6 @@ import { TransformContext } from "./TransformContext";
 import { useTheme } from "@mui/material/styles";
 import { ContainerizedLoadingBackdrop } from "../../../../components/Loader";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import axios from "axios";
 import { toast } from "react-toastify";
 import { zoomToBounds } from "./utils/MapOperations";
 import { runGeoflipJob } from "../../../../utils/geoflip-helper";
