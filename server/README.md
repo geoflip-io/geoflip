@@ -21,7 +21,7 @@ You will need to setup a local postgres database and redis instance for the appl
     COMPOSE_PROJECT_NAME=geoflip
 
     JWT_SECRET=1234abcd
-    FRONTEND_URL=http://localhost:3000
+    FRONTEND_URL=http://localhost:8080
     BACKEND_URL=http://localhost:8001
     DATA_PATH=data
 

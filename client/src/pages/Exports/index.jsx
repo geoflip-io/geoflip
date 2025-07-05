@@ -1,17 +1,81 @@
-import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { Typography, Box, Tabs, Tab, Paper, Divider } from "@mui/material";
+import { DataGrid } from '@mui/x-data-grid';
+import { useState, useEffect, useContext } from 'react';
+import { Typography, Box, Paper } from "@mui/material";
+import { ExportsContext } from "../../components/ExportsContext";
+import TransformJob from "./TransformJob";
 import Socials from "../../components/Socials";
-import TabTwo from "./tabs/tabTwo";
-import TabOne from "./tabs/tabOne";
+import { getItem } from "../../utils/storage";
 
 function Exports() {
     const theme = useTheme();
-    const [tabIndex, setTabIndex] = useState(0);
-    
-    const handleTabChange = (event, newIndex) => {
-        setTabIndex(newIndex);
+    const { exportJobs, removeExportJob } = useContext(ExportsContext);
+    const [rows, setRows] = useState([]);
+
+    const handleUpdateRows = () => {
+        const data = exportJobs.map((job, index) => {
+            return {
+                id: index,
+                name: job.name,
+                details: {
+                    task_id: job.task_id,
+                    outputFormat: job.outputFormat
+                }
+            }
+        });
+
+        // add pending jobs to exportJobs if they are not already there
+        const pendingJobs = JSON.parse(getItem("exportJobs"));
+        if (pendingJobs !== null) {
+            pendingJobs.forEach((taskId) => {
+                const jobExists = data.some(job => job.details.task_id === taskId);
+                if (!jobExists) {
+                    const job = JSON.parse(getItem(taskId));
+                    data.push(
+                        {
+                            id: data.length,
+                            name: job.name,
+                            details: {
+                                task_id: taskId,
+                                outputFormat: job.outputFormat
+                            }
+                        }
+                    )
+                }
+            })
+        };
+        setRows(data);
     };
+
+    useEffect(() => {
+        handleUpdateRows();
+    }, [exportJobs]);
+
+    const columns = [
+        { field: 'name', headerName: 'Exports', flex: 1 },
+        { field: 'output', headerName: 'Output Format', flex: 1, 
+            renderCell: (params) => (
+                <Typography
+                    sx={{
+                        verticalAlign: "middle",
+                        mt: 2
+                    }}
+                >
+                    {params.row.details.outputFormat}
+                </Typography>
+            ) 
+        },
+        { field: 'details', headerName: 'Downloads', flex: 1, width: "100%",
+            renderCell: (params) => (
+                <TransformJob 
+                    name={params.row.name} 
+                    taskId={params.row.details.task_id} 
+                    outputFormat={params.row.details.outputFormat}
+                    handleUpdateRows={handleUpdateRows}
+                />
+            )
+        },
+    ];
 
     return (
         <Box sx={{ mt: 2, overflow: 'auto', height: '100vh'}}> 
@@ -72,39 +136,53 @@ function Exports() {
                     scrollbarWidth: 'none'
                 }}
             >
-                <Tabs
-                    value={tabIndex}
-                    onChange={handleTabChange}
-                    aria-label="settings tabs"
-                    TabIndicatorProps={{
-                        style: {
-                            height: 4,
-                            borderRadius: '4px 4px 0 0'
-                        }
-                    }}
-                >
-                    <Tab label="Tab One" sx={{ textTransform: 'none', color: theme.palette.text.primary  }} />
-                    <Tab label="Tab Two" sx={{ textTransform: 'none', color: theme.palette.text.primary  }} />
-                </Tabs>
-                <Divider />
-                <Box
-                    sx={{
-                        mb: 0,
-                        mt: 4,
-                        paddingRight: 3,
-                        display: 'flex',
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        alignItems: 'flex-start',
-                        width: '100%',
-                        overflowY: 'auto',
-                        paddingBottom: '20px',
-                        scrollbarWidth: 'none'
-                    }}
-                >
-                    <Box>
-                        {tabIndex === 0 && <TabOne />}
-                        {tabIndex === 1 && <TabTwo />}
-                    </Box>
+                <Box sx={{ 
+                    // height: "100%",
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    mt: 2,
+                }}>
+                    <DataGrid
+                        rows={rows}
+                        columns={columns}
+                        localeText={{
+                            noRowsLabel: "Undownloaded exports will appear here",
+                        }}
+                        autoHeight
+                        autoWidth
+                        disableRowSelectionOnClick
+                        disableSelectionOnClick
+                        disableColumnMenu
+                        hideFooter
+                        className="custom-header"
+                        rowHeight={60} 
+                        sx={{
+                            mt:2,
+                            '& .MuiDataGrid-columnHeaderTitle': {
+                                fontWeight: 600,
+                            },
+                            '& .MuiDataGrid-row': {
+                                alignItems: 'center', 
+                            },
+                            border: "none",
+                            "& .MuiDataGrid-cell:focus": {
+                                outline: "none",
+                            },
+                            "& .MuiDataGrid-cell": {
+                                "&:focus": {
+                                    outline: "none",
+                                },
+                            },
+                            "& .MuiDataGrid-cell--textCenter": {
+                                "&:focus-within": {
+                                    outline: "none",
+                                },
+                            },
+                            borderRadius: 2,
+                            boxShadow: "-2px 2px 3px rgba(0,0,0,0.1)",
+                        }} 
+                    />
                 </Box>
             </Paper>
         </Box>

@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material/styles"
 import { toast } from "react-toastify";
 import {StyledTextField, StyledSelect, StyledButton, StyledInputLabel} from "../../../../../utils/InputStyles";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import axios from "axios";
+import { runGeoflipJob } from "../../../../../utils/geoflip-helper";
 
 const BufferTransform = ({setLoading}) => {
 	const theme = useTheme();
@@ -38,46 +38,50 @@ const BufferTransform = ({setLoading}) => {
 	}
 
 	const handleApplyBuffer = async () => {
-		const payload = {
-			"input_geojson":{
-				"type": "FeatureCollection",
-				"features": drawRef.current.getAll().features
-			},
-			"output_format": "geojson",
-			"transformations":[
-				{
-					"type":"buffer",
-					"distance": distance,
-					"units": units
-				}
-			]
-		}
-		const payloadString = JSON.stringify(payload);
-
 		const fetchData = async () => {
 			setLoading(true);
             try {
-                const response = await axios.post(
-                    `${import.meta.env.VITE_API_URL}/v1/transform/geojson`,
-					payloadString,
-                    {
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    }
-                );
-                if (response.status === 200) {
-					const geojsonData = response.data;
-					drawRef.current.set(geojsonData);
-	
-					const features = drawRef.current.getAll().features
-                    setActiveFeatures(features);
-	
-					stopRotationRef.current();
-					zoomToBounds(mapRef.current, features);
+                const formData = new FormData();
 
-                    toast.info(`applied a buffer of ${distance} ${units}`);
-                } 
+                const config = {
+                    input: {
+                        format: "geojson",
+                        data: {
+                            type: "FeatureCollection",
+                            features: drawRef.current.getAll().features
+                        }
+                    },
+                    transformations:[
+                        {
+                            type:"buffer",
+                            params: {
+                                distance: distance,
+                                units: units
+                            }
+                        }
+                    ],
+                    output: {
+                        format: "geojson"
+                    }
+                };
+
+                formData.append('config', JSON.stringify(config));
+
+                const geojsonData = await runGeoflipJob(
+                    import.meta.env.VITE_API_URL,
+                    formData
+                );
+
+                drawRef.current.set(geojsonData);
+
+                const features = drawRef.current.getAll().features
+                setActiveFeatures(features);
+
+                stopRotationRef.current();
+                zoomToBounds(mapRef.current, features);
+
+                toast.info(`applied a buffer of ${distance} ${units}`);
+                
             } catch (error) {
                 console.log(error);
             } finally {
