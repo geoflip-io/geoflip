@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 # CORS settings
 origins = [
-    config.FRONTEND_URL,  # Add production frontend domain at some point
+    config.FRONTEND_URL,
+    "https://www.geoflip.io"
 ]
 
 @asynccontextmanager
