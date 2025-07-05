@@ -16,7 +16,7 @@ export async function runGeoflipJob(
   apiBase,
   formData,
   to_file = false,
-  { pollInterval = 300, timeout = 10000 } = {}
+  { pollInterval = 200, timeout = 10000 } = {}
 ) {
   const t0 = Date.now();
 
