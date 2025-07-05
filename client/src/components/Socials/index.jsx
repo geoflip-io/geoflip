@@ -1,5 +1,5 @@
 
-import { Button, Box } from '@mui/material';
+import { Button, Box, Tooltip } from '@mui/material';
 import StarsIcon from '@mui/icons-material/Stars';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
@@ -17,48 +17,66 @@ function Socials() {
             }}
         >
             <Box>
-                <Button
-                    variant="outlined"
-                    onClick={handleGitHubClick}
-                    sx={{
-                        borderRadius: 5,
-                        padding: "8px 8px",
-                        pl: 1,
-                        pr: 1.5,
-                        fontWeight: 600,
-                        mr: 1,
-                        height: 40
-                    }}
+                <Tooltip
+                    title={
+                        <>
+                            Geoflip is still under development 🛠️<br />
+                            follow our progress here
+                        </>
+                    }
                 >
-                    <GitHubIcon
+                    <Button
+                        variant="outlined"
+                        onClick={handleGitHubClick}
                         sx={{
+                            borderRadius: 5,
+                            padding: "8px 8px",
+                            pl: 1,
+                            pr: 1.5,
+                            fontWeight: 600,
                             mr: 1,
+                            height: 40
                         }}
-                    />
-                    GitHub
-                </Button>
+                    >
+                        <GitHubIcon
+                            sx={{
+                                mr: 1,
+                            }}
+                        />
+                        GitHub
+                    </Button>
+                </Tooltip>
             </Box>
-            <Box>
-                <Button
-                    variant="contained"
-                    disabled
-                    sx={{
-                        borderRadius: 5,
-                        padding: "8px 8px",
-                        pl: 1,
-                        pr: 1.5,
-                        fontWeight: 600,
-                        height: 40
-                    }}
-                >
-                    <StarsIcon
+            <Tooltip
+                title={
+                    <>
+                    help us keep the server online ❤️<br />
+                    (not quite implemented yet though)
+                    </>
+                }
+            >
+                <Box>
+                    <Button
+                        variant="contained"
+                        disabled
                         sx={{
-                            mr: 1,
+                            borderRadius: 5,
+                            padding: "8px 8px",
+                            pl: 1,
+                            pr: 1.5,
+                            fontWeight: 600,
+                            height: 40
                         }}
-                    />
-                    Donations
-                </Button>
-            </Box>
+                    >
+                        <StarsIcon
+                            sx={{
+                                mr: 1,
+                            }}
+                        />
+                        Donations
+                    </Button>
+                </Box>
+            </Tooltip>
         </Box>
 	);
 }
