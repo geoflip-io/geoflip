@@ -4,18 +4,21 @@ import {
 	FormControl, 
 	InputAdornment } from "@mui/material";
 import { TransformContext } from "../Transform/TransformContext";
+import { ExportsContext } from "../../../../components/ExportsContext";
 import { ContainerizedLoadingBackdrop } from "../../../../components/Loader";
 import { useContext, useState } from "react";
 import { useTheme } from "@mui/material/styles"
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {StyledTextField, StyledSelect, StyledButton, StyledLongButton, StyledInputLabel, StyledExportIcon} from "../../../../utils/InputStyles";
-import { toast } from "react-toastify";
+import {StyledTextField, StyledSelect, StyledLongButton, StyledInputLabel } from "../../../../utils/InputStyles";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 const Export = () => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const { drawRef, activeFeatures } = useContext(TransformContext);
-	const [outputFormat, setOutputFormat] = useState("gpkg");
+    const { addExportJob } = useContext(ExportsContext);
+	const [outputFormat, setOutputFormat] = useState("shp");
 	const [outputCRS, setOutputCRS] = useState(4326);
 	const [loading, setLoading] = useState(false);
 	const [downloadUrl, setDownloadUrl] = useState(null);
@@ -36,33 +39,44 @@ const Export = () => {
 	}
 
 	const handleExport = async () => {
-		const payload = {
-			"input_geojson":{
-				"type": "FeatureCollection",
-				"features": drawRef.current.getAll().features
-			},
-			"output_format": outputFormat,
-			"output_crs": `EPSG:${outputCRS}`
-		}
-		const payloadString = JSON.stringify(payload);
+		const formData = new FormData();
+        const config = {
+            input: {
+                format: "geojson",
+                data: {
+                    type: "FeatureCollection",
+                    features: drawRef.current.getAll().features
+                }
+            },
+            output: {
+                format: outputFormat,
+                epsg: outputCRS
+            }
+        };
+        formData.append('config', JSON.stringify(config));
 
 		const fetchData = async () => {
 			setLoading(true);
             try {
                 const response = await axios.post(
-                    `${import.meta.env.VITE_API_URL}/v1/transform/geojson`,
-					payloadString,
+                    `${import.meta.env.VITE_API_URL}/transform`,
+					formData,
                     {
                         headers: {
-                            "Content-Type": "application/json",
-                        },
-						responseType: "blob"
+                            "Content-Type": "multipart/form-data",
+                        }
                     }
                 );
+
                 if (response.status === 200) {
-                    const url = window.URL.createObjectURL(response.data);
-					setDownloadUrl(url);
-                    toast.info(`${outputFormat} download ready`);
+                    const task_id = response.data.job_id;
+                    addExportJob(
+                        `transform_output_${new Date().toISOString().replace(/[:.]/g, '-')}`,
+                        outputFormat,
+                        task_id
+                    );
+
+                    navigate('/exports');
                 } 
             } catch (error) {
                 console.error(error);
@@ -131,7 +145,7 @@ const Export = () => {
                     IconComponent={ArrowDropDownIcon}
                 >
                     <MenuItem value={"shp"}>Shapefile</MenuItem>
-                    <MenuItem value={"gpkg"}>Geopackage</MenuItem>
+                    <MenuItem disabled value={"gpkg"}>Geopackage</MenuItem>
                     <MenuItem value={"dxf"}>DXF</MenuItem>
                 </StyledSelect> 
 
@@ -171,38 +185,21 @@ const Export = () => {
 					mt: 3,
 					flexDirection: "row",
 					display: "flex",
-                    flex: 1
+                    flex: 1,
 				}}
 			>
-
                     <StyledLongButton
                         variant="outlined"
                         fullWidth
                         disabled={activeFeatures.length <= 0 ? true : false}
                         onClick={handleExport}
                         sx={{
-                            maxWidth: "30%"
+                            maxWidth: "100%",
+                            height: 45
                         }}
                     >
-                        Export
+                        Export (.{outputFormat})
                     </StyledLongButton>
-                    <StyledButton
-                        variant="contained"
-                        onClick={handleDownload}
-                        fullWidth
-                        disabled={!downloadUrl}
-                        endIcon={<StyledExportIcon 
-                            sx={{
-                                color: "#FFF",
-                            }}
-                        />}
-                        sx={{
-                            ml: 1
-                        }}
-                    >
-                        Download
-                    </StyledButton>
-
 			</Box>
 			<ContainerizedLoadingBackdrop isOpen={loading} />
 		</Box>

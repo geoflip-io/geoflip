@@ -44,6 +44,7 @@ services:
       - REDIS_DB=${REDIS_DB}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_SSL=${REDIS_SSL}
+      - JOB_EXPIRY_TIME=${JOB_EXPIRY_TIME}
     depends_on:
       db:
         condition: service_started

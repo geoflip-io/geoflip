@@ -15,6 +15,7 @@ import axios from "axios";
 export async function runGeoflipJob(
   apiBase,
   formData,
+  to_file = false,
   { pollInterval = 300, timeout = 10000 } = {}
 ) {
   const t0 = Date.now();
@@ -47,6 +48,11 @@ export async function runGeoflipJob(
   if (!outputUrl) throw new Error(`Timed out waiting for job ${jobId}`);
 
   /* 3️⃣  Download the GeoJSON --------------------------------------------- */
-  const { data } = await axios.get(outputUrl);           // axios auto-parses JSON
-  return data;
+
+  if (to_file) {
+    return outputUrl
+  } else {
+    const { data } = await axios.get(outputUrl);           // axios auto-parses JSON
+    return data;
+  }
 }

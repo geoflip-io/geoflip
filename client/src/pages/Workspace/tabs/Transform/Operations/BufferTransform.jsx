@@ -38,8 +38,6 @@ const BufferTransform = ({setLoading}) => {
 	}
 
 	const handleApplyBuffer = async () => {
-
-
 		const fetchData = async () => {
 			setLoading(true);
             try {

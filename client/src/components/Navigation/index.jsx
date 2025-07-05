@@ -118,7 +118,7 @@ function Navigation() {
 
 	const pages = [
 		{ name: "Workspace", path: "/workspace", icon: <PublicOutlinedIcon />, disabled: false },
-		{ name: "Exports", path: "/exports", icon: <ExitToAppOutlinedIcon />, disabled: true },
+		{ name: "Exports", path: "/exports", icon: <ExitToAppOutlinedIcon />, disabled: false },
 		{ name: "Enterprise", path: "/enterprise", icon: <BusinessCenterOutlinedIcon />, disabled: true },
 		// { name: "NavTemplate", path: "/nav-template", icon: <SettingsOutlinedIcon /> }
 	];

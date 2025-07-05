@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider,responsiveFontSizes } from '@mui/material/styles';
 import { getInitialTheme } from './utils/theme';
+import ExportsContextProvider from './components/ExportsContext';
 import App from './App.jsx';
 import './index.css';
 import {lightTheme, darkTheme} from './themes';
@@ -38,7 +39,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         draggable
         pauseOnHover
       />
-        <App />
+        <ExportsContextProvider>
+            <App />
+        </ExportsContextProvider>
     </ThemeProvider>
   </React.StrictMode>,
 );
