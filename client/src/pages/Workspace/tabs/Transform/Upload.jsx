@@ -10,9 +10,9 @@ import { TransformContext } from "./TransformContext";
 import { useTheme } from "@mui/material/styles";
 import { ContainerizedLoadingBackdrop } from "../../../../components/Loader";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import axios from "axios";
 import { toast } from "react-toastify";
 import { zoomToBounds } from "./utils/MapOperations";
+import { runGeoflipJob } from "../../../../utils/geoflip-helper";
 import {StyledTextField, StyledInputLabel, StyledSelect, StyledButton, StyledLongButton, StyledUploadIcon} from "../../../../utils/InputStyles";
 
 const Upload = () => {
@@ -63,41 +63,38 @@ const Upload = () => {
         setLoading(true);
         try {
             const formData = new FormData();
-            formData.append('file', selectedFile);
+            formData.append('input_file', selectedFile);
 
 			const config = {
-                output_format: "geojson",
-				output_crs: "EPSG:4326"
+                input: {
+                    format: inputFormat
+                },
+                output: {
+                    format: "geojson"
+                }
             };
 
             if (inputFormat === "dxf" && inputCRS) {
-                config.input_crs = `EPSG:${inputCRS}`;
+                config.input.epsg = inputCRS;
             }
 
             formData.append('config', JSON.stringify(config));
 
-			const response = await axios.post(
-                `${import.meta.env.VITE_API_URL}/v1/transform/${inputFormat}`,
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
+            const geojsonData = await runGeoflipJob(
+                import.meta.env.VITE_API_URL,
+                formData
             );
 
-            if (response.status === 200) {
-                const geojsonData = response.data;
-                drawRef.current.set(geojsonData);
+            drawRef.current.set(geojsonData);
 
-				const features = drawRef.current.getAll().features
-                setActiveFeatures(features);
+            const features = drawRef.current.getAll().features
+            setActiveFeatures(features);
 
-				stopRotationRef.current();
-				zoomToBounds(mapRef.current, features);
+            stopRotationRef.current();
+            zoomToBounds(mapRef.current, features);
 
-                toast.info(`${inputFormat} uploaded successfully`);
-            }
+            toast.info(`${inputFormat} uploaded successfully`);
+
 
             setSelectedFile(null);
             setUploadAvailable(false);
@@ -141,7 +138,7 @@ const Upload = () => {
                         IconComponent={ArrowDropDownIcon}
                     >
                         <MenuItem value={"shp"}>Shapefile</MenuItem>
-                        <MenuItem value={"gpkg"}>Geopackage</MenuItem>
+                        <MenuItem disabled value={"gpkg"}>Geopackage</MenuItem>
                         <MenuItem value={"dxf"}>DXF</MenuItem>
                     </StyledSelect>
                     {inputFormat == "dxf" && (
