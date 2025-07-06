@@ -3,12 +3,12 @@ import json
 import io
 import uuid
 import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 from app.api.v1.utils.file_handling import save_input
 from app.core.security import get_current_user
 from app.accounts.models.user import User
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends, Request
+from fastapi import APIRouter, UploadFile, Form, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
@@ -23,8 +23,7 @@ from app.core.usage_logger import log_usage
 router = APIRouter()
 logger = logging.getLogger("api")
 
-string_input_types = ["geojson"]
-binary_input_types = ["shp", "dxf"]
+input_types = ["shp", "dxf", "geojson"]
 
 
 @router.post("/transform", status_code=200)
@@ -32,7 +31,7 @@ async def create_transformation(
     request: Request,
     current_user: Annotated[User, Depends(get_current_user)],
     config: Annotated[str, Form(...)],
-    input_file: Optional[UploadFile] = File(None)
+    input_file: UploadFile
 ):
     start_time = datetime.datetime.now()
 
@@ -44,13 +43,12 @@ async def create_transformation(
         raise HTTPException(status_code=400, detail="input is invalid")
     except Exception as e:
         logger.warning(f"Bad request: {e}")
-        raise HTTPException(status_code=400, detail="Bad request, check your json")
+        raise HTTPException(status_code=400, detail=f"Bad request: {e}")
 
     input_format:str = transform.input.format
     input_epsg: int = transform.input.epsg
     job_id:str = str(uuid.uuid4())
     input_file_path:str = None
-    data:dict = None
     output_format:str = transform.output.format
     output_epsg:int = transform.output.epsg
     output_to_file: bool = transform.output.to_file
@@ -58,25 +56,16 @@ async def create_transformation(
     # convert transformations to a list of dictionaries to pass to the celery task
     transformations: list = [t.model_dump(mode="json") for t in transform.transformations]
 
-    if input_format not in string_input_types + binary_input_types:
+    if input_format not in input_types:
         raise HTTPException(status_code=400, detail=f"Unsupported input type: {input_format}")
 
-    # if input_type is a string input type then data is required
-    if input_format in string_input_types:
-        data = getattr(transform.input, "data", None)
-        payload_size_bytes = len(json.dumps(data).encode("utf-8"))
-        if data is None:
-            raise HTTPException(status_code=400, detail=f"data is required for {'/'.join(string_input_types)} input type")
-
-    # Step 4: Save input_file if present
-    if input_format in binary_input_types:
-        if input_file:
-            input_file_path = await save_input(input_file, job_id)
-            input_file.file.seek(0, io.SEEK_END)
-            payload_size_bytes = input_file.file.tell()
-            input_file.file.seek(0)
-        else:
-            raise HTTPException(status_code=400, detail="input_file is required for binary input type")
+    if input_file:
+        input_file_path = await save_input(input_file, job_id)
+        input_file.file.seek(0, io.SEEK_END)
+        payload_size_bytes = input_file.file.tell()
+        input_file.file.seek(0)
+    else:
+        raise HTTPException(status_code=400, detail="input_file is required")
         
     # Step 6: Que the celery task
     logger.info(f"job_id: ({current_user.email}){job_id} - Queuing transformation task for input type: {input_format}")
@@ -89,7 +78,6 @@ async def create_transformation(
             output_epsg,
             input_epsg,
             input_file_path, 
-            data,
             output_to_file
         ],
         expires=app_config.JOB_EXPIRY_TIME,

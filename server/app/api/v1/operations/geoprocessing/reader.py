@@ -2,7 +2,7 @@ import geopandas as gpd
 import logging
 import os
 import zipfile
-
+import json
 
 logger = logging.getLogger("api")
 
@@ -33,15 +33,26 @@ def shp_to_gdf(input_zip_path: str) -> gpd.GeoDataFrame:
     
     return gdf
 
-def geojson_to_gdf(geojson_dict: dict) -> gpd.GeoDataFrame:
+def geojson_to_gdf(input_filepath: str) -> gpd.GeoDataFrame:
+    """
+    Load a GeoJSON FeatureCollection from `input_filepath`
+    and return it as a GeoDataFrame in EPSG:4326.
+    """
     try:
-        # Expecting a full GeoJSON FeatureCollection
-        if geojson_dict.get("type") != "FeatureCollection":
-            raise ValueError("Invalid GeoJSON: must be a FeatureCollection.")
+        # Read the GeoJSON file into a dict
+        with open(input_filepath, "r", encoding="utf-8") as f:
+            geojson_dict = json.load(f)
 
-        # Convert directly to GeoDataFrame
-        gdf = gpd.GeoDataFrame.from_features(geojson_dict["features"])
-        gdf.set_crs(epsg=4326, inplace=True)
+        # Basic validation
+        if geojson_dict.get("type") != "FeatureCollection":
+            raise ValueError("Invalid GeoJSON: expected a FeatureCollection.")
+
+        # Build the GeoDataFrame (GeoPandas handles geometry parsing)
+        gdf = gpd.GeoDataFrame.from_features(
+            geojson_dict["features"],
+            crs="EPSG:4326"   # Set the CRS explicitly
+        )
+
         return gdf
 
     except Exception as e:
@@ -56,12 +67,12 @@ def dxf_to_gdf(input_filepath: str, input_epsg: int) -> gpd.GeoDataFrame:
         raise ValueError(f"Error handling DXF file: {e} - api usage as not been recorded.")
     return gdf
 
-def input_to_gdf(input_format: str, input_filepath: str = None, input_epsg: int = None, data: str = None) -> gpd.GeoDataFrame:
+def input_to_gdf(input_format: str, input_filepath: str = None, input_epsg: int = None) -> gpd.GeoDataFrame:
 	match input_format:
 		case "shp":
 			return shp_to_gdf(input_filepath)
 		case "geojson":
-			return geojson_to_gdf(data)
+			return geojson_to_gdf(input_filepath)
 		case "dxf":
 			return dxf_to_gdf(input_filepath, input_epsg)
 		case _:
