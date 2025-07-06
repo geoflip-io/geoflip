@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material/styles"
 import { toast } from "react-toastify";
 import {StyledTextField, StyledSelect, StyledButton, StyledInputLabel} from "../../../../../utils/InputStyles";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import { runGeoflipJob, createGeojsonFile } from "../../../../../utils/geoflip-helper";
+import { runGeoflipJob } from "../../../../../utils/geoflip-helper";
 
 const BufferTransform = ({setLoading}) => {
 	const theme = useTheme();
