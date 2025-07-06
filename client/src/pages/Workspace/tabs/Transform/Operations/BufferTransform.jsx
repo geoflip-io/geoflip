@@ -90,6 +90,7 @@ const BufferTransform = ({setLoading}) => {
                 
             } catch (error) {
                 console.log(error);
+                toast.error("there was an error transforming your data");
             } finally {
                 setLoading(false);
             }
