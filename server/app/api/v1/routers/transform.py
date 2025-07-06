@@ -43,7 +43,7 @@ async def create_transformation(
         raise HTTPException(status_code=400, detail="input is invalid")
     except Exception as e:
         logger.warning(f"Bad request: {e}")
-        raise HTTPException(status_code=400, detail=f"Bad request: {e}")
+        raise HTTPException(status_code=400, detail=f"Bad request {e}")
 
     input_format:str = transform.input.format
     input_epsg: int = transform.input.epsg

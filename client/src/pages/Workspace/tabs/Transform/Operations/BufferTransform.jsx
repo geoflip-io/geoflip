@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material/styles"
 import { toast } from "react-toastify";
 import {StyledTextField, StyledSelect, StyledButton, StyledInputLabel} from "../../../../../utils/InputStyles";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import { runGeoflipJob } from "../../../../../utils/geoflip-helper";
+import { runGeoflipJob, createGeojsonFile } from "../../../../../utils/geoflip-helper";
 
 const BufferTransform = ({setLoading}) => {
 	const theme = useTheme();
@@ -42,14 +42,20 @@ const BufferTransform = ({setLoading}) => {
 			setLoading(true);
             try {
                 const formData = new FormData();
+                
+                const featureCollection = {
+                    type: "FeatureCollection",
+                    features: drawRef.current.getAll().features,
+                };
+                const blob = new Blob(
+                    [JSON.stringify(featureCollection)],
+                    { type: "application/geo+json" }
+                );
+                formData.append("input_file", blob, "input.geojson"); 
 
                 const config = {
                     input: {
                         format: "geojson",
-                        data: {
-                            type: "FeatureCollection",
-                            features: drawRef.current.getAll().features
-                        }
                     },
                     transformations:[
                         {
@@ -61,10 +67,10 @@ const BufferTransform = ({setLoading}) => {
                         }
                     ],
                     output: {
-                        format: "geojson"
+                        format: "geojson",
+                        to_file: false
                     }
                 };
-
                 formData.append('config', JSON.stringify(config));
 
                 const geojsonData = await runGeoflipJob(
