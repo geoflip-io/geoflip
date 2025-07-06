@@ -16,7 +16,7 @@ export async function runGeoflipJob(
   apiBase,
   formData,
   to_file = false,
-  { pollInterval = 200, timeout = 10000 } = {}
+  { pollInterval = 300, timeout = 120000 } = {}
 ) {
   const t0 = Date.now();
 
@@ -52,7 +52,18 @@ export async function runGeoflipJob(
   if (to_file) {
     return outputUrl
   } else {
-    const { data } = await axios.get(outputUrl);           // axios auto-parses JSON
-    return data;
+    console.log(outputUrl);
+    const { data: blob } = await axios.get(outputUrl, { responseType: "blob" });
+    const text = await blob.text();          // Convert Blob to string
+    const geojsonData = JSON.parse(text);
+
+    const finalOutputData = {
+      ...geojsonData,
+      features: geojsonData.features.filter(
+          (f) => f.geometry && f.geometry.type && f.geometry.coordinates?.length
+      ),
+    };
+    
+    return finalOutputData          // Parse as GeoJSON
   }
 }

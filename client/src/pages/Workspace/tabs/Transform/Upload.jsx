@@ -101,6 +101,7 @@ const Upload = () => {
 
         } catch (error) {
             console.error(error);
+            toast.error("there was an error uploading your file");
         } finally {
             setLoading(false);
         }
