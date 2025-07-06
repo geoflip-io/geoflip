@@ -21,8 +21,7 @@ def transform_operation(self,
         output_epsg:int,
         input_epsg: Optional[int] = None, 
         input_file_path: str = None, 
-        data: dict = None,
-        to_file: bool = False
+        to_file: bool = True
     ) -> dict:
     input_gdf: gpd.GeoDataFrame = None
 
@@ -33,8 +32,8 @@ def transform_operation(self,
         self.update_state(state="PROGRESS", meta={"message": "Transform task started."})
 
         # Read input data
-        if (input_file_path or data) and not(input_file_path and data):
-            input_gdf = input_to_gdf(input_format, input_file_path, input_epsg, data)
+        if (input_file_path):
+            input_gdf = input_to_gdf(input_format, input_file_path, input_epsg)
             logger.info(f"Task {self.request.id}: Data read successfully {input_gdf.head()}")
         else:
             raise ValueError("Either input_file_path or data must be provided - not both.")
