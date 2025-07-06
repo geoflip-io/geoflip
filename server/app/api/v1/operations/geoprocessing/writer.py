@@ -123,7 +123,7 @@ def gdf_to_dxf(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     return output_path
 
 # returns the path to the output file or the content of the file
-def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str, to_file:bool = False) -> str:
+def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str, to_file:bool = True) -> str:
 	output_dir = os.path.join(app_config.DATA_PATH, job_id, "output")
 	os.makedirs(output_dir, exist_ok=True)
 	

@@ -17,14 +17,20 @@ const UnionTransform = ({setLoading}) => {
 			setLoading(true);
             try {
                 const formData = new FormData();
+                
+                const featureCollection = {
+                    type: "FeatureCollection",
+                    features: drawRef.current.getAll().features,
+                };
+                const blob = new Blob(
+                    [JSON.stringify(featureCollection)],
+                    { type: "application/geo+json" }
+                );
+                formData.append("input_file", blob, "input.geojson"); 
 
                 const config = {
                     input: {
                         format: "geojson",
-                        data: {
-                            type: "FeatureCollection",
-                            features: drawRef.current.getAll().features
-                        }
                     },
                     transformations:[
                         {
@@ -35,7 +41,6 @@ const UnionTransform = ({setLoading}) => {
                         format: "geojson"
                     }
                 };
-
                 formData.append('config', JSON.stringify(config));
 
                 const geojsonData = await runGeoflipJob(
