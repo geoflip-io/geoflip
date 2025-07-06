@@ -58,6 +58,7 @@ const UnionTransform = ({setLoading}) => {
                 toast.info(`Union has been applied`);
             } catch (error) {
                 console.error(error);
+                toast.error("there was an error transforming your data");
             } finally {
                 setLoading(false);
             }
