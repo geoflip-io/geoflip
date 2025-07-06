@@ -52,7 +52,18 @@ export async function runGeoflipJob(
   if (to_file) {
     return outputUrl
   } else {
-    const { data } = await axios.get(outputUrl);           // axios auto-parses JSON
-    return data;
+    console.log(outputUrl);
+    const { data: blob } = await axios.get(outputUrl, { responseType: "blob" });
+    const text = await blob.text();          // Convert Blob to string
+    const geojsonData = JSON.parse(text);
+
+    const finalOutputData = {
+      ...geojsonData,
+      features: geojsonData.features.filter(
+          (f) => f.geometry && f.geometry.type && f.geometry.coordinates?.length
+      ),
+    };
+    
+    return finalOutputData          // Parse as GeoJSON
   }
 }
