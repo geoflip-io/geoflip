@@ -5,6 +5,7 @@ import mapboxgl, { LngLat } from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { useTheme } from "@mui/material/styles";
 import { ClearAll, SatelliteToggle } from "./map/CustomControls"; // Import the new control
+import { useClearActiveLayer } from "./utils/MapOperations";
 import { getLayerStyles } from './utils/LayerStyles';
 import "./map/CustomControls.css";
 
@@ -12,10 +13,11 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const MapContainer = () => {
     const theme = useTheme();
-    const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures, setEraseFeatures, setClipFeatures } = useContext(TransformContext);
+    const { mapRef, drawRef, stopRotationRef, setActiveFeatures, setEraseFeatures, setClipFeatures } = useContext(TransformContext);
     const [mapCentrePosition, setMapCentrePosition] = useState(new LngLat(0, 0));
     const mapContainer = useRef(null);
     const rotationInterval = useRef(null);
+    const clearActiveLayer = useClearActiveLayer();
 
     useEffect(() => {
         if (mapRef.current || !mapContainer.current) return; 
@@ -52,9 +54,10 @@ const MapContainer = () => {
         mapRef.current.on("load", () => {
             startRotation();
             if (mapRef.current && drawRef.current) {
-                mapRef.current.addControl(drawRef.current, "top-left");
+                // disabled drawing as we've moved to using a layer instead for performance
+                // mapRef.current.addControl(drawRef.current, "top-left");
                 mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
-                mapRef.current.addControl(new ClearAll(drawRef.current, setActiveFeatures, mapRef, setEraseFeatures, setClipFeatures), 'top-left');
+                mapRef.current.addControl(new ClearAll(drawRef.current, mapRef, setEraseFeatures, setClipFeatures, clearActiveLayer), 'top-left');
                 mapRef.current.addControl(new SatelliteToggle(mapRef, theme), 'top-left');
                 
                 mapRef.current.addSource('combined-features', {
@@ -69,6 +72,46 @@ const MapContainer = () => {
                     if (mapRef.current){
                         mapRef.current.addLayer(style);
                     }
+                });
+
+                mapRef.current.addSource('geoflip-output', {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: []
+                    }
+                });
+                mapRef.current.addLayer({
+                    id: 'geoflip-output-fill',
+                    type: 'fill',
+                    source: 'geoflip-output',
+                    paint: {
+                        'fill-color': '#f08',
+                        'fill-opacity': 0.5
+                    },
+                    filter: ['==', '$type', 'Polygon']
+                });
+
+                mapRef.current.addLayer({
+                    id: 'geoflip-output-line',
+                    type: 'line',
+                    source: 'geoflip-output',
+                    paint: {
+                        'line-color': '#f08',
+                        'line-width': 2
+                    },
+                    filter: ['==', '$type', 'LineString']
+                });
+
+                mapRef.current.addLayer({
+                    id: 'geoflip-output-point',
+                    type: 'circle',
+                    source: 'geoflip-output',
+                    paint: {
+                        'circle-radius': 5,
+                        'circle-color': '#f08'
+                    },
+                    filter: ['==', '$type', 'Point']
                 });
             }
         });

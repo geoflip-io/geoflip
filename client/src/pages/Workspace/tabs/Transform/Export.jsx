@@ -16,7 +16,7 @@ import axios from "axios";
 const Export = () => {
     const theme = useTheme();
     const navigate = useNavigate();
-    const { drawRef, activeFeatures } = useContext(TransformContext);
+    const { activeFeatures } = useContext(TransformContext);
     const { addExportJob } = useContext(ExportsContext);
 	const [outputFormat, setOutputFormat] = useState("shp");
 	const [outputCRS, setOutputCRS] = useState(4326);
@@ -43,7 +43,7 @@ const Export = () => {
         
         const featureCollection = {
             type: "FeatureCollection",
-            features: drawRef.current.getAll().features,
+            features: activeFeatures,
         };
         const blob = new Blob(
             [JSON.stringify(featureCollection)],
