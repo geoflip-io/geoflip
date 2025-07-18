@@ -3,7 +3,7 @@ import mapboxgl from "mapbox-gl";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useContext } from 'react';
-import { TransformContext } from '../TransformContext'
+import { TransformContext } from '../TransformContext';
 
 const zoomToBounds = (map, features) => {
 	// Fit map to the extent of the new features using Turf.js
@@ -55,6 +55,7 @@ const useUpdateActiveLayer = () => {
 
 	const updateActiveLayer = (geojsonData) => {
 		const map = mapRef.current;
+		
 		if (map && map.getSource('geoflip-output')) {
 			map.getSource('geoflip-output').setData(geojsonData);
 		}
@@ -106,4 +107,22 @@ const useAddToActiveLayer = () => {
 	return addToActiveLayer;
 };
 
-export { zoomToBounds, handleAPIError, useUpdateActiveLayer, useClearActiveLayer, useAddToActiveLayer }
+const useDeleteFeatureFromLayer = () => {
+	const { mapRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
+
+	const deleteFeatureById = (featureId) => {
+
+		// Update the Mapbox layer source
+		const map = mapRef.current;
+		if (map && map.getSource('geoflip-output')) {
+			console.log(map.getSource('geoflip-output'));
+		}
+
+		// setActiveFeatures(updatedFeatures);
+	};
+
+	return deleteFeatureById;
+};
+
+
+export { zoomToBounds, handleAPIError, useUpdateActiveLayer, useClearActiveLayer, useAddToActiveLayer, useDeleteFeatureFromLayer }

@@ -19,6 +19,7 @@ const MapContainer = () => {
     const rotationInterval = useRef(null);
     const clearActiveLayer = useClearActiveLayer();
     const addToActiveLayer = useAddToActiveLayer();
+    const layers = getLayerStyles(theme);
 
     useEffect(() => {
         if (mapRef.current || !mapContainer.current) return; 
@@ -65,7 +66,8 @@ const MapContainer = () => {
                     data: {
                         type: 'FeatureCollection',
                         features: []
-                    }
+                    },
+                    generateId: true
                 });
 
                 mapRef.current.addSource('geoflip-output', {
@@ -73,12 +75,22 @@ const MapContainer = () => {
                     data: {
                         type: 'FeatureCollection',
                         features: []
-                    }
+                    },
+                    generateId: true
                 });
 
-                getLayerStyles(theme).forEach(style => {
+                // handle all the layers
+                layers.forEach(layer => {
                     if (mapRef.current){
-                        mapRef.current.addLayer(style);
+                        mapRef.current.addLayer(layer);
+
+                        mapRef.current.on('click', layer.id, (e) => {
+                            const feature = e.features[0];
+                            // const id = feature.id;
+
+                            // Save this ID somewhere (e.g. selectedFeatureId state)
+                            console.log(feature);
+                        });
                     }
                 });
             }
@@ -126,8 +138,6 @@ const MapContainer = () => {
 
     const updateActiveFeatures = () => {
         const features = JSON.parse(JSON.stringify(drawRef.current.getAll().features));
-        console.log("draw features:");
-        console.log(features);
         addToActiveLayer(features);
     };
 
