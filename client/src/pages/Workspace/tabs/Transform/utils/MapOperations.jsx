@@ -81,6 +81,29 @@ const useClearActiveLayer = () => {
 	};
 
 	return clearActiveLayer;
-}
+};
 
-export { zoomToBounds, handleAPIError, useUpdateActiveLayer, useClearActiveLayer }
+const useAddToActiveLayer = () => {
+	const { mapRef, setActiveFeatures, drawRef } = useContext(TransformContext);
+
+	const addToActiveLayer = (features) => {
+		setActiveFeatures(prev => {
+			const updatedFeatures = [...prev, ...features];
+
+			const map = mapRef.current;
+			if (map && map.getSource('geoflip-output')) {
+				map.getSource('geoflip-output').setData({
+					type: "FeatureCollection",
+					features: updatedFeatures
+				});
+			}
+
+			drawRef.current.deleteAll();
+			return updatedFeatures;
+		});
+	};
+
+	return addToActiveLayer;
+};
+
+export { zoomToBounds, handleAPIError, useUpdateActiveLayer, useClearActiveLayer, useAddToActiveLayer }

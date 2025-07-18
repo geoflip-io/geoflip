@@ -5,7 +5,7 @@ import mapboxgl, { LngLat } from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { useTheme } from "@mui/material/styles";
 import { ClearAll, SatelliteToggle } from "./map/CustomControls"; // Import the new control
-import { useClearActiveLayer } from "./utils/MapOperations";
+import { useClearActiveLayer, useAddToActiveLayer } from "./utils/MapOperations";
 import { getLayerStyles } from './utils/LayerStyles';
 import "./map/CustomControls.css";
 
@@ -18,6 +18,7 @@ const MapContainer = () => {
     const mapContainer = useRef(null);
     const rotationInterval = useRef(null);
     const clearActiveLayer = useClearActiveLayer();
+    const addToActiveLayer = useAddToActiveLayer();
 
     useEffect(() => {
         if (mapRef.current || !mapContainer.current) return; 
@@ -54,8 +55,7 @@ const MapContainer = () => {
         mapRef.current.on("load", () => {
             startRotation();
             if (mapRef.current && drawRef.current) {
-                // disabled drawing as we've moved to using a layer instead for performance
-                // mapRef.current.addControl(drawRef.current, "top-left");
+                mapRef.current.addControl(drawRef.current, "top-left");
                 mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
                 mapRef.current.addControl(new ClearAll(drawRef.current, mapRef, setEraseFeatures, setClipFeatures, clearActiveLayer), 'top-left');
                 mapRef.current.addControl(new SatelliteToggle(mapRef, theme), 'top-left');
@@ -125,8 +125,10 @@ const MapContainer = () => {
     };
 
     const updateActiveFeatures = () => {
-        const features = drawRef.current.getAll().features;
-        setActiveFeatures(features);
+        const features = JSON.parse(JSON.stringify(drawRef.current.getAll().features));
+        console.log("draw features:");
+        console.log(features);
+        addToActiveLayer(features);
     };
 
     return (
