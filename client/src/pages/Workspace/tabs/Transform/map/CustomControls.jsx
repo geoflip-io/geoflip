@@ -5,14 +5,14 @@ import SatelliteOutlinedIcon from '@mui/icons-material/SatelliteOutlined';;  // 
 import { getLayerStyles } from '../utils/LayerStyles';
 
 class ClearAll {
-    constructor(draw, setActiveFeatures, mapRef, setEraseFeatures, setClipFeatures) {
+    constructor(draw, mapRef, setEraseFeatures, setClipFeatures, clearActiveLayer) {
         this.draw = draw;
         this.container = null;
         this.root = null;
-        this.setActiveFeatures = setActiveFeatures;
         this.mapRef = mapRef;
         this.setEraseFeatures = setEraseFeatures;
         this.setClipFeatures = setClipFeatures;
+        this.clearActiveLayer = clearActiveLayer;
     }
 
     onAdd() {
@@ -48,6 +48,8 @@ class ClearAll {
     }
 
     onClick() {
+        this.clearActiveLayer();
+
         // Also clear the combined-features source on the map
         if (this.mapRef.current) {
             const source = this.mapRef.current.getSource('combined-features');
@@ -58,10 +60,14 @@ class ClearAll {
                 });
             }
         }
-        this.setActiveFeatures([]);
         this.setEraseFeatures([]);
         this.setClipFeatures([]);
-        this.draw.deleteAll();
+
+        // try clear the drawn features but will cause an error if there are none
+        // so catch the error if there is one.
+        try {
+            this.draw.deleteAll();
+        } catch{}
     }
 }
 

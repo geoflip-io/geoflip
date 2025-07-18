@@ -52,7 +52,6 @@ export async function runGeoflipJob(
   if (to_file) {
     return outputUrl
   } else {
-    console.log(outputUrl);
     const { data: blob } = await axios.get(outputUrl, { responseType: "blob" });
     const text = await blob.text();          // Convert Blob to string
     const geojsonData = JSON.parse(text);
