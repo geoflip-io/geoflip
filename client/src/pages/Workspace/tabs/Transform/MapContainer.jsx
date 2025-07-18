@@ -8,12 +8,13 @@ import { ClearAll, SatelliteToggle } from "./map/CustomControls"; // Import the 
 import { useClearActiveLayer, useAddToActiveLayer } from "./utils/MapOperations";
 import { getLayerStyles } from './utils/LayerStyles';
 import "./map/CustomControls.css";
+import FeatureWindow from "./map/FeatureWindow";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const MapContainer = () => {
     const theme = useTheme();
-    const { mapRef, drawRef, stopRotationRef, setActiveFeatures, setEraseFeatures, setClipFeatures } = useContext(TransformContext);
+    const { mapRef, drawRef, stopRotationRef, setEraseFeatures, setClipFeatures, selectedFeature, setSelectedFeature } = useContext(TransformContext);
     const [mapCentrePosition, setMapCentrePosition] = useState(new LngLat(0, 0));
     const mapContainer = useRef(null);
     const rotationInterval = useRef(null);
@@ -84,15 +85,34 @@ const MapContainer = () => {
                     if (mapRef.current){
                         mapRef.current.addLayer(layer);
 
+                        // set the selected feature state when layer is clicked
                         mapRef.current.on('click', layer.id, (e) => {
                             const feature = e.features[0];
-                            // const id = feature.id;
+                            setSelectedFeature(feature);
+                        });
 
-                            // Save this ID somewhere (e.g. selectedFeatureId state)
-                            console.log(feature);
+                        // change cursor when hovering on a feature
+                        mapRef.current.on('mouseenter', layer.id, (e) => {
+                            mapRef.current.getCanvas().style.cursor = 'pointer';
+                        });
+                        mapRef.current.on('mouseleave', layer.id, () => {
+                            mapRef.current.getCanvas().style.cursor = '';
                         });
                     }
                 });
+
+                // this clears the selected layer data when you click on the map but not on a feature
+                if (mapRef.current) {
+                    mapRef.current.on('click', (e) => {
+                        // query all feature layers at once
+                        const features = mapRef.current.queryRenderedFeatures(e.point, {
+                            layers: layers.map(layer => layer.id)
+                        });
+                        if (features.length === 0) {
+                            setSelectedFeature(null);
+                        }
+                    });
+                }
             }
         });
 
@@ -144,6 +164,7 @@ const MapContainer = () => {
     return (
         <Box
             sx={{
+                position: 'relative',
                 height: "100%",
                 width: "100%",
                 '& .map-container': {
@@ -157,6 +178,24 @@ const MapContainer = () => {
                 ref={mapContainer}
                 className="map-container"
             />
+            {/* Floating info panel - only displays when there is a selected feature*/}
+            {selectedFeature && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: 7,
+                        left: 7,
+                        minWidth: 250,
+                        padding: 2,
+                        backgroundColor: theme.palette.secondary.main,
+                        boxShadow: 3,
+                        borderRadius: 2,
+                        zIndex: 10, // make sure it's above the map controls
+                    }}
+                >
+                    <FeatureWindow />
+                </Box>
+            )}
         </Box>
     );
 };
