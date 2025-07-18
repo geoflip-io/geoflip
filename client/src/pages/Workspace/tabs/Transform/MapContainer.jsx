@@ -58,7 +58,7 @@ const MapContainer = () => {
             startRotation();
             if (mapRef.current && drawRef.current) {
                 mapRef.current.addControl(drawRef.current, "top-left");
-                mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+                mapRef.current.addControl(new mapboxgl.NavigationControl(), "bottom-left");
                 mapRef.current.addControl(new ClearAll(drawRef.current, mapRef, setEraseFeatures, setClipFeatures, clearActiveLayer), 'top-left');
                 mapRef.current.addControl(new SatelliteToggle(mapRef, theme), 'top-left');
                 
@@ -89,6 +89,8 @@ const MapContainer = () => {
                         mapRef.current.on('click', layer.id, (e) => {
                             const feature = e.features[0];
                             setSelectedFeature(feature);
+
+                            console.log(feature);
                         });
 
                         // change cursor when hovering on a feature
@@ -183,14 +185,22 @@ const MapContainer = () => {
                 <Box
                     sx={{
                         position: 'absolute',
-                        bottom: 7,
-                        left: 7,
+                        top: 6,
+                        right: 6,
+                        bottom: 6,
                         minWidth: 250,
+                        maxWidth: 350,
+                        overflowY: 'auto',
+                        overflowX: 'auto',
+                        scrollbarWidth: 'none', 
+                        '&::-webkit-scrollbar': {
+                            display: 'none' 
+                        },
                         padding: 2,
                         backgroundColor: theme.palette.secondary.main,
                         boxShadow: 3,
                         borderRadius: 2,
-                        zIndex: 10, // make sure it's above the map controls
+                        zIndex: 10
                     }}
                 >
                     <FeatureWindow />
