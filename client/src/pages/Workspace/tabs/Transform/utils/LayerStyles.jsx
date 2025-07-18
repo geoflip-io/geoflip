@@ -82,6 +82,50 @@ const getLayerStyles = (theme) => [
 			'circle-stroke-width': 2,
 			'circle-stroke-color': theme.map.features.clip,
 		}
+	},
+
+	// main output layer
+	{
+		id: 'geoflip-output-fill',
+		type: 'fill',
+		source: 'geoflip-output',
+		paint: {
+			'fill-color': '#3690EB',
+			'fill-opacity': 0.5
+		},
+		filter: ['==', '$type', 'Polygon']
+	},
+	{
+		id: 'geoflip-output-outline',
+		type: 'line',
+		source: 'geoflip-output',
+		paint: {
+			'line-color': '#2D4864',
+			'line-width': 2
+		},
+		filter: ['==', '$type', 'Polygon']
+	},
+	{
+		id: 'geoflip-output-line',
+		type: 'line',
+		source: 'geoflip-output',
+		paint: {
+			'line-color': '#2D4864',
+			'line-width': 2
+		},
+		filter: ['==', '$type', 'LineString']
+	},
+	{
+		id: 'geoflip-output-point',
+		type: 'circle',
+		source: 'geoflip-output',
+		paint: {
+			'circle-radius': 3,
+			'circle-stroke-width': 2,
+			'circle-color': '#3690EB',
+			'circle-stroke-color': '#2D4864',
+		},
+		filter: ['==', '$type', 'Point']
 	}
 ];
 

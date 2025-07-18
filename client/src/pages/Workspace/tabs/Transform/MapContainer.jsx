@@ -68,12 +68,6 @@ const MapContainer = () => {
                     }
                 });
 
-                getLayerStyles(theme).forEach(style => {
-                    if (mapRef.current){
-                        mapRef.current.addLayer(style);
-                    }
-                });
-
                 mapRef.current.addSource('geoflip-output', {
                     type: 'geojson',
                     data: {
@@ -81,37 +75,11 @@ const MapContainer = () => {
                         features: []
                     }
                 });
-                mapRef.current.addLayer({
-                    id: 'geoflip-output-fill',
-                    type: 'fill',
-                    source: 'geoflip-output',
-                    paint: {
-                        'fill-color': '#f08',
-                        'fill-opacity': 0.5
-                    },
-                    filter: ['==', '$type', 'Polygon']
-                });
 
-                mapRef.current.addLayer({
-                    id: 'geoflip-output-line',
-                    type: 'line',
-                    source: 'geoflip-output',
-                    paint: {
-                        'line-color': '#f08',
-                        'line-width': 2
-                    },
-                    filter: ['==', '$type', 'LineString']
-                });
-
-                mapRef.current.addLayer({
-                    id: 'geoflip-output-point',
-                    type: 'circle',
-                    source: 'geoflip-output',
-                    paint: {
-                        'circle-radius': 5,
-                        'circle-color': '#f08'
-                    },
-                    filter: ['==', '$type', 'Point']
+                getLayerStyles(theme).forEach(style => {
+                    if (mapRef.current){
+                        mapRef.current.addLayer(style);
+                    }
                 });
             }
         });

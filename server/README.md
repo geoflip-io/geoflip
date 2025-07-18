@@ -107,8 +107,9 @@ Follow the steps below to add new reader formats, reader formats is how geoflip 
     - ~~clean up redis records and trigger clean up process on celery job expire~~
 - ~~Add in transformations pipeline into the transform operation~~
 - ~~Add string  format to_file option~~
-- improve mapbox map performance while working with large datasets
-    - the data is currently drawing on the draw object and should instead be displayed on the layer object
+- ~~improve mapbox map performance while working with large datasets~~
+- add drawing back into the map
+- add attribute info display on feature click
 - update libraries to latest versions
 - need to validate input and output epsg values sent from the user
     - should be in `\geoflip\server\app\api\v1\models\transform.py`
