@@ -5,6 +5,7 @@ import mapboxgl, { LngLat } from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { useTheme } from "@mui/material/styles";
 import { ClearAll, SatelliteToggle } from "./map/CustomControls"; // Import the new control
+import { useClearActiveLayer, useAddToActiveLayer } from "./utils/MapOperations";
 import { getLayerStyles } from './utils/LayerStyles';
 import "./map/CustomControls.css";
 
@@ -12,10 +13,12 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const MapContainer = () => {
     const theme = useTheme();
-    const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures, setEraseFeatures, setClipFeatures } = useContext(TransformContext);
+    const { mapRef, drawRef, stopRotationRef, setActiveFeatures, setEraseFeatures, setClipFeatures } = useContext(TransformContext);
     const [mapCentrePosition, setMapCentrePosition] = useState(new LngLat(0, 0));
     const mapContainer = useRef(null);
     const rotationInterval = useRef(null);
+    const clearActiveLayer = useClearActiveLayer();
+    const addToActiveLayer = useAddToActiveLayer();
 
     useEffect(() => {
         if (mapRef.current || !mapContainer.current) return; 
@@ -54,10 +57,18 @@ const MapContainer = () => {
             if (mapRef.current && drawRef.current) {
                 mapRef.current.addControl(drawRef.current, "top-left");
                 mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
-                mapRef.current.addControl(new ClearAll(drawRef.current, setActiveFeatures, mapRef, setEraseFeatures, setClipFeatures), 'top-left');
+                mapRef.current.addControl(new ClearAll(drawRef.current, mapRef, setEraseFeatures, setClipFeatures, clearActiveLayer), 'top-left');
                 mapRef.current.addControl(new SatelliteToggle(mapRef, theme), 'top-left');
                 
                 mapRef.current.addSource('combined-features', {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: []
+                    }
+                });
+
+                mapRef.current.addSource('geoflip-output', {
                     type: 'geojson',
                     data: {
                         type: 'FeatureCollection',
@@ -114,8 +125,10 @@ const MapContainer = () => {
     };
 
     const updateActiveFeatures = () => {
-        const features = drawRef.current.getAll().features;
-        setActiveFeatures(features);
+        const features = JSON.parse(JSON.stringify(drawRef.current.getAll().features));
+        console.log("draw features:");
+        console.log(features);
+        addToActiveLayer(features);
     };
 
     return (

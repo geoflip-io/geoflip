@@ -2,6 +2,8 @@ import * as turf from '@turf/turf';
 import mapboxgl from "mapbox-gl";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useContext } from 'react';
+import { TransformContext } from '../TransformContext'
 
 const zoomToBounds = (map, features) => {
 	// Fit map to the extent of the new features using Turf.js
@@ -48,4 +50,60 @@ const handleAPIError = async(error, startMessage=null) => {
     return false;
 }
 
-export { zoomToBounds, handleAPIError }
+const useUpdateActiveLayer = () => {
+	const { mapRef, setActiveFeatures, stopRotationRef } = useContext(TransformContext);
+
+	const updateActiveLayer = (geojsonData) => {
+		const map = mapRef.current;
+		if (map && map.getSource('geoflip-output')) {
+			map.getSource('geoflip-output').setData(geojsonData);
+		}
+		setActiveFeatures(geojsonData.features);
+		stopRotationRef.current();
+		zoomToBounds(mapRef.current, geojsonData.features);
+	};
+
+	return updateActiveLayer;
+};
+
+const useClearActiveLayer = () => {
+	const { mapRef, setActiveFeatures } = useContext(TransformContext);
+
+	const clearActiveLayer = () => {
+		const map = mapRef.current;
+		if (map && map.getSource('geoflip-output')) {
+			map.getSource('geoflip-output').setData({
+				type: "FeatureCollection",
+				features: []
+			});
+		}
+		setActiveFeatures([]);
+	};
+
+	return clearActiveLayer;
+};
+
+const useAddToActiveLayer = () => {
+	const { mapRef, setActiveFeatures, drawRef } = useContext(TransformContext);
+
+	const addToActiveLayer = (features) => {
+		setActiveFeatures(prev => {
+			const updatedFeatures = [...prev, ...features];
+
+			const map = mapRef.current;
+			if (map && map.getSource('geoflip-output')) {
+				map.getSource('geoflip-output').setData({
+					type: "FeatureCollection",
+					features: updatedFeatures
+				});
+			}
+
+			drawRef.current.deleteAll();
+			return updatedFeatures;
+		});
+	};
+
+	return addToActiveLayer;
+};
+
+export { zoomToBounds, handleAPIError, useUpdateActiveLayer, useClearActiveLayer, useAddToActiveLayer }

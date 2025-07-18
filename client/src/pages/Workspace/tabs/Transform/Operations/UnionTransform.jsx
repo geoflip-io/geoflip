@@ -3,14 +3,15 @@ import {
 } from "@mui/material";
 import {useContext } from "react";
 import { TransformContext } from "../TransformContext";
-import { zoomToBounds } from "../utils/MapOperations";
 import { toast } from "react-toastify";
 import {StyledButton} from "../../../../../utils/InputStyles";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { runGeoflipJob } from "../../../../../utils/geoflip-helper";
+import { useUpdateActiveLayer } from "../utils/MapOperations"
 
 const UnionTransform = ({setLoading}) => {
-    const { mapRef, drawRef, stopRotationRef, activeFeatures } = useContext(TransformContext);
+    const updateActiveLayer = useUpdateActiveLayer();
+    const { activeFeatures } = useContext(TransformContext);
 
 	const handleApplyUnion = async () => {
 		const fetchData = async () => {
@@ -20,7 +21,7 @@ const UnionTransform = ({setLoading}) => {
                 
                 const featureCollection = {
                     type: "FeatureCollection",
-                    features: drawRef.current.getAll().features,
+                    features: activeFeatures,
                 };
                 const blob = new Blob(
                     [JSON.stringify(featureCollection)],
@@ -47,13 +48,7 @@ const UnionTransform = ({setLoading}) => {
                     import.meta.env.VITE_API_URL,
                     formData
                 );
-                
-                drawRef.current.set(geojsonData);
-
-                const features = drawRef.current.getAll().features
-
-                stopRotationRef.current();
-                zoomToBounds(mapRef.current, features);
+                updateActiveLayer(geojsonData);
 
                 toast.info(`Union has been applied`);
             } catch (error) {

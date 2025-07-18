@@ -57,21 +57,14 @@ POST /transform
 Content-Type: multipart/form-data
 ```
 
-**Form field: `config`**
+**Form fields:**
+- `config`: JSON config (see below)
+- `input_file`: a `.geojson` file containing valid geojson as content
+
 ```json
 {
   "input": {
-    "type": "geojson",
-    "data": {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "geometry": { "type": "Point", "coordinates": [125.6, 10.1] },
-          "properties": { "name": "Test Point" }
-        }
-      ]
-    }
+    "type": "geojson"
   },
   "transformations": [
     {
@@ -80,7 +73,7 @@ Content-Type: multipart/form-data
     }
   ],
   "output": {
-    "format": "shp",
+    "format": "shp", // shp, geojson, dxf is currently supported
     "epsg": 4326
   }
 }
@@ -114,7 +107,7 @@ Content-Type: multipart/form-data
     }
   ],
   "output": {
-    "format": "shp",
+    "format": "shp", // shp, geojson, dxf is currently supported
     "epsg": 4326
   }
 }
@@ -154,7 +147,7 @@ This returns the data either directly (ie GeoJSON) or the transformed file (ie z
 
 Planned features and improvements:
 
-- 📁 Additional formats: DXF, KML, GeoPackage, EsriJSON
+- 📁 Additional formats: KML, GeoPackage, EsriJSON
 - ✂️ More operations and transformations: clip, erase, simplify, append, explode
 - ☁️ tests
 

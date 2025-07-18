@@ -11,13 +11,15 @@ import { useTheme } from "@mui/material/styles";
 import { ContainerizedLoadingBackdrop } from "../../../../components/Loader";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { toast } from "react-toastify";
-import { zoomToBounds } from "./utils/MapOperations";
 import { runGeoflipJob } from "../../../../utils/geoflip-helper";
+import { useUpdateActiveLayer, useClearActiveLayer } from "./utils/MapOperations";
 import {StyledTextField, StyledInputLabel, StyledSelect, StyledButton, StyledLongButton, StyledUploadIcon} from "../../../../utils/InputStyles";
 
 const Upload = () => {
     const theme = useTheme();
-    const { mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
+    const updateActiveLayer = useUpdateActiveLayer();
+    const clearActiveLayer = useClearActiveLayer();
+    const { activeFeatures } = useContext(TransformContext);
     const [loading, setLoading] = useState(false);
 	const [inputFormat, setInputFormat] = useState("shp");
 	const [selectedFile, setSelectedFile] = useState(null);
@@ -53,8 +55,7 @@ const Upload = () => {
 	};
 
     const handleResetFeatures = () => {
-        drawRef.current.deleteAll();
-        setActiveFeatures([]);
+        clearActiveLayer();
     }
 
 	const handleUpload = async () => {
@@ -84,17 +85,9 @@ const Upload = () => {
                 import.meta.env.VITE_API_URL,
                 formData
             );
-
-            drawRef.current.set(geojsonData);
-
-            const features = drawRef.current.getAll().features
-            setActiveFeatures(features);
-
-            stopRotationRef.current();
-            zoomToBounds(mapRef.current, features);
+            updateActiveLayer(geojsonData);
 
             toast.info(`${inputFormat} uploaded successfully`);
-
 
             setSelectedFile(null);
             setUploadAvailable(false);
