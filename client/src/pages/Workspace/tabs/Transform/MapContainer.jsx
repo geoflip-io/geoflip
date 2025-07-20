@@ -67,8 +67,7 @@ const MapContainer = () => {
                     data: {
                         type: 'FeatureCollection',
                         features: []
-                    },
-                    generateId: true
+                    }
                 });
 
                 mapRef.current.addSource('geoflip-output', {
@@ -76,8 +75,7 @@ const MapContainer = () => {
                     data: {
                         type: 'FeatureCollection',
                         features: []
-                    },
-                    generateId: true
+                    }
                 });
 
                 mapRef.current.addSource('highlight-feature', {
@@ -95,7 +93,7 @@ const MapContainer = () => {
 
                         // set the selected feature state when layer is clicked
                         mapRef.current.on('click', layer.id, (e) => {
-                            const feature = e.features[0];
+                            const feature = e.features[0].toJSON();
                             setSelectedFeature(feature);
                             mapRef.current.getSource('highlight-feature').setData({
                                 type: 'FeatureCollection',

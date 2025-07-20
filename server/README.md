@@ -109,13 +109,14 @@ Follow the steps below to add new reader formats, reader formats is how geoflip 
 - ~~Add string  format to_file option~~
 - ~~improve mapbox map performance while working with large datasets~~
 - ~~add drawing back into the map~~
-- add attribute info display on feature click
-    - include edit and delete buttons
-        - edit: move the feature to the drawing layer for editing
-        - delete: delete it from the layer and the active features
-    - add highlight to selected feature when clicked
-    - make the attribute table scrollable instead of the entire context box
+- ~~add attribute info display on feature click~~
+- include edit and delete buttons
+    - edit: move the feature to the drawing layer for editing
+    - ~~delete: delete it from the layer and the active features~~
+- ~~add highlight to selected feature when clicked~~
+- ~~make the attribute table scrollable instead of the entire context box~~
 - add undo/redo functionality to map
+- add pipeline page for larger data processing
 - update libraries to latest versions
 - need to validate input and output epsg values sent from the user
     - should be in `\geoflip\server\app\api\v1\models\transform.py`

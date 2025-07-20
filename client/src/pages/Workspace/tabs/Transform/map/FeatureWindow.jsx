@@ -16,7 +16,7 @@ import {useDeleteFeatureFromLayer} from "../utils/MapOperations"
 
 const FeatureWindow = () => {
 	const { selectedFeature } = useContext(TransformContext);
-	const deleteFeatureById = useDeleteFeatureFromLayer();
+	const deleteSelectedFeature = useDeleteFeatureFromLayer();
 	if (!selectedFeature) return null;
 
 	const properties = selectedFeature.properties || {};
@@ -26,7 +26,7 @@ const FeatureWindow = () => {
 	}
 
 	const handleDeleteGeom = () => {
-		deleteFeatureById(selectedFeature.id);
+		deleteSelectedFeature();
 	}
 
 	return (
@@ -59,7 +59,10 @@ const FeatureWindow = () => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{Object.entries(properties).map(([key, value]) => (
+						{Object.entries(properties)
+							.filter(([key]) => key !== 'geoflip_id')
+							.map(([key, value]) => 
+						(
 							<TableRow key={key}>
 								<TableCell>{key}</TableCell>
 								<TableCell>{String(value)}</TableCell>
