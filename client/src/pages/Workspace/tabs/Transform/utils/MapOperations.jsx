@@ -107,18 +107,16 @@ const useAddToActiveLayer = () => {
 	return addToActiveLayer;
 };
 
-const useDeleteFeatureFromLayer = () => {
+const useDeleteFeatureFromLayer = (featureId) => {
 	const { mapRef, activeFeatures, setActiveFeatures } = useContext(TransformContext);
 
 	const deleteFeatureById = (featureId) => {
-
-		// Update the Mapbox layer source
 		const map = mapRef.current;
 		if (map && map.getSource('geoflip-output')) {
-			console.log(map.getSource('geoflip-output'));
+			const features = map.querySourceFeatures('geoflip-output')
+			const targetFeature = features.find(feature => feature.id === featureId);
+			console.log(targetFeature);
 		}
-
-		// setActiveFeatures(updatedFeatures);
 	};
 
 	return deleteFeatureById;

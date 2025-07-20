@@ -12,9 +12,11 @@ import {
 } from "@mui/material";
 import { StyledLongButton, StyledDeleteButton } from "../../../../../utils/InputStyles";
 import { TransformContext } from "../TransformContext";
+import {useDeleteFeatureFromLayer} from "../utils/MapOperations"
 
 const FeatureWindow = () => {
 	const { selectedFeature } = useContext(TransformContext);
+	const deleteFeatureById = useDeleteFeatureFromLayer();
 	if (!selectedFeature) return null;
 
 	const properties = selectedFeature.properties || {};
@@ -24,7 +26,7 @@ const FeatureWindow = () => {
 	}
 
 	const handleDeleteGeom = () => {
-		console.log("delete feature");
+		deleteFeatureById(selectedFeature.id);
 	}
 
 	return (

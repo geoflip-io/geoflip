@@ -80,6 +80,14 @@ const MapContainer = () => {
                     generateId: true
                 });
 
+                mapRef.current.addSource('highlight-feature', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+                });
+
                 // handle all the layers
                 layers.forEach(layer => {
                     if (mapRef.current){
@@ -89,16 +97,10 @@ const MapContainer = () => {
                         mapRef.current.on('click', layer.id, (e) => {
                             const feature = e.features[0];
                             setSelectedFeature(feature);
-
-                            console.log(feature);
-                        });
-
-                        // change cursor when hovering on a feature
-                        mapRef.current.on('mouseenter', layer.id, (e) => {
-                            mapRef.current.getCanvas().style.cursor = 'pointer';
-                        });
-                        mapRef.current.on('mouseleave', layer.id, () => {
-                            mapRef.current.getCanvas().style.cursor = '';
+                            mapRef.current.getSource('highlight-feature').setData({
+                                type: 'FeatureCollection',
+                                features: [feature]
+                            });
                         });
                     }
                 });
@@ -112,6 +114,10 @@ const MapContainer = () => {
                         });
                         if (features.length === 0) {
                             setSelectedFeature(null);
+                            mapRef.current.getSource('highlight-feature').setData({
+                                type: 'FeatureCollection',
+                                features: []
+                            });
                         }
                     });
                 }
@@ -129,6 +135,14 @@ const MapContainer = () => {
                 const currentCenter = mapRef.current.getCenter();
                 setMapCentrePosition(currentCenter);
             }
+        });
+
+        // Universal pointer cursor on hover
+        mapRef.current.on('mousemove', (e) => {
+            const features = mapRef.current.queryRenderedFeatures(e.point, {
+                layers: layers.map(layer => layer.id)
+            });
+            mapRef.current.getCanvas().style.cursor = features.length ? 'pointer' : '';
         });
 
         return () => {
