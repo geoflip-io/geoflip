@@ -135,7 +135,7 @@ const getLayerStyles = (theme) => [
 		source: 'highlight-feature',
 		filter: ['==', '$type', 'Polygon'],
 		paint: {
-			'fill-color': '#ffc400',
+			'fill-color': '#B770FF',
 			'fill-opacity': 0.4
 		}
 	},
@@ -145,7 +145,7 @@ const getLayerStyles = (theme) => [
 		source: 'highlight-feature',
 		filter: ['==', '$type', 'Polygon'],
 		paint: {
-			'line-color': '#ffc400',
+			'line-color': '#6D2CAE',
 			'line-width': 3
 		}
 	},
@@ -155,7 +155,7 @@ const getLayerStyles = (theme) => [
 		source: 'highlight-feature',
 		filter: ['==', '$type', 'LineString'],
 		paint: {
-			'line-color': '#ffc400',
+			'line-color': '#6D2CAE',
 			'line-width': 4
 		}
 	},
@@ -166,9 +166,9 @@ const getLayerStyles = (theme) => [
 		filter: ['==', '$type', 'Point'],
 		paint: {
 			'circle-radius': 6,
-			'circle-color': '#ffc400',
+			'circle-color': '#B770FF',
 			'circle-stroke-width': 2,
-			'circle-stroke-color': '#ffffff'
+			'circle-stroke-color': '#6D2CAE'
 		}
 	},
 ];
