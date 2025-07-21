@@ -8,17 +8,19 @@ import { ClearAll, SatelliteToggle } from "./map/CustomControls"; // Import the 
 import { useClearActiveLayer, useAddToActiveLayer } from "./utils/MapOperations";
 import { getLayerStyles } from './utils/LayerStyles';
 import "./map/CustomControls.css";
+import FeatureWindow from "./map/FeatureWindow";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const MapContainer = () => {
     const theme = useTheme();
-    const { mapRef, drawRef, stopRotationRef, setActiveFeatures, setEraseFeatures, setClipFeatures } = useContext(TransformContext);
+    const { mapRef, drawRef, stopRotationRef, setEraseFeatures, setClipFeatures, selectedFeature, setSelectedFeature } = useContext(TransformContext);
     const [mapCentrePosition, setMapCentrePosition] = useState(new LngLat(0, 0));
     const mapContainer = useRef(null);
     const rotationInterval = useRef(null);
     const clearActiveLayer = useClearActiveLayer();
     const addToActiveLayer = useAddToActiveLayer();
+    const layers = getLayerStyles(theme);
 
     useEffect(() => {
         if (mapRef.current || !mapContainer.current) return; 
@@ -56,7 +58,7 @@ const MapContainer = () => {
             startRotation();
             if (mapRef.current && drawRef.current) {
                 mapRef.current.addControl(drawRef.current, "top-left");
-                mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+                mapRef.current.addControl(new mapboxgl.NavigationControl(), "bottom-left");
                 mapRef.current.addControl(new ClearAll(drawRef.current, mapRef, setEraseFeatures, setClipFeatures, clearActiveLayer), 'top-left');
                 mapRef.current.addControl(new SatelliteToggle(mapRef, theme), 'top-left');
                 
@@ -76,17 +78,65 @@ const MapContainer = () => {
                     }
                 });
 
-                getLayerStyles(theme).forEach(style => {
+                mapRef.current.addSource('highlight-feature', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+                });
+
+                // handle all the layers
+                layers.forEach(layer => {
                     if (mapRef.current){
-                        mapRef.current.addLayer(style);
+                        mapRef.current.addLayer(layer);
+
+                        // set the selected feature state when layer is clicked
+                        mapRef.current.on('click', layer.id, (e) => {
+                            const feature = e.features[0].toJSON();
+                            setSelectedFeature(feature);
+                            mapRef.current.getSource('highlight-feature').setData({
+                                type: 'FeatureCollection',
+                                features: [feature]
+                            });
+                        });
                     }
+                });
+
+                // this clears the selected layer data when you click on the map but not on a feature
+                if (mapRef.current) {
+                    mapRef.current.on('click', (e) => {
+                        // query all feature layers at once
+                        const features = mapRef.current.queryRenderedFeatures(e.point, {
+                            layers: layers.map(layer => layer.id)
+                        });
+                        if (features.length === 0) {
+                            setSelectedFeature(null);
+                            mapRef.current.getSource('highlight-feature').setData({
+                                type: 'FeatureCollection',
+                                features: []
+                            });
+                        }
+                    });
+                }
+
+                // Universal pointer cursor on hover
+                mapRef.current.on('mousemove', (e) => {
+                    const features = mapRef.current.queryRenderedFeatures(e.point, {
+                        layers: layers.map(layer => layer.id)
+                    });
+                    mapRef.current.getCanvas().style.cursor = features.length ? 'pointer' : '';
                 });
             }
         });
 
-        mapRef.current.on('draw.create', updateActiveFeatures);
-        mapRef.current.on('draw.delete', updateActiveFeatures);
-        mapRef.current.on('draw.update', updateActiveFeatures);
+        mapRef.current.on('draw.modechange', (e) => {
+            const mode = e.mode;
+
+            if (mode === 'simple_select') {
+                updateActiveFeatures();
+            }
+        });
 
         mapRef.current.on("mousedown", stopRotation);
         mapRef.current.on("touchstart", stopRotation);
@@ -96,6 +146,8 @@ const MapContainer = () => {
                 setMapCentrePosition(currentCenter);
             }
         });
+
+
 
         return () => {
             stopRotation();
@@ -126,14 +178,13 @@ const MapContainer = () => {
 
     const updateActiveFeatures = () => {
         const features = JSON.parse(JSON.stringify(drawRef.current.getAll().features));
-        console.log("draw features:");
-        console.log(features);
         addToActiveLayer(features);
     };
 
     return (
         <Box
             sx={{
+                position: 'relative',
                 height: "100%",
                 width: "100%",
                 '& .map-container': {
@@ -147,6 +198,29 @@ const MapContainer = () => {
                 ref={mapContainer}
                 className="map-container"
             />
+            {/* Floating info panel - only displays when there is a selected feature*/}
+            {selectedFeature && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 6,
+                        right: 6,
+                        // bottom: 6,
+                        maxHeight: 'calc(100% - 12px)',
+                        minWidth: 250,
+                        maxWidth: 350,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: 2,
+                        backgroundColor: theme.palette.secondary.main,
+                        boxShadow: 3,
+                        borderRadius: 2,
+                        zIndex: 10
+                    }}
+                >
+                    <FeatureWindow />
+                </Box>
+            )}
         </Box>
     );
 };

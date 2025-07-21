@@ -85,6 +85,7 @@ const Upload = () => {
                 import.meta.env.VITE_API_URL,
                 formData
             );
+            handleResetFeatures();
             updateActiveLayer(geojsonData);
 
             toast.info(`${inputFormat} uploaded successfully`);

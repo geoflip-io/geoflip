@@ -3,7 +3,7 @@ import mapboxgl from "mapbox-gl";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useContext } from 'react';
-import { TransformContext } from '../TransformContext'
+import { TransformContext } from '../TransformContext';
 
 const zoomToBounds = (map, features) => {
 	// Fit map to the extent of the new features using Turf.js
@@ -55,19 +55,40 @@ const useUpdateActiveLayer = () => {
 
 	const updateActiveLayer = (geojsonData) => {
 		const map = mapRef.current;
+
+		const updatedFeatures = geojsonData.features.map((feature, index) => {
+			const cloned = JSON.parse(JSON.stringify(feature)); // deep clone to avoid state mutation
+
+			if (!cloned.properties) {
+				cloned.properties = {};
+			}
+
+			if (!cloned.properties.geoflip_id) {
+				cloned.properties.geoflip_id = crypto.randomUUID?.() || `${Date.now()}-${index}`;
+			}
+
+			return cloned;
+		});
+
+		const updatedGeojson = {
+			type: "FeatureCollection",
+			features: updatedFeatures
+		};
+
 		if (map && map.getSource('geoflip-output')) {
-			map.getSource('geoflip-output').setData(geojsonData);
+			map.getSource('geoflip-output').setData(updatedGeojson);
 		}
-		setActiveFeatures(geojsonData.features);
+
+		setActiveFeatures(updatedFeatures);
 		stopRotationRef.current();
-		zoomToBounds(mapRef.current, geojsonData.features);
+		zoomToBounds(mapRef.current, updatedFeatures);
 	};
 
 	return updateActiveLayer;
 };
 
 const useClearActiveLayer = () => {
-	const { mapRef, setActiveFeatures } = useContext(TransformContext);
+	const { mapRef, setActiveFeatures, setSelectedFeature } = useContext(TransformContext);
 
 	const clearActiveLayer = () => {
 		const map = mapRef.current;
@@ -76,8 +97,14 @@ const useClearActiveLayer = () => {
 				type: "FeatureCollection",
 				features: []
 			});
+
+			map.getSource('highlight-feature').setData({
+				type: 'FeatureCollection',
+				features: []
+			});			
 		}
 		setActiveFeatures([]);
+		setSelectedFeature(null);
 	};
 
 	return clearActiveLayer;
@@ -106,4 +133,47 @@ const useAddToActiveLayer = () => {
 	return addToActiveLayer;
 };
 
-export { zoomToBounds, handleAPIError, useUpdateActiveLayer, useClearActiveLayer, useAddToActiveLayer }
+const useDeleteFeatureFromLayer = () => {
+	const { mapRef, activeFeatures, setActiveFeatures, selectedFeature, setSelectedFeature } = useContext(TransformContext);
+
+	const deleteSelectedFeature = () => {
+		const map = mapRef.current;
+
+		if (!map || !map.getSource('geoflip-output') || !selectedFeature) return;
+
+		const targetId = selectedFeature.properties?.geoflip_id;
+		if (!targetId) {
+			console.warn('No geoflip_id found on selected feature.');
+			return;
+		}
+
+		// Filter out the selected feature from the active features list
+		const updatedFeatures = activeFeatures.filter(
+			(f) => f.properties?.geoflip_id !== targetId
+		);
+
+		// Update map source
+		map.getSource('geoflip-output').setData({
+			type: 'FeatureCollection',
+			features: updatedFeatures
+		});
+
+		// Update context state
+		setActiveFeatures(updatedFeatures);
+		setSelectedFeature(null);
+
+		// Clear highlight if needed
+		if (map.getSource('highlight-feature')) {
+			map.getSource('highlight-feature').setData({
+				type: 'FeatureCollection',
+				features: []
+			});
+		}
+	};
+
+	return deleteSelectedFeature;
+};
+
+
+
+export { zoomToBounds, handleAPIError, useUpdateActiveLayer, useClearActiveLayer, useAddToActiveLayer, useDeleteFeatureFromLayer }
