@@ -126,7 +126,51 @@ const getLayerStyles = (theme) => [
 			'circle-stroke-color': '#2D4864',
 		},
 		filter: ['==', '$type', 'Point']
-	}
+	},
+
+	// Highlight Layers
+	{
+		id: 'highlight-fill',
+		type: 'fill',
+		source: 'highlight-feature',
+		filter: ['==', '$type', 'Polygon'],
+		paint: {
+			'fill-color': '#B770FF',
+			'fill-opacity': 0.4
+		}
+	},
+	{
+		id: 'highlight-outline',
+		type: 'line',
+		source: 'highlight-feature',
+		filter: ['==', '$type', 'Polygon'],
+		paint: {
+			'line-color': '#6D2CAE',
+			'line-width': 3
+		}
+	},
+	{
+		id: 'highlight-line',
+		type: 'line',
+		source: 'highlight-feature',
+		filter: ['==', '$type', 'LineString'],
+		paint: {
+			'line-color': '#6D2CAE',
+			'line-width': 4
+		}
+	},
+	{
+		id: 'highlight-point',
+		type: 'circle',
+		source: 'highlight-feature',
+		filter: ['==', '$type', 'Point'],
+		paint: {
+			'circle-radius': 6,
+			'circle-color': '#B770FF',
+			'circle-stroke-width': 2,
+			'circle-stroke-color': '#6D2CAE'
+		}
+	},
 ];
 
 export {getLayerStyles};

@@ -12,7 +12,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { setItem, getItem, removeItem } from "../../utils/storage";
 import { ContainerizedLoadingBackdrop } from "../../components/Loader";
-
+import { StyledDeleteButton } from "../../utils/InputStyles";
 
 
 const TransformJob = ({name, taskId, outputFormat, handleUpdateRows}) => {
@@ -249,7 +249,7 @@ const TransformJob = ({name, taskId, outputFormat, handleUpdateRows}) => {
                             >
                                 Task failed during processing,<br /> api usage has not been recorded.
                             </Typography>
-                            <Button 
+                            <StyledDeleteButton 
                                 variant="outlined" 
                                 onClick={() => 
                                     handleRemove(
@@ -258,23 +258,9 @@ const TransformJob = ({name, taskId, outputFormat, handleUpdateRows}) => {
                                         outputFormat
                                     )
                                 }
-                                sx={{
-                                    color: theme.palette.error.main,
-                                    borderColor: theme.palette.error.main,
-                                    borderWidth: "2px",
-                                    fontWeight: 400,
-                                    '&:hover': {
-                                        borderColor: theme.palette.text.primary,
-                                        backgroundColor: theme.palette.grey[1],
-                                        borderWidth: "2px"
-                                    },
-                                    borderRadius: 8,
-                                    width: "100%",
-                                    height: 40,
-                                }}
                             >
                                 Remove
-                            </Button>
+                            </StyledDeleteButton>
                         </Box>
                     ) : (
                         <Box sx={{ width: '100%', mt:1 }}>

@@ -81,6 +81,22 @@ const StyledButton = styled(Button)(({ theme }) => ({
     borderRadius: "6px",
 }));
 
+const StyledDeleteButton = styled(Button)(({ theme }) => ({
+	color: theme.palette.text.primary ,
+	borderColor: theme.palette.text.primary,
+	borderWidth: "1px",
+	fontWeight: 400,
+	'&:hover': {
+		borderColor: theme.palette.error.main,
+		color: theme.palette.error.main,
+		// backgroundColor: theme.palette.grey[1],
+		borderWidth: "2px"
+	},
+	borderRadius: 8,
+	width: "100%",
+	height: 40,
+}));
+
 const StyledUploadIcon = styled(FileUploadOutlinedIcon)(({ theme }) => ({
 	color: theme.palette.text.primary,
 	fontSize: 20,
@@ -192,4 +208,5 @@ export {
 	StyledExportIcon,
 	StyledStepLabel,
 	StyledStepContent,
+	StyledDeleteButton
 };

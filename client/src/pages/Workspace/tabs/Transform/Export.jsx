@@ -41,10 +41,22 @@ const Export = () => {
 	const handleExport = async () => {
         const formData = new FormData();
         
+        // clean out the hidden geoflip_id field before export
+        const cleanedFeatures = activeFeatures.map((feature) => {
+            const cleaned = JSON.parse(JSON.stringify(feature)); 
+
+            if (cleaned?.properties?.geoflip_id) {
+                delete cleaned.properties.geoflip_id;
+            }
+
+            return cleaned;
+        });
+
         const featureCollection = {
             type: "FeatureCollection",
-            features: activeFeatures,
+            features: cleanedFeatures,
         };
+
         const blob = new Blob(
             [JSON.stringify(featureCollection)],
             { type: "application/geo+json" }

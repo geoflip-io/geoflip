@@ -9,9 +9,22 @@ export function TransformContextProvider({ children }) {
     const [activeFeatures, setActiveFeatures] = useState([]);
     const [eraseFeatures, setEraseFeatures] = useState([]);
     const [clipFeatures, setClipFeatures] = useState([]);
+    const [selectedFeature, setSelectedFeature] = useState(null);
 
     return (
-        <TransformContext.Provider value={{ mapRef, drawRef, stopRotationRef, activeFeatures, setActiveFeatures, eraseFeatures, setEraseFeatures, clipFeatures, setClipFeatures }}>
+        <TransformContext.Provider value={{ 
+            mapRef, 
+            drawRef, 
+            stopRotationRef, 
+            activeFeatures, 
+            setActiveFeatures, 
+            eraseFeatures, 
+            setEraseFeatures, 
+            clipFeatures, 
+            setClipFeatures,
+            selectedFeature,
+            setSelectedFeature
+        }}>
             {children}
         </TransformContext.Provider>
     );
