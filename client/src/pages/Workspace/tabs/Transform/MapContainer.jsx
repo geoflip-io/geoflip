@@ -119,12 +119,24 @@ const MapContainer = () => {
                         }
                     });
                 }
+
+                // Universal pointer cursor on hover
+                mapRef.current.on('mousemove', (e) => {
+                    const features = mapRef.current.queryRenderedFeatures(e.point, {
+                        layers: layers.map(layer => layer.id)
+                    });
+                    mapRef.current.getCanvas().style.cursor = features.length ? 'pointer' : '';
+                });
             }
         });
 
-        mapRef.current.on('draw.create', updateActiveFeatures);
-        mapRef.current.on('draw.delete', updateActiveFeatures);
-        mapRef.current.on('draw.update', updateActiveFeatures);
+        mapRef.current.on('draw.modechange', (e) => {
+            const mode = e.mode;
+
+            if (mode === 'simple_select') {
+                updateActiveFeatures();
+            }
+        });
 
         mapRef.current.on("mousedown", stopRotation);
         mapRef.current.on("touchstart", stopRotation);
@@ -135,13 +147,7 @@ const MapContainer = () => {
             }
         });
 
-        // Universal pointer cursor on hover
-        mapRef.current.on('mousemove', (e) => {
-            const features = mapRef.current.queryRenderedFeatures(e.point, {
-                layers: layers.map(layer => layer.id)
-            });
-            mapRef.current.getCanvas().style.cursor = features.length ? 'pointer' : '';
-        });
+
 
         return () => {
             stopRotation();

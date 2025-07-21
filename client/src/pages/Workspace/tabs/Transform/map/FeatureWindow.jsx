@@ -15,14 +15,28 @@ import { TransformContext } from "../TransformContext";
 import {useDeleteFeatureFromLayer} from "../utils/MapOperations"
 
 const FeatureWindow = () => {
-	const { selectedFeature } = useContext(TransformContext);
+	const { drawRef, selectedFeature } = useContext(TransformContext);
 	const deleteSelectedFeature = useDeleteFeatureFromLayer();
 	if (!selectedFeature) return null;
 
 	const properties = selectedFeature.properties || {};
 
 	const handleUpdateGeom = () => {
-		console.log("update geometry");
+		// store a copy of the feature
+		const editFeature = {...selectedFeature};
+		// delete it from the main data source
+		deleteSelectedFeature();
+
+		// add it to the drawLayer for editing
+		const newFeatureId = drawRef.current.add(editFeature);
+
+		
+		// Immediately activate edit mode on the new feature
+		requestAnimationFrame(() => {
+			drawRef.current.changeMode("direct_select", {
+				featureId: newFeatureId[0],
+			});
+		});
 	}
 
 	const handleDeleteGeom = () => {
