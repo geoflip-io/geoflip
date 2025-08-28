@@ -14,7 +14,7 @@ You will need to setup a local postgres database and redis instance for the appl
 
 ## Quick Start
 
-1. First setup setup your `.env` in the root of the project:
+1. First setup setup your `.env` in the `/server` directory:
     ```
     ENV_STATE=global
 
@@ -46,7 +46,7 @@ You will need to setup a local postgres database and redis instance for the appl
 3. make sure docker desktop is running then change directory to the `/deploy` folder:
     - `cd /deploy`
 4. next,  run the below command to start up the geoflip docker containers
-    - `docker-compose up --build -d`
+    - `docker-compose --env-file ../server/.env up --build -d`
     - Note: this will also start up a docker version of the application, see below to setup your local dev environment for easier development otherwise if you just want to run Geoflip then you can stop here and just use it.
 5. Run geoflip in a local dev environment first by stopping the geoflip container in docker.
 6. Next, change dir to the `/server` folder then start a celery worker in a terminal window with:

@@ -3,9 +3,11 @@ import zipfile
 import glob
 import json
 import ezdxf
-from shapely.geometry import Point, LineString, Polygon
+from shapely.geometry import Point, LineString, Polygon, MultiPolygon
+from shapely.validation import make_valid
 import geopandas as gpd
 from app.core.config import config as app_config
+
 
 def gdf_to_shp(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     """
@@ -90,37 +92,84 @@ def gdf_to_geojson_file(gdf: gpd.GeoDataFrame, output_dir: str) -> str:
     return output_path
 
 
+def _xy_coords(seq):
+    # Flatten (x,y[,z]) to (x,y)
+    return [(float(x), float(y)) for x, y, *_ in seq]
+
+def _safe_polygon(poly: Polygon) -> Polygon:
+    # Ensure ring validity & correct orientation if needed
+    if not poly.is_valid:
+        poly = make_valid(poly)
+        # make_valid can return MultiPolygon; pick an approach
+        if isinstance(poly, MultiPolygon):
+            # merge by taking largest area part; adjust to your needs
+            poly = max(poly.geoms, key=lambda p: p.area)
+    return poly
+
+def _write_polygon(msp, poly: Polygon):
+    if poly.is_empty:
+        return
+
+    # 1) Boundary as closed LWPOLYLINE (outer + holes)
+    exterior_xy = _xy_coords(list(poly.exterior.coords))
+    msp.add_lwpolyline(exterior_xy, close=True)
+    for interior in poly.interiors:
+        msp.add_lwpolyline(_xy_coords(list(interior.coords)), close=True)
+
+    # 2) SOLID HATCH with holes
+    hatch = msp.add_hatch()  # defaults to SOLID
+    # Exterior path
+    hatch.paths.add_polyline_path(exterior_xy, is_closed=True)
+    # Hole paths
+    for interior in poly.interiors:
+        hatch.paths.add_polyline_path(_xy_coords(list(interior.coords)), is_closed=True)
+
 def gdf_to_dxf(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     """
     Reproject and save a GeoDataFrame to a DXF file (R2018) using ezdxf.
+    - Points -> POINT
+    - LineStrings -> LWPOLYLINE
+    - Polygons -> closed LWPOLYLINE + SOLID HATCH (with holes)
+    - MultiPolygons -> each part as above
     """
-    output_file_name = f"geoflip_dxf_{output_epsg}"
-    output_path = os.path.join(output_dir, f"{output_file_name}.dxf")
-
     if gdf.crs is None:
         raise ValueError("Input GeoDataFrame has no CRS defined.")
 
     if gdf.crs.to_epsg() != output_epsg:
         gdf = gdf.to_crs(epsg=output_epsg)
 
-    doc = ezdxf.new(dxfversion='R2018')
+    output_file_name = f"geoflip_dxf_{output_epsg}"
+    output_path = os.path.join(output_dir, f"{output_file_name}.dxf")
+
+    doc = ezdxf.new(dxfversion="R2018")
     msp = doc.modelspace()
 
     for geom in gdf.geometry:
+        if geom is None or geom.is_empty:
+            continue
+
+        # Handle multipart polygons
+        if isinstance(geom, MultiPolygon):
+            for part in geom.geoms:
+                _write_polygon(msp, _safe_polygon(part))
+            continue
+
+        # Singles
         if isinstance(geom, Point):
             msp.add_point((geom.x, geom.y))
         elif isinstance(geom, LineString):
-            msp.add_lwpolyline(list(geom.coords))
+            msp.add_lwpolyline(_xy_coords(geom.coords))
         elif isinstance(geom, Polygon):
-            exterior = list(geom.exterior.coords)
-            msp.add_lwpolyline(exterior, close=True)
-            for interior in geom.interiors:
-                msp.add_lwpolyline(list(interior.coords), close=True)
+            _write_polygon(msp, _safe_polygon(geom))
         else:
+            # You may add MultiLineString, GeometryCollection handlers here
             print(f"Skipping unsupported geometry type: {geom.geom_type}")
 
     doc.saveas(output_path)
     return output_path
+
+
+
 
 # returns the path to the output file or the content of the file
 def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str, to_file:bool = True) -> str:
