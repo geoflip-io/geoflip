@@ -1,6 +1,6 @@
 # 🧭 Geoflip
 
-**Geoflip** is an **open-source FastAPI-based geospatial transformation engine**. Designed for self-hosting and containerized deployment, it supports basic spatial operations like `buffer` and `union` over **GeoJSON** and **Shapefile (SHP)** inputs. Reprojection is handled automatically in each request.
+**Geoflip** is a **FastAPI-based geospatial transformation engine**. Designed for self-hosting and containerized deployment, it supports basic spatial operations like `buffer` and `union` over **GeoJSON** and **Shapefile (SHP)** inputs. Reprojection is handled automatically in each request.
 
 Geoflip is built with developers in mind — stateless, simple to deploy, and built for automation.
 
@@ -155,5 +155,9 @@ Planned features and improvements:
 
 ## 📄 License
 
-This project is licensed under the **Apache 2.0 License**.  
+This project is licensed under the **Business Source License 1.1 (BSL)**.  
+It is free for non-commercial use. Commercial use requires a separate Enterprise License from Intelligis.io Pty Ltd.  
+
+The license will convert to the **Apache 2.0 License** on the Change Date specified in the [`LICENSE`](./LICENSE) file.  
+
 See [`LICENSE`](./LICENSE) for full details.
