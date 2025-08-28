@@ -115,7 +115,22 @@ const useAddToActiveLayer = () => {
 
 	const addToActiveLayer = (features) => {
 		setActiveFeatures(prev => {
-			const updatedFeatures = [...prev, ...features];
+
+            const processedFeatures = features.map((feature, index) => {
+                const cloned = JSON.parse(JSON.stringify(feature)); // deep clone to avoid state mutation
+
+                if (!cloned.properties) {
+                    cloned.properties = {};
+                }
+
+                if (!cloned.properties.geoflip_id) {
+                    cloned.properties.geoflip_id = crypto.randomUUID?.() || `${Date.now()}-${index}`;
+                }
+
+                return cloned;
+            });
+
+			const updatedFeatures = [...prev, ...processedFeatures];
 
 			const map = mapRef.current;
 			if (map && map.getSource('geoflip-output')) {
