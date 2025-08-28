@@ -22,7 +22,7 @@ services:
   api:
     container_name: geoflip-api
     env_file:
-      - ../.env
+      - ../server/.env
     build:
       context: ../server
     ports:
