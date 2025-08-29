@@ -11,7 +11,7 @@ router = APIRouter()
 logger = logging.getLogger("api")
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=201, include_in_schema=False)
 async def register(user: UserIn):
     # if a user is returned then the email aready exists
     if await get_user(user.email):
@@ -32,7 +32,7 @@ async def register(user: UserIn):
     return {"detail": "User Created."}
 
 
-@router.post("/token", status_code=200)
+@router.post("/token", status_code=200, include_in_schema=False)
 async def login(user: UserIn):
     user = await authenticate_user(user.email, user.password)
     access_token = create_access_token(user.email, user.role, user.tenant_id)
@@ -40,6 +40,6 @@ async def login(user: UserIn):
 
 
 # protect a route by requiring the current user
-@router.get("/user", response_model=UserOut, status_code=200)
+@router.get("/user", response_model=UserOut, status_code=200, include_in_schema=False)
 async def get_user_by_id(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user

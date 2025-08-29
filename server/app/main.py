@@ -37,7 +37,29 @@ async def lifespan(app: FastAPI):
     yield
     await database.disconnect()
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="Geoflip API",
+    version="1.0.0",
+    description="""
+Geoflip is a **FastAPI-based geospatial transformation engine**.
+
+- 🚀 Transform SHP, DXF, GeoJSON
+- 🔄 Reproject into any EPSG
+- 📦 Run async jobs with Celery  
+
+📖 [Read the full Geoflip API Documentation](https://docs.geoflip.io)
+    """,
+    contact={
+        "name": "Geoflip Support",
+        "url": "https://geoflip.io/support",
+        "email": "support@geoflip.io",
+    },
+    license_info={
+        "name": "Business Source License (BSL)",
+        "url": "https://mariadb.com/bsl11/",
+    },
+    lifespan=lifespan
+)
 
 # Enable CORS
 app.add_middleware(
