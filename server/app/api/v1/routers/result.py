@@ -2,7 +2,9 @@ import logging
 import os
 import json
 import datetime
-from typing import Annotated
+from enum import Enum
+from pydantic import BaseModel, UUID4, HttpUrl, ConfigDict
+from typing import Annotated, Optional
 from fastapi.responses import FileResponse
 from fastapi import APIRouter, Request, Depends, HTTPException
 from celery.result import AsyncResult
@@ -11,14 +13,45 @@ from app.core.celery_worker import celery_app
 from app.core.config import config
 from app.core.usage_logger import log_usage
 from app.core.security import get_current_user
-
 from app.accounts.models.user import User
+
+
+
+class TaskStatus(str, Enum):
+    PENDING = "PENDING"
+    STARTED = "STARTED"
+    RETRY = "RETRY"
+    FAILURE = "FAILURE"
+    SUCCESS = "SUCCESS"
+
+class TaskStatusOut(BaseModel):
+    job_id: UUID4
+    status: TaskStatus
+    output_url: Optional[HttpUrl] = None
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "job_id": "4fdf9052-261d-4ff0-9521-6de863e785c4",
+                "status": "SUCCESS",
+                "output_url": "https://api.geoflip.io/result/output/4fdf9052-261d-4ff0-9521-6de863e785c4"
+            }
+        }
+    )
 
 router = APIRouter()
 logger = logging.getLogger("api")
 
 
-@router.get("/result/status/{job_id}")
+@router.get("/result/status/{job_id}",
+    response_model=TaskStatusOut,
+    tags=["Results"],
+    responses={
+        404: {"description": "Job not found", "content": {"application/json": {
+            "example": {"detail": "Job not found"}
+        }}}
+    }
+)
 async def get_task_status(job_id: str):
     result = AsyncResult(job_id, app=celery_app)
     output_url = None
@@ -32,7 +65,57 @@ async def get_task_status(job_id: str):
         "output_url": output_url,
     }
 
-@router.get("/result/output/{job_id}")
+@router.get(
+    "/result/output/{job_id}",
+    tags=["Results"],
+    responses={
+        200: {
+            "description": "Output file (binary) or GeoJSON content",
+            "content": {
+                # Binary download (e.g., DXF, SHP.zip, GPKG, etc.)
+                "application/octet-stream": {
+                    "schema": {"type": "string", "format": "binary"}
+                },
+                # GeoJSON example
+                "application/geo+json": {
+                    "schema": {"type": "object"},
+                    "examples": {
+                        "geojson": {
+                            "summary": "GeoJSON FeatureCollection",
+                            "value": {
+                                "type": "FeatureCollection",
+                                "features": [
+                                    {"type": "Feature",
+                                     "geometry": {"type": "Point", "coordinates": [115.857, -31.953]},
+                                     "properties": {"name": "Perth"}}
+                                ]
+                            }
+                        }
+                    }
+                },
+                # Fallback for JSON clients
+                "application/json": {
+                    "schema": {"type": "object"},
+                    "examples": {
+                        "geojson-string": {
+                            "summary": "GeoJSON (stringified)",
+                            "value": {"type": "FeatureCollection", "features": []}
+                        }
+                    }
+                },
+            },
+        },
+        400: {"description": "Task not yet completed or failed", "content": {
+            "application/json": {"example": {"detail": "Task not yet completed or failed."}}
+        }},
+        401: {"description": "Unauthorized", "content": {
+            "application/json": {"example": {"detail": "Not authenticated"}}
+        }},
+        404: {"description": "Output file not found", "content": {
+            "application/json": {"example": {"detail": "Output file not found."}}
+        }},
+    },
+)
 async def get_output(
     request: Request,
     current_user: Annotated[User, Depends(get_current_user)],
