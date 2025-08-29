@@ -3,14 +3,14 @@ import json
 import io
 import uuid
 import datetime
-from typing import Annotated
+from typing import Annotated, Literal
 from app.api.v1.utils.file_handling import save_input
 from app.core.security import get_current_user
 from app.accounts.models.user import User
 
 from fastapi import APIRouter, UploadFile, Form, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel, UUID4, ConfigDict
 
 from app.api.v1.models.transform import TransformIn
 
@@ -20,13 +20,39 @@ from app.api.v1.operations.cleanup import cleanup_operation
 from app.core.config import config as app_config
 from app.core.usage_logger import log_usage
 
+
 router = APIRouter()
 logger = logging.getLogger("api")
-
 input_types = ["shp", "dxf", "geojson"]
 
+class TransformQueuedOut(BaseModel):
+    job_id: UUID4
+    status: Literal["queued"]
+    message: str
 
-@router.post("/transform", status_code=200)
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "job_id": "4fdf9052-261d-4ff0-9521-6de863e785c4",
+                "status": "queued",
+                "message": "Transformation job has been accepted"
+            }
+        }
+    )
+
+@router.post("/transform", 
+        status_code=200,
+        response_model=TransformQueuedOut,
+        tags=["Transformation"],
+        responses={
+            400: {
+                "description": "Bad Request",
+                "content": {
+                    "application/json": {"example": {"detail": "input is invalid"}}
+                },
+            }
+        }
+    )
 async def create_transformation(
     request: Request,
     current_user: Annotated[User, Depends(get_current_user)],
