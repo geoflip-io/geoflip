@@ -312,7 +312,6 @@ function Navigation() {
 						>
 							<ListItemButton
 								onClick={handleAPIDocsClick}
-								disabled // UNDER CONSTRUCTION
 								sx={{
 									minHeight: 48,
 									justifyContent: open ? "initial" : "center",
