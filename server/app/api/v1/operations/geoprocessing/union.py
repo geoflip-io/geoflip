@@ -1,51 +1,107 @@
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import Polygon, MultiPolygon
-from shapely.ops import unary_union, polygonize
+from shapely.ops import unary_union
+from shapely.geometry.base import BaseGeometry
 
-def apply_union(input_gdf):
+def _is_polygonal(geom: BaseGeometry) -> bool:
+    return isinstance(geom, (Polygon, MultiPolygon))
+
+def apply_union(input_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
-    Apply a union operation to combine overlapping geometries in the input GeoDataFrame into single geometries
-    while preserving non-overlapping geometries. Ensures that all geometries are polygons before applying the union.
-
-    Parameters:
-    input_gdf (GeoDataFrame): The input GeoDataFrame containing geometries to be unioned.
-
-    Returns:
-    GeoDataFrame: A new GeoDataFrame with geometries unioned where they overlap, preserving attribute data.
-    
-    Raises:
-    ValueError: If any geometry in the input GeoDataFrame is not a polygon.
+    Union overlapping polygons, preserving non-overlapping polygons,
+    and aggregate attributes sensibly by dtype.
     """
-    # Check if all geometries are polygons or multipolygons
-    if not all(isinstance(geom, (Polygon, MultiPolygon)) for geom in input_gdf.geometry):
+    # 0) Guard: polygonal only
+    if not all(_is_polygonal(geom) for geom in input_gdf.geometry):
         raise ValueError("All geometries must be polygons or multipolygons to apply union.")
-    
-    # Perform the union operation on all geometries
-    all_geometries = unary_union(input_gdf.geometry)
-    
-    # Extract individual polygons from the unioned geometry
-    unioned_polygons = list(polygonize(all_geometries))
-    
-    # Create a list to hold the result rows
+
+    # 1) Build the unioned geometry and extract individual polygons
+    u = unary_union(input_gdf.geometry)
+    if isinstance(u, Polygon):
+        unioned_polygons = [u]
+    elif isinstance(u, MultiPolygon):
+        unioned_polygons = list(u.geoms)
+    else:
+        # GeometryCollection etc. — keep only polygonal parts
+        unioned_polygons = [g for g in getattr(u, "geoms", []) if isinstance(g, (Polygon, MultiPolygon))]
+
+    # 2) Optional: create an sindex for speed
+    try:
+        sindex = input_gdf.sindex
+    except Exception:
+        sindex = None
+
+    # 3) Helper: attribute aggregation per column based on dtype
+    def aggregate_column(series: pd.Series, colname: str):
+        s = series.dropna()
+        if s.empty:
+            # preserve dtype-ish nulls
+            if pd.api.types.is_datetime64_any_dtype(series):
+                return pd.NaT
+            return None
+
+        if pd.api.types.is_numeric_dtype(series):
+            # numeric → sum
+            return s.sum()
+
+        if pd.api.types.is_bool_dtype(series):
+            # booleans → any (or use .all() if that fits better)
+            return bool(s.any())
+
+        if pd.api.types.is_datetime64_any_dtype(series):
+            # datetimes → min for "start*", max for "end*", else max
+            name_lower = (colname or "").lower()
+            if name_lower.startswith("start") or name_lower.endswith("start") or "start_" in name_lower:
+                return s.min()
+            if name_lower.startswith("end") or name_lower.endswith("end") or "end_" in name_lower:
+                return s.max()
+            return s.max()
+
+        if pd.api.types.is_timedelta64_dtype(series):
+            # durations → sum
+            return s.sum()
+
+        if pd.api.types.is_categorical_dtype(series):
+            # categoricals → unique values as comma list
+            return ", ".join(pd.unique(s.astype(str)))
+
+        # objects/strings and anything else → unique join
+        return ", ".join(pd.unique(s.astype(str)))
+
     result_rows = []
 
-    # For each polygon, find which input geometries it intersects with and merge their attributes
+    # 4) For each output polygon, find intersecting inputs and aggregate attributes
     for poly in unioned_polygons:
-        intersecting_rows = input_gdf[input_gdf.geometry.intersects(poly)]
-        
-        # Aggregate attributes (example: concatenate strings and sum numbers)
-        aggregated_attributes = {}
-        for column in intersecting_rows.columns:
-            if column != 'geometry':
-                if intersecting_rows[column].dtype == 'object':
-                    aggregated_attributes[column] = ', '.join(intersecting_rows[column].astype(str).unique())
-                else:
-                    aggregated_attributes[column] = intersecting_rows[column].sum()
-        
-        # Append the new polygon and its attributes to the result list
-        result_rows.append({**aggregated_attributes, 'geometry': poly})
-    
-    # Create a new GeoDataFrame from the result list
-    unioned_gdf = gpd.GeoDataFrame(result_rows, columns=input_gdf.columns, crs=input_gdf.crs)
-    
+        if sindex is not None:
+            # fast bbox filter, then exact intersects
+            idx = list(sindex.query(poly, predicate="intersects"))
+            intersecting = input_gdf.iloc[idx]
+            if not intersecting.empty:
+                intersecting = intersecting[intersecting.geometry.intersects(poly)]
+        else:
+            intersecting = input_gdf[input_gdf.geometry.intersects(poly)]
+
+        if intersecting.empty:
+            # shouldn't normally happen, but be robust
+            attrs = {col: None for col in input_gdf.columns if col != "geometry"}
+        else:
+            attrs = {}
+            for col in input_gdf.columns:
+                if col == "geometry":
+                    continue
+                attrs[col] = aggregate_column(intersecting[col], col)
+
+        attrs["geometry"] = poly
+        result_rows.append(attrs)
+
+    # 5) Build GeoDataFrame; ensure the same columns order as input
+    # (any missing keys will default to None/NaT)
+    unioned_gdf = gpd.GeoDataFrame(result_rows, crs=input_gdf.crs)
+    # Reorder and reinsert missing columns
+    for col in input_gdf.columns:
+        if col not in unioned_gdf.columns:
+            unioned_gdf[col] = pd.NaT if pd.api.types.is_datetime64_any_dtype(input_gdf[col]) else None
+    unioned_gdf = unioned_gdf[input_gdf.columns]
+
     return unioned_gdf
