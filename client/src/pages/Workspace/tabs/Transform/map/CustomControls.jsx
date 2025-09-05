@@ -72,13 +72,14 @@ class ClearAll {
 }
 
 class SatelliteToggle {
-    constructor(mapRef, theme, setSelectedFeature) {
+    constructor(mapRef, theme, setSelectedFeature, clearActiveLayer) {
         this.mapRef = mapRef;
         this.isSatellite = false;
         this.container = null;
         this.root = null;
         this.theme = theme;
         this.setSelectedFeature = setSelectedFeature;
+        this.clearActiveLayer = clearActiveLayer;
     }
 
     onAdd() {
@@ -115,7 +116,8 @@ class SatelliteToggle {
 
     toggleSatellite() {
         const newStyle = this.isSatellite ? this.theme.map.globe.style : 'mapbox://styles/mapbox/satellite-streets-v11';
-
+        this.clearActiveLayer();
+        
         if (this.mapRef.current) {
             this.mapRef.current.setStyle(newStyle);
 
