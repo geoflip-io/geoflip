@@ -155,9 +155,13 @@ Planned features and improvements:
 
 ## 📄 License
 
-This project is licensed under the **Business Source License 1.1 (BSL)**.  
-It is free for non-commercial use. Commercial use requires a separate Enterprise License from Intelligis.io Pty Ltd.  
+This project is licensed under the **Apache License 2.0**.
 
-The license will convert to the **Apache 2.0 License** on the Change Date specified in the [`LICENSE`](./LICENSE) file.  
+- See [`LICENSE`](./LICENSE) for the full text (including the patent grant).
+- See [`NOTICE`](./NOTICE) for attribution notices and third-party components.
+- By contributing, you agree that your contributions are licensed under Apache-2.0.
 
-See [`LICENSE`](./LICENSE) for full details.
+> **Note:** These terms apply to the open-source code. Use of the free, publicly hosted Geoflip service at geoflip.io is governed by its own Terms of Service and Privacy Policy.
+
+**Tip:** add `SPDX-License-Identifier: Apache-2.0` to file headers where practical.
+

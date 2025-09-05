@@ -1,0 +1,29 @@
+Geoflip — NOTICE
+Copyright (c) 2025 Intelligis.io Pty Ltd and Geoflip contributors.
+
+This product is licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+
+This NOTICE file is for attribution and informational purposes only and does not modify the License.
+Per Apache-2.0 §4(d), please retain this NOTICE in redistributions of Geoflip and in derivative works.
+
+---------------------------------
+Third-Party Notices (examples)
+---------------------------------
+List each bundled dependency that requires attribution. If none are distributed with your build, remove this section.
+
+- FastAPI — © 2018–present Sebastián Ramírez — MIT License.
+- Pydantic — © 2017–present Pydantic authors — MIT License.
+- Shapely — © 2007–present Shapely contributors — BSD 3-Clause.
+- Fiona — © 2011–present Fiona contributors — BSD 3-Clause.
+- GEOS — © 2001–present GEOS contributors — LGPL-2.1-or-later.
+- PROJ — © 1983–present PROJ contributors — MIT.
+- GDAL/OGR — © 2000–present GDAL contributors — MIT/X-style.
+- MapLibre GL JS (if used) — © MapLibre contributors — BSD 3-Clause.
+- Other bundled assets retain their respective copyrights and licenses.
+
+---------------------------------
+Trademarks
+---------------------------------
+“Geoflip” and the Geoflip logo are trademarks of Intelligis.io Pty Ltd.
+All other trademarks are the property of their respective owners.

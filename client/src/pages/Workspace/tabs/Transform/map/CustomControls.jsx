@@ -72,12 +72,14 @@ class ClearAll {
 }
 
 class SatelliteToggle {
-    constructor(mapRef, theme) {
+    constructor(mapRef, theme, setSelectedFeature, clearActiveLayer) {
         this.mapRef = mapRef;
         this.isSatellite = false;
         this.container = null;
         this.root = null;
-        this.theme = theme
+        this.theme = theme;
+        this.setSelectedFeature = setSelectedFeature;
+        this.clearActiveLayer = clearActiveLayer;
     }
 
     onAdd() {
@@ -114,12 +116,14 @@ class SatelliteToggle {
 
     toggleSatellite() {
         const newStyle = this.isSatellite ? this.theme.map.globe.style : 'mapbox://styles/mapbox/satellite-streets-v11';
-
+        this.clearActiveLayer();
+        
         if (this.mapRef.current) {
             this.mapRef.current.setStyle(newStyle);
 
             this.mapRef.current.once('style.load', () => {
-                // Re-add the 'combined-features' source
+                // Get the styles and re-add all layers
+                const layers = getLayerStyles(this.theme);
                 this.mapRef.current.addSource('combined-features', {
                     type: 'geojson',
                     data: {
@@ -127,12 +131,37 @@ class SatelliteToggle {
                         features: []
                     }
                 });
-    
-                // Get the styles and re-add all layers
-                const styles = getLayerStyles(this.theme);
-                styles.forEach(style => {
-                    if (this.mapRef.current) {
-                        this.mapRef.current.addLayer(style);
+
+                this.mapRef.current.addSource('geoflip-output', {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: []
+                    }
+                });
+
+                this.mapRef.current.addSource('highlight-feature', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+                });
+
+                // handle all the layers
+                layers.forEach(layer => {
+                    if (this.mapRef.current){
+                        this.mapRef.current.addLayer(layer);
+
+                        // set the selected feature state when layer is clicked
+                        this.mapRef.current.on('click', layer.id, (e) => {
+                            const feature = e.features[0].toJSON();
+                            this.setSelectedFeature(feature);
+                            this.mapRef.current.getSource('highlight-feature').setData({
+                                type: 'FeatureCollection',
+                                features: [feature]
+                            });
+                        });
                     }
                 });
             });

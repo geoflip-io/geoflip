@@ -29,7 +29,7 @@ def transform_operation(self,
 
     try:
         start_time = datetime.datetime.now()
-        self.update_state(state="PROGRESS", meta={"message": "Transform task started."})
+        self.update_state(state="STARTED", meta={"message": "Transform task started."})
 
         # Read input data
         if (input_file_path):
