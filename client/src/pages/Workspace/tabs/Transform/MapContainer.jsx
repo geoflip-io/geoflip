@@ -60,7 +60,7 @@ const MapContainer = () => {
                 mapRef.current.addControl(drawRef.current, "top-left");
                 mapRef.current.addControl(new mapboxgl.NavigationControl(), "bottom-left");
                 mapRef.current.addControl(new ClearAll(drawRef.current, mapRef, setEraseFeatures, setClipFeatures, clearActiveLayer), 'top-left');
-                mapRef.current.addControl(new SatelliteToggle(mapRef, theme), 'top-left');
+                mapRef.current.addControl(new SatelliteToggle(mapRef, theme, setSelectedFeature), 'top-left');
                 
                 mapRef.current.addSource('combined-features', {
                     type: 'geojson',
