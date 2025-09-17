@@ -23,6 +23,7 @@ class TaskStatus(str, Enum):
     RETRY = "RETRY"
     FAILURE = "FAILURE"
     SUCCESS = "SUCCESS"
+    PROCESSING = "PROCESSING"
 
 class TaskStatusOut(BaseModel):
     job_id: UUID4
@@ -56,7 +57,12 @@ logger = logging.getLogger("api")
 async def get_task_status(job_id: str):
     result = AsyncResult(job_id, app=celery_app)
     status = result.status
-    message = result.info["message"]
+
+    try:
+        message = result.info["message"]
+    except ValueError:
+        message = "none"
+
     output_url = None
 
     if result.successful():
