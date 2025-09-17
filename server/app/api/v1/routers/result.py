@@ -27,6 +27,7 @@ class TaskStatus(str, Enum):
 class TaskStatusOut(BaseModel):
     job_id: UUID4
     status: TaskStatus
+    message: Optional[str] = None
     output_url: Optional[HttpUrl] = None
 
     model_config = ConfigDict(
@@ -54,6 +55,8 @@ logger = logging.getLogger("api")
 )
 async def get_task_status(job_id: str):
     result = AsyncResult(job_id, app=celery_app)
+    status = result.status
+    message = result.info["message"]
     output_url = None
 
     if result.successful():
@@ -61,7 +64,8 @@ async def get_task_status(job_id: str):
 
     return {
         "job_id": job_id,
-        "status": result.status,
+        "status": status,
+        "message": message,
         "output_url": output_url,
     }
 
