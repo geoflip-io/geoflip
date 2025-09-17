@@ -43,7 +43,7 @@ class UnionTransformation(BaseModel):
 TransformationModel = Union[BufferTransformation, UnionTransformation]
 
 # --- Output Section ---
-SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp", "dxf"]
+SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp", "dxf", "csv"]
 
 class OutputModel(BaseModel):
     format: str

@@ -169,7 +169,44 @@ def gdf_to_dxf(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     return output_path
 
 
+def gdf_to_csv(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
+    """
+    Reproject and save a GeoDataFrame to CSV with geometry in WKT format.
 
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        Input GeoDataFrame.
+    output_dir : str
+        Directory where the CSV file will be written.
+    output_epsg : int
+        EPSG code for the output CRS.
+
+    Returns
+    -------
+    str
+        Absolute path to the written CSV file.
+    """
+    if gdf.crs is None:
+        raise ValueError("Input GeoDataFrame has no CRS defined.")
+
+    # Reproject if needed
+    if gdf.crs.to_epsg() != output_epsg:
+        gdf = gdf.to_crs(epsg=output_epsg)
+
+    # Convert geometry to WKT and drop geometry column
+    gdf = gdf.copy()
+    gdf["geom_wkt"] = gdf.geometry.to_wkt()
+    gdf = gdf.drop(columns="geometry")
+
+    # File name & path
+    output_file_name = f"geoflip_csv_{output_epsg}"
+    output_path = os.path.join(output_dir, f"{output_file_name}.csv")
+
+    # Write CSV
+    gdf.to_csv(output_path, index=False)
+
+    return output_path
 
 # returns the path to the output file or the content of the file
 def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str, to_file:bool = True) -> str:
@@ -191,5 +228,8 @@ def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job
 		case "dxf":
 			output_dxf_path = gdf_to_dxf(gdf, output_dir, output_epsg)
 			return ("filepath", output_dxf_path)
+		case "csv":
+			output_csv_path = gdf_to_csv(gdf, output_dir, output_epsg)
+			return ("filepath", output_csv_path)
 		case _:
 			raise ValueError(f"Unsupported output format: {output_format}")
