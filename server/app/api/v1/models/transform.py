@@ -4,7 +4,7 @@ from fastapi import HTTPException
 
 
 # --- Input Section ---
-SUPPORTED_INPUT_FORMATS = ["geojson", "shp", "dxf"]
+SUPPORTED_INPUT_FORMATS = ["geojson", "shp", "dxf", "csv"]
 
 class InputModel(BaseModel):
     format: str
@@ -19,7 +19,7 @@ class InputModel(BaseModel):
             )
         
         match values.format:
-            case "dxf":
+            case "dxf" | "csv":
                 if values.epsg is None:
                     raise HTTPException(
                         status_code=400,
