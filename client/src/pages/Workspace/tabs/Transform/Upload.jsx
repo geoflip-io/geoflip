@@ -40,7 +40,7 @@ const Upload = () => {
 
 	const handleInputFormatChange = (event) => {
 		const value = event.target.value;
-		if (value === "shp" || value === "dxf" || value === "gpkg") {
+		if (value === "shp" || value === "dxf" || value === "gpkg" || value === "csv") {
 			setInputFormat(value);
             setSelectedFile(null);
             setUploadAvailable(false);
@@ -75,7 +75,7 @@ const Upload = () => {
                 }
             };
 
-            if (inputFormat === "dxf" && inputCRS) {
+            if ((inputFormat === "dxf" ||  inputFormat === "csv") && inputCRS) {
                 config.input.epsg = inputCRS;
             }
 
@@ -135,8 +135,9 @@ const Upload = () => {
                         <MenuItem value={"shp"}>Shapefile</MenuItem>
                         <MenuItem disabled value={"gpkg"}>Geopackage</MenuItem>
                         <MenuItem value={"dxf"}>DXF</MenuItem>
+                        <MenuItem value={"csv"}>CSV (WKT)</MenuItem>
                     </StyledSelect>
-                    {inputFormat == "dxf" && (
+                    {(inputFormat === "dxf" ||  inputFormat === "csv") && (
                         <StyledTextField
                             value={inputCRS}
                             label="Input CRS"

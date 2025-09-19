@@ -21,7 +21,6 @@ const Export = () => {
 	const [outputFormat, setOutputFormat] = useState("shp");
 	const [outputCRS, setOutputCRS] = useState(4326);
 	const [loading, setLoading] = useState(false);
-	const [downloadUrl, setDownloadUrl] = useState(null);
 
 	const handleOutputFormatChange = (event) => {
 		setOutputFormat(event.target.value);
@@ -107,39 +106,6 @@ const Export = () => {
 		await fetchData();
 	}
 
-	const handleDownload = () => {
-		if (downloadUrl) {
-			const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-			let fileExtension;
-			switch (outputFormat) {
-				case 'shp':
-					fileExtension = 'zip';
-					break;
-				case 'gpkg':
-					fileExtension = 'gpkg';
-					break;
-				case 'dxf':
-					fileExtension = 'dxf';
-					break;
-				default:
-					fileExtension = outputFormat;
-			}
-			
-			const fileName = `geoflip_${timestamp}.${fileExtension}`;
-	
-			const link = document.createElement('a');
-			link.href = downloadUrl;
-			link.download = fileName;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-
-            window.URL.revokeObjectURL(downloadUrl);
-
-			setDownloadUrl(null);
-		}
-	};
-
 	return (
         <Box
             sx={{
@@ -166,6 +132,7 @@ const Export = () => {
                     <MenuItem value={"shp"}>Shapefile</MenuItem>
                     <MenuItem disabled value={"gpkg"}>Geopackage</MenuItem>
                     <MenuItem value={"dxf"}>DXF</MenuItem>
+                    <MenuItem value={"csv"}>CSV (WKT)</MenuItem>
                 </StyledSelect> 
 
             </FormControl >
