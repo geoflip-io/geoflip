@@ -29,9 +29,10 @@ def transform_operation(self,
 
     try:
         start_time = datetime.datetime.now()
-        self.update_state(state="STARTED", meta={"message": "Transform task started."})
+        self.update_state(state="STARTED", meta={"message": "Transform task started"})
 
         # Read input data
+        self.update_state(state="PROCESSING", meta={"message": "Reading data"})
         if (input_file_path):
             input_gdf = input_to_gdf(input_format, input_file_path, input_epsg)
             logger.info(f"Task {self.request.id}: Data read successfully {input_gdf.head()}")
@@ -39,10 +40,12 @@ def transform_operation(self,
             raise ValueError("Either input_file_path or data must be provided - not both.")
 
         # Apply transformations
+        self.update_state(state="PROCESSING", meta={"message": "Applying transformations"})
         input_gdf, transformations_applied = apply_transformations(gdf=input_gdf, transformations=transformations)
         logger.info(f"Task {self.request.id}: Transformations applied: {transformations_applied}")
 
         # write to desired output format
+        self.update_state(state="PROCESSING", meta={"message": "Writing output"})
         if input_gdf is not None:
             output_type, output = gdf_to_output(input_gdf, output_format, output_epsg, job_id, to_file)
         else:

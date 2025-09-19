@@ -78,8 +78,7 @@ Follow the steps below to add new reader formats, reader formats is how geoflip 
 
 1. update the `InputModel` and `SUPPORTED_INPUT_FORMATS` for your new format in the `models\transform.py`:
     - `\geoflip\server\app\api\v1\models\transform.py`
-2. update `binary_input_types` and `string_input_types` with your new format in the `routers\transform.py`
-3. finally, update the `reader.py` to support your new input format:
+2. finally, update the `reader.py` to support your new input format:
     - `\geoflip\server\app\api\v1\operations\geoprocessing\reader.py`
    create a new `[format]_to_gdf()` function here and update the `input_to_gdf` to use it
 
@@ -110,8 +109,8 @@ Follow the steps below to add new reader formats, reader formats is how geoflip 
 - ~~improve mapbox map performance while working with large datasets~~
 - ~~add drawing back into the map~~
 - ~~add attribute info display on feature click~~
-- include edit and delete buttons
-    - edit: move the feature to the drawing layer for editing
+- ~~include edit and delete buttons~~
+    - ~~edit: move the feature to the drawing layer for editing~~
     - ~~delete: delete it from the layer and the active features~~
 - ~~add highlight to selected feature when clicked~~
 - ~~make the attribute table scrollable instead of the entire context box~~
@@ -125,6 +124,7 @@ Follow the steps below to add new reader formats, reader formats is how geoflip 
     - KML
     - EsriJSON
     - Geopackage
+    - CSV
 - Additional Operations
     - append
     - merge

@@ -20,10 +20,11 @@ from app.api.v1.operations.cleanup import cleanup_operation
 from app.core.config import config as app_config
 from app.core.usage_logger import log_usage
 
+from app.api.v1.models.transform import SUPPORTED_INPUT_FORMATS
+
 
 router = APIRouter()
 logger = logging.getLogger("api")
-input_types = ["shp", "dxf", "geojson"]
 
 class TransformQueuedOut(BaseModel):
     job_id: UUID4
@@ -82,7 +83,7 @@ async def create_transformation(
     # convert transformations to a list of dictionaries to pass to the celery task
     transformations: list = [t.model_dump(mode="json") for t in transform.transformations]
 
-    if input_format not in input_types:
+    if input_format not in SUPPORTED_INPUT_FORMATS:
         raise HTTPException(status_code=400, detail=f"Unsupported input type: {input_format}")
 
     if input_file:
