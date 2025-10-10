@@ -1,5 +1,6 @@
 services:
   redis:
+    profiles: ["infra"]
     container_name: geoflip-redis
     image: "redis:alpine"
     ports:
@@ -7,6 +8,7 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
   db:
+    profiles: ["infra"]
     container_name: geoflip-db
     image: postgres:15
     restart: always
@@ -20,9 +22,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
+    profiles: ["app"]
     container_name: geoflip-api
-    env_file:
-      - ../server/.env
     build:
       context: ../server
     ports:
@@ -52,6 +53,20 @@ services:
         condition: service_started
     volumes:
       - ../server:/app
+  client:
+    profiles: ["app"]
+    container_name: geoflip-client
+    build:
+      context: ../client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN}
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_started
 
 volumes:
   postgres_data:
