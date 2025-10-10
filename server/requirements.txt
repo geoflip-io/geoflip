@@ -1,11 +1,11 @@
-FastAPI
 uvicorn[standard]
 gunicorn
 python-dotenv
 pydantic_settings
 databases[postgresql]
 psycopg2-binary
-fastapi[all]
+fastapi==0.116.2
+pydantic==2.11.9
 rich
 asgi-correlation-id
 python-json-logger
