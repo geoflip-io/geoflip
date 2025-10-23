@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
 
-from app.core.database import database
+from app.core.database import database, engine, metadata 
 from app.accounts.routers.users import router as user_router
 from app.api.v1.routers.transform import router as transform_router
 from app.api.v1.routers.result import router as result_router
@@ -30,6 +30,15 @@ async def lifespan(app: FastAPI):
     configure_logging()
     logger.info("Starting api")
     await database.connect()
+
+    # prevents multiple gunicorn workers racing on DDL/sequence creation
+    await database.execute("SELECT pg_advisory_lock(987654321);")
+    try:
+        # use sync engine connection for SQLAlchemy DDL
+        with engine.begin() as conn:
+            metadata.create_all(conn, checkfirst=True)
+    finally:
+        await database.execute("SELECT pg_advisory_unlock(987654321);")
 
     if config.IS_PUBLIC_INSTANCE:
         await bootstrap_open_mode_defaults()
