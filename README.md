@@ -33,6 +33,13 @@ Geoflip is built with developers in mind — stateless, simple to deploy, and bu
 
 ## 🚀 Quick Start (Docker Compose)
 
+Make sure you have docker desktop installed:
+
+[Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+[Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+
+then:
+
 ```bash
 git clone https://github.com/geoflip-io/geoflip.git
 cd geoflip/deploy
@@ -42,7 +49,12 @@ cp .env-example .env
 
 # Start API, Redis, and Worker (from the deploy folder)
 cd /deploy
-docker compose up --build -d
+```
+
+now in this folder create a `.env` with your config or just make a copy of the `.env-example `and rename it to `.env`
+
+```
+docker compose --profile infra --profile app up --build -d
 ```
 
 Refer to /server.readme.md for additional local development details
