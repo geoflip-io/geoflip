@@ -20,7 +20,7 @@ from app.api.v1.operations.cleanup import cleanup_operation
 from app.core.config import config as app_config
 from app.core.usage_logger import log_usage
 
-from app.api.v1.models.transform import SUPPORTED_INPUT_FORMATS
+from app.api.v1.models.input import SUPPORTED_INPUT_FORMATS
 
 
 router = APIRouter()
@@ -93,12 +93,12 @@ async def create_transformation(
             status_code=400, detail=f"Unsupported input type: {input_format}"
         )
 
-    if input_file:
+    try:
         input_file_path = await save_input(input_file, job_id)
         input_file.file.seek(0, io.SEEK_END)
         payload_size_bytes = input_file.file.tell()
         input_file.file.seek(0)
-    else:
+    except Exception:
         raise HTTPException(status_code=400, detail="input_file is required")
 
     # Step 6: Que the celery task
@@ -150,4 +150,3 @@ async def create_transformation(
             "message": "Transformation job has been accepted",
         }
     )
-
