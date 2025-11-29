@@ -19,6 +19,8 @@ from app.core.usage_logger import log_usage
 from app.api.v1.models.input import SUPPORTED_INPUT_FORMATS
 from app.api.v1.models.output import SUPPORTED_OUTPUT_FORMATS
 
+from app.api.v1.operations.erase import erase_operation
+
 router = APIRouter()
 logger = logging.getLogger("api")
 
@@ -77,11 +79,11 @@ async def create_erase(
     erase_format: str = erase_config.erase.format
     erase_epsg: int | None = erase_config.erase.epsg
     job_id: str = str(uuid.uuid4())
-    input_file_path: str | None = None
+    target_file_path: str | None = None
+    erase_file_path: str | None = None
     output_format: str = erase_config.output.format
     output_epsg: int | None = erase_config.output.epsg
     output_to_file: bool = erase_config.output.to_file
-    payload_size_bytes = 0
 
     # Valdiation
     if target_format not in SUPPORTED_INPUT_FORMATS:
@@ -114,19 +116,35 @@ async def create_erase(
     except Exception:
         raise HTTPException(status_code=400, detail="erase_file is required")
 
-    # Step 6: Que the celery task
+    # run the celerty job for erase
     logger.info(
-        f"job_id: ({current_user.email}){job_id} - Queuing erase task for target format type: {target_format} with erase format type: {erase_format}"
+        f"job_id: ({current_user.email}){job_id} - Queuing erase task with ouput_format: {output_format}"
     )
 
-    # TODO: Handle the actual erase operation here (via celery)
-    # erase_operation.apply_async()  # type: ignore[call-arg]
-    # logger.info(f"Dispatched celery erase task with job_id: {job_id})
-    # cleanup_operation.apply_async(  # type: ignore[call-arg]
-    #     args=[job_id], countdown=app_config.JOB_EXPIRY_TIME, ignore_result=True
-    # )
-    #
-    # logger.info(f"Queued transfomration job: {job_id}")
+    erase_operation.apply_async(  # type: ignore
+        args=[
+            job_id,
+            target_format,
+            target_file_path,
+            erase_format,
+            erase_file_path,
+            output_format,
+            output_epsg,
+            erase_epsg,
+            target_epsg,
+            output_to_file,
+        ],
+        expires=app_config.JOB_EXPIRY_TIME,
+        task_id=job_id,
+    )
+    logger.info(f"Dispatched celery erase task with job_id: {job_id}")
+
+    # run clean up job
+    cleanup_operation.apply_async(  # type: ignore
+        args=[job_id], countdown=app_config.JOB_EXPIRY_TIME, ignore_result=True
+    )
+
+    logger.info(f"Queued erase job: {job_id}")
 
     # log the request into usage logs
     end_time = datetime.datetime.now()
