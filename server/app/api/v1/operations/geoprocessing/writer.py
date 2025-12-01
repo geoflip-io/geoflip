@@ -38,24 +38,26 @@ def gdf_to_shp(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
 
     return zip_output_path
 
+
 def gdf_to_geojson_data(gdf: gpd.GeoDataFrame) -> str:
-	"""
-	Convert a GeoDataFrame to GeoJSON dict format.
-	"""
+    """
+    Convert a GeoDataFrame to GeoJSON dict format.
+    """
     # Reproject if needed
-	if gdf.crs is None:
-		raise ValueError("Input GeoDataFrame has no CRS defined.")
+    if gdf.crs is None:
+        raise ValueError("Input GeoDataFrame has no CRS defined.")
 
-	if gdf.crs.to_epsg() != 4326:
-		gdf = gdf.to_crs(epsg=4326)
+    if gdf.crs.to_epsg() != 4326:
+        gdf = gdf.to_crs(epsg=4326)
 
-	geojson_dict = json.loads(gdf.to_json())
-	return geojson_dict
+    geojson_dict = json.loads(gdf.to_json())
+    return geojson_dict
+
 
 def gdf_to_geojson_file(gdf: gpd.GeoDataFrame, output_dir: str) -> str:
     """
     Reproject (to EPSG:4326) and save a GeoDataFrame as a GeoJSON file.
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -63,7 +65,7 @@ def gdf_to_geojson_file(gdf: gpd.GeoDataFrame, output_dir: str) -> str:
     output_dir : str
         Directory where the GeoJSON file will be created. The caller
         should ensure this directory exists (gdf_to_output already does).
-    
+
     Returns
     -------
     str
@@ -81,7 +83,7 @@ def gdf_to_geojson_file(gdf: gpd.GeoDataFrame, output_dir: str) -> str:
     output_file_name = "geoflip_geojson_4326"
     output_path = os.path.join(output_dir, f"{output_file_name}.geojson")
 
-	# write to the file - if it fails dump it ourselves
+    # write to the file - if it fails dump it ourselves
     try:
         gdf.to_file(output_path, driver="GeoJSON")
     except Exception:
@@ -96,6 +98,7 @@ def _xy_coords(seq):
     # Flatten (x,y[,z]) to (x,y)
     return [(float(x), float(y)) for x, y, *_ in seq]
 
+
 def _safe_polygon(poly: Polygon) -> Polygon:
     # Ensure ring validity & correct orientation if needed
     if not poly.is_valid:
@@ -105,6 +108,7 @@ def _safe_polygon(poly: Polygon) -> Polygon:
             # merge by taking largest area part; adjust to your needs
             poly = max(poly.geoms, key=lambda p: p.area)
     return poly
+
 
 def _write_polygon(msp, poly: Polygon):
     if poly.is_empty:
@@ -123,6 +127,7 @@ def _write_polygon(msp, poly: Polygon):
     # Hole paths
     for interior in poly.interiors:
         hatch.paths.add_polyline_path(_xy_coords(list(interior.coords)), is_closed=True)
+
 
 def gdf_to_dxf(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     """
@@ -208,28 +213,37 @@ def gdf_to_csv(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
 
     return output_path
 
+
 # returns the path to the output file or the content of the file
-def gdf_to_output(gdf: gpd.GeoDataFrame, output_format:str, output_epsg:int, job_id:str, to_file:bool = True) -> str:
-	output_dir = os.path.join(app_config.DATA_PATH, job_id, "output")
-	os.makedirs(output_dir, exist_ok=True)
-	
-	match output_format:
-		case "shp":
-			output_shp_path = gdf_to_shp(gdf, output_dir, output_epsg)
-			return ("filepath",output_shp_path)
-		case "geojson":
-			output = None
-			if to_file:
-				output = gdf_to_geojson_file(gdf, output_dir)
-				return ("filepath",output)
-			else:
-				output = gdf_to_geojson_data(gdf)
-				return ("data",output)
-		case "dxf":
-			output_dxf_path = gdf_to_dxf(gdf, output_dir, output_epsg)
-			return ("filepath", output_dxf_path)
-		case "csv":
-			output_csv_path = gdf_to_csv(gdf, output_dir, output_epsg)
-			return ("filepath", output_csv_path)
-		case _:
-			raise ValueError(f"Unsupported output format: {output_format}")
+# TODO: typing for the return here needs to be correctly defined as a tuple(output_type: str, output: str | dict)
+def gdf_to_output(
+    gdf: gpd.GeoDataFrame,
+    output_format: str,
+    output_epsg: int,
+    job_id: str,
+    to_file: bool = True,
+) -> str:
+    output_dir = os.path.join(app_config.DATA_PATH, job_id, "output")
+    os.makedirs(output_dir, exist_ok=True)
+
+    match output_format:
+        case "shp":
+            output_shp_path = gdf_to_shp(gdf, output_dir, output_epsg)
+            return ("filepath", output_shp_path)
+        case "geojson":
+            output = None
+            if to_file:
+                output = gdf_to_geojson_file(gdf, output_dir)
+                return ("filepath", output)
+            else:
+                output = gdf_to_geojson_data(gdf)
+                return ("data", output)
+        case "dxf":
+            output_dxf_path = gdf_to_dxf(gdf, output_dir, output_epsg)
+            return ("filepath", output_dxf_path)
+        case "csv":
+            output_csv_path = gdf_to_csv(gdf, output_dir, output_epsg)
+            return ("filepath", output_csv_path)
+        case _:
+            raise ValueError(f"Unsupported output format: {output_format}")
+

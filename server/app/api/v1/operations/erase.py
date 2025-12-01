@@ -3,6 +3,7 @@ import datetime
 from celery import shared_task
 from typing import Optional
 from app.api.v1.operations.geoprocessing.reader import input_to_gdf
+from app.api.v1.operations.geoprocessing.writer import gdf_to_output
 import geopandas as gpd
 
 logger = logging.getLogger("api")
@@ -18,12 +19,13 @@ def erase_operation(
     erase_file_path: str,
     output_format: str,
     output_epsg: int,
-    erase_epsg: Optional[int] = None,
     target_epsg: Optional[int] = None,
+    erase_epsg: Optional[int] = None,
     to_file: bool = True,
 ) -> dict:
     target_gdf: gpd.GeoDataFrame | None = None
     erase_gdf: gpd.GeoDataFrame | None = None
+    output_gdf: gpd.GeoDataFrame | None = None
 
     logger.info(f"Task {self.request.id}: Starting erase_task")
 
@@ -32,27 +34,59 @@ def erase_operation(
         self.update_state(state="STARTED", meta={"message": "Erase task started"})
 
         # read input data files (target and erase) + turn them into gdf
-        self.update_state(state="PROCESSING", meta={"message": "Reading data"})
-        # TODO: read the files
+        self.update_state(state="PROCESSING", meta={"message": "Reading target file"})
+        if target_format and target_file_path:
+            target_gdf = input_to_gdf(target_format, target_file_path, target_epsg)
+            logger.info(
+                f"Task {self.request.id}: target file read successfully {target_gdf.head()}"
+            )
+        else:
+            raise ValueError("Error converting target file into gdf")
+
+        self.update_state(state="PROCESSING", meta={"message": "Reading erase file"})
+        if erase_format and erase_file_path:
+            erase_gdf = input_to_gdf(erase_format, erase_file_path, erase_epsg)
+            logger.info(
+                f"Task {self.request.id}: target file read successfully {erase_gdf.head()}"
+            )
+        else:
+            raise ValueError("Error converting erase file into gdf")
 
         # apply the erase
         self.update_state(state="PROCESSING", meta={"message": "Applying erase"})
         # TODO: implement and call erase geoprocessing function
+        # DELETE THE BELOW WHEN THIS IS IMPLEMENTED
+        output_type, output = ("something", "something")
+        # DELETE THE ABOVE
 
         # write to desired output format
         self.update_state(state="PROCESSING", meta={"message": "Writing output"})
-        # TODO: write the resulting erased gdf to output file
+        if output_gdf is not None:
+            output_type, output = gdf_to_output(
+                output_gdf, output_format, output_epsg, job_id, to_file
+            )
 
         end_time = datetime.datetime.now()
         elapsed = (end_time - start_time).total_seconds()
 
-        result_msg = {
-            "message": "Target erased successfully",
-            "output_type": "data",
-            "output_filepath": None,
-            "output_data": "{'message':'one day this will be data'}",
-            "processing_time_seconds": elapsed,
-        }
+        if output_type == "filepath":
+            result_msg = {
+                "message": "Target erased successfully",
+                "output_type": output_type,
+                "output_filepath": output,
+                "output_data": None,
+                "processing_time_seconds": elapsed,
+            }
+        elif output_type == "data":
+            result_msg = {
+                "message": "Target erased successfully",
+                "output_type": output_type,
+                "output_filepath": None,
+                "output_data": output,
+                "processing_time_seconds": elapsed,
+            }
+        else:
+            raise ValueError(f"invalid output_type was returned: {output_type}")
 
         return result_msg
     except Exception as e:
