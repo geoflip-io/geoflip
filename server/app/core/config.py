@@ -45,7 +45,7 @@ class DevConfig(GlobalConfig):
 
 
 class TestConfig(GlobalConfig):
-    TEST_DB_NAME: str = "test-db"
+    TEST_DB_NAME: str = "test_db"
     DB_FORCE_ROLL_BACK: bool = True
 
     def __init__(self, **values):

@@ -8,19 +8,20 @@ from typing import Optional
 
 logger = logging.getLogger("api")
 
+
 def shp_to_gdf(input_zip_path: str) -> gpd.GeoDataFrame:
     try:
         # Get the directory where the zip file is located
         extract_dir = os.path.dirname(input_zip_path)
 
         # Extract the zip file in-place
-        with zipfile.ZipFile(input_zip_path, 'r') as zip_ref:
+        with zipfile.ZipFile(input_zip_path, "r") as zip_ref:
             zip_ref.extractall(extract_dir)
 
         # Find the .shp file (case-insensitive)
         shp_file = None
         for filename in os.listdir(extract_dir):
-            if filename.lower().endswith('.shp'):
+            if filename.lower().endswith(".shp"):
                 shp_file = os.path.join(extract_dir, filename)
                 break
 
@@ -31,9 +32,12 @@ def shp_to_gdf(input_zip_path: str) -> gpd.GeoDataFrame:
         gdf = gpd.read_file(shp_file)
     except Exception as e:
         logger.error(f"Error handling the zipped shape file: {e}")
-        raise ValueError(f"Error handling zipped shape file: {e} - api usage as not been recorded.")
-    
+        raise ValueError(
+            f"Error handling zipped shape file: {e} - api usage as not been recorded."
+        )
+
     return gdf
+
 
 def geojson_to_gdf(input_filepath: str) -> gpd.GeoDataFrame:
     """
@@ -52,7 +56,7 @@ def geojson_to_gdf(input_filepath: str) -> gpd.GeoDataFrame:
         # Build the GeoDataFrame (GeoPandas handles geometry parsing)
         gdf = gpd.GeoDataFrame.from_features(
             geojson_dict["features"],
-            crs="EPSG:4326"   # Set the CRS explicitly
+            crs="EPSG:4326",  # Set the CRS explicitly
         )
 
         return gdf
@@ -60,16 +64,25 @@ def geojson_to_gdf(input_filepath: str) -> gpd.GeoDataFrame:
     except Exception as e:
         raise ValueError(f"Error converting GeoJSON to GeoDataFrame: {e}")
 
+
 def dxf_to_gdf(input_filepath: str, input_epsg: int) -> gpd.GeoDataFrame:
     try:
         gdf = gpd.read_file(input_filepath)
         gdf.crs = input_epsg
     except Exception as e:
         logger.error(f"Error handling the DXF file: {e}")
-        raise ValueError(f"Error handling DXF file: {e} - api usage as not been recorded.")
+        raise ValueError(
+            f"Error handling DXF file: {e} - api usage as not been recorded."
+        )
     return gdf
 
-def csv_to_gdf(input_filepath: str, input_epsg: int, wkt_col: str = "geom_wkt", encoding: Optional[str] = "utf-8") -> gpd.GeoDataFrame:
+
+def csv_to_gdf(
+    input_filepath: str,
+    input_epsg: int,
+    wkt_col: str = "geom_wkt",
+    encoding: Optional[str] = "utf-8",
+) -> gpd.GeoDataFrame:
     """
     Load a CSV file where geometry is stored as WKT in `wkt_col` and return a GeoDataFrame.
 
@@ -97,7 +110,9 @@ def csv_to_gdf(input_filepath: str, input_epsg: int, wkt_col: str = "geom_wkt", 
     """
     # --- Basic validation
     if not isinstance(input_epsg, int) or input_epsg <= 0:
-        raise ValueError("`input_epsg` must be a positive integer EPSG code (e.g., 4326).")
+        raise ValueError(
+            "`input_epsg` must be a positive integer EPSG code (e.g., 4326)."
+        )
 
     if not os.path.exists(input_filepath):
         raise ValueError(f"CSV file not found: {input_filepath}")
@@ -117,17 +132,24 @@ def csv_to_gdf(input_filepath: str, input_epsg: int, wkt_col: str = "geom_wkt", 
         raise ValueError("CSV loaded but contains no rows.")
 
     if wkt_col not in df.columns:
-        raise ValueError(f"Required WKT column '{wkt_col}' not found in CSV columns: {list(df.columns)}")
+        raise ValueError(
+            f"Required WKT column '{wkt_col}' not found in CSV columns: {list(df.columns)}"
+        )
 
     # --- Parse WKT → geometry
     try:
         # geopandas has a helper for WKT parsing
-        geometry = gpd.GeoSeries.from_wkt(df[wkt_col], errors="coerce")
+        geometry = gpd.GeoSeries.from_wkt(df[wkt_col])
     except Exception:
         # Fallback if older versions behave differently
         try:
             from shapely import wkt as _wkt
-            geometry = df[wkt_col].astype(str).apply(lambda s: _wkt.loads(s) if s and s.strip() else None)
+
+            geometry = (
+                df[wkt_col]
+                .astype(str)
+                .apply(lambda s: _wkt.loads(s) if s and s.strip() else None)
+            )
             geometry = gpd.GeoSeries(geometry)
         except Exception as e:
             raise ValueError(f"Failed to parse WKT from column '{wkt_col}': {e}")
@@ -152,24 +174,32 @@ def csv_to_gdf(input_filepath: str, input_epsg: int, wkt_col: str = "geom_wkt", 
     # --- Build GeoDataFrame
     try:
         gdf = gpd.GeoDataFrame(
-            df.drop(columns=[wkt_col]),
-            geometry=geometry,
-            crs=f"EPSG:{input_epsg}"
+            df.drop(columns=[wkt_col]), geometry=geometry, crs=f"EPSG:{input_epsg}"
         )
     except Exception as e:
         raise ValueError(f"Failed to create GeoDataFrame: {e}")
 
     return gdf
 
-def input_to_gdf(input_format: str, input_filepath: str = None, input_epsg: int = None) -> gpd.GeoDataFrame:
-	match input_format:
-		case "shp":
-			return shp_to_gdf(input_filepath)
-		case "geojson":
-			return geojson_to_gdf(input_filepath)
-		case "dxf":
-			return dxf_to_gdf(input_filepath, input_epsg)
-		case "csv":
-			return csv_to_gdf(input_filepath, input_epsg)
-		case _:
-			raise ValueError(f"Unsupported file type: {type}")
+
+def input_to_gdf(
+    input_format: str, input_filepath: str, input_epsg: int | None
+) -> gpd.GeoDataFrame:
+    match input_format:
+        case "shp":
+            return shp_to_gdf(input_filepath)
+        case "geojson":
+            return geojson_to_gdf(input_filepath)
+        case "dxf":
+            if input_epsg:
+                return dxf_to_gdf(input_filepath, input_epsg)
+            else:
+                raise ValueError("input_epsg is required for dxf input_format")
+        case "csv":
+            if input_epsg:
+                return csv_to_gdf(input_filepath, input_epsg)
+            else:
+                raise ValueError("input_epsg is required for csv input_format")
+        case _:
+            raise ValueError(f"Unsupported file type: {type}")
+

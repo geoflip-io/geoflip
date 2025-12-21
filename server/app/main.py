@@ -6,10 +6,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
 
-from app.core.database import database, engine, metadata 
+from app.core.database import database, engine, metadata
 from app.accounts.routers.users import router as user_router
 from app.api.v1.routers.transform import router as transform_router
 from app.api.v1.routers.result import router as result_router
+from app.api.v1.routers.erase import router as erase_router
+
 from app.core.config import config
 from app.core.logging_conf import configure_logging
 from app.core.init import bootstrap_open_mode_defaults
@@ -20,10 +22,8 @@ logger = logging.getLogger(__name__)
 
 
 # CORS settings
-origins = [
-    config.FRONTEND_URL,
-    "https://www.geoflip.io"
-]
+origins = [config.FRONTEND_URL, "https://www.geoflip.io"]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -45,6 +45,7 @@ async def lifespan(app: FastAPI):
 
     yield
     await database.disconnect()
+
 
 app = FastAPI(
     title="Geoflip API",
@@ -69,7 +70,7 @@ Geoflip is a **FastAPI-based geospatial transformation engine** that makes worki
         "name": "Business Source License (BSL)",
         "url": "https://mariadb.com/bsl11/",
     },
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Enable CORS
@@ -86,9 +87,12 @@ app.add_middleware(CorrelationIdMiddleware)
 # Include routers
 app.include_router(user_router)
 app.include_router(transform_router)
+app.include_router(erase_router)
 app.include_router(result_router)
+
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler_logging(request, exc):
     logger.error(f"HTTPException: {exc.status_code} - {exc.detail}")
     return await http_exception_handler(request, exc)
+
