@@ -4,6 +4,8 @@ from celery import shared_task
 from typing import Optional
 from app.api.v1.operations.geoprocessing.reader import input_to_gdf
 from app.api.v1.operations.geoprocessing.writer import gdf_to_output
+from app.api.v1.operations.geoprocessing.erase import apply_erase
+
 import geopandas as gpd
 
 logger = logging.getLogger("api")
@@ -54,10 +56,10 @@ def erase_operation(
 
         # apply the erase
         self.update_state(state="PROCESSING", meta={"message": "Applying erase"})
-        # TODO: implement and call erase geoprocessing function
-        # DELETE THE BELOW WHEN THIS IS IMPLEMENTED
-        output_type, output = ("something", "something")
-        # DELETE THE ABOVE
+        try:
+            output_gdf = apply_erase(target_gdf, erase_gdf)
+        except Exception as e:
+            raise ValueError(f"error applying erase to target_gdf: {e}")
 
         # write to desired output format
         self.update_state(state="PROCESSING", meta={"message": "Writing output"})
