@@ -44,7 +44,7 @@ then:
 git clone https://github.com/geoflip-io/geoflip.git
 cd geoflip/deploy
 
-# Copy environment config
+# Copy environment config - testing commit
 cp .env-example .env
 
 # Start API, Redis, and Worker (from the deploy folder)

@@ -1,6 +1,5 @@
-import geopandas as gpd
 import pyproj
-from shapely.geometry import box
+
 
 def get_utm_crs(geometry):
     """
@@ -8,8 +7,9 @@ def get_utm_crs(geometry):
     """
     centroid = geometry.centroid
     utm_zone = int((centroid.x + 180) // 6) + 1
-    hemisphere = 'north' if centroid.y >= 0 else 'south'
-    return f"EPSG:326{utm_zone}" if hemisphere == 'north' else f"EPSG:327{utm_zone}"
+    hemisphere = "north" if centroid.y >= 0 else "south"
+    return f"EPSG:326{utm_zone}" if hemisphere == "north" else f"EPSG:327{utm_zone}"
+
 
 def apply_buffer(input_gdf, distance, units, simplify_tolerance=None):
     """
@@ -18,15 +18,12 @@ def apply_buffer(input_gdf, distance, units, simplify_tolerance=None):
     and optionally simplifying the resulting buffered geometries.
     """
     # Convert distance to meters based on input units
-    unit_factors = {
-        'meters': 1,
-        'kilometers': 1000,
-        'miles': 1609.34,
-        'feet': 0.3048
-    }
+    unit_factors = {"meters": 1, "kilometers": 1000, "miles": 1609.34, "feet": 0.3048}
 
     if units not in unit_factors:
-        raise ValueError(f"Unsupported unit: {units}. Supported units are meters, kilometers, miles, feet.")
+        raise ValueError(
+            f"Unsupported unit: {units}. Supported units are meters, kilometers, miles, feet."
+        )
 
     distance_in_meters = distance * unit_factors[units]
 
@@ -50,7 +47,7 @@ def apply_buffer(input_gdf, distance, units, simplify_tolerance=None):
 
     # Create a new GeoDataFrame with original attributes and buffered geometry
     buffered_gdf = input_gdf.copy()
-    buffered_gdf['geometry'] = buffered_geometry
+    buffered_gdf["geometry"] = buffered_geometry
 
     # Reproject back to original CRS if needed
     if original_crs and pyproj.CRS(original_crs).is_geographic:

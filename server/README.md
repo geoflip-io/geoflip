@@ -14,6 +14,12 @@ You will need to setup a local postgres database and redis instance for the appl
 
 ## Quick Start
 
+## TODO:
+The below needs to be updated
+- update env-examples to align in deploy as well as in server
+- include the creation of the venv python3.11 -m venv ./.venv then activate it
+- then do the steps
+
 1. First setup setup your `.env` in the `/server` directory:
     ```
     ENV_STATE=global
@@ -53,6 +59,8 @@ You will need to setup a local postgres database and redis instance for the appl
     - `celery -A app.core.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
 7. next, make sure you are in the `/server` dir then in another terminal window start the geoflip application with:
     - `uvicorn app.main:app --reload --port 8001`
+
+
 
 ## Running Tests
 
