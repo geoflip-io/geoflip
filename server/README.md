@@ -66,16 +66,18 @@ The below needs to be updated
 
 ### Test Dependancies
 
-Run a postgres and redis docker container locally (ie through the docker-compose in the deploy folder) before running pytest. The tests need to have database called "test-db" in the database to work properly so make sure you make that first.
+Run a postgres and redis docker container locally (ie through the docker-compose in the deploy folder) before running pytest. The tests need to have database called `test_db` in the database to work properly so make sure you make that first.
 
 ### Running pytest with coverage report
 
 1. first make sure you install the dev dependancies in `requirements-dev.txt`
     `python -m pip install -r requirements-dev.txt`
    Also make sure you are running your local celery instance (check step 6 of quick start above)
-2. then run pytest with coverage
+2. run celery from the `/server` folder
+    - `celery -A app.core.celery_worker.celery_app worker --pool=solo --loglevel=INFO`
+3. then run pytest with coverage
     `coverage run -m pytest`
-3. now to view the report run
+4. now to view the report run
     `coverage report` or `coverage html`
 
 ## How to build stuff
