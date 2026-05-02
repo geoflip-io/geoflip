@@ -64,6 +64,8 @@ services:
         VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN}
     ports:
       - "8080:80"
+    environment:
+      - PORT=80
     depends_on:
       api:
         condition: service_started

@@ -15,11 +15,11 @@ RUN printf "VITE_API_URL=%s\nVITE_MAPBOX_TOKEN=%s\n" "$VITE_API_URL" "$VITE_MAPB
 
 RUN npm run build
 
-# default for local use (Railway overrides)
-ENV PORT=80
-
 # --- serve stage ---
 FROM nginx:alpine
+
+ENV PORT=80
+
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # put template somewhere explicit
