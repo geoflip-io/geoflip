@@ -1,4 +1,4 @@
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { createRoot } from 'react-dom/client';
 import React from 'react';
 import SatelliteOutlinedIcon from '@mui/icons-material/SatelliteOutlined';;  // Import satellite icon
