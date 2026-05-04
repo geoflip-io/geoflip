@@ -12,26 +12,26 @@ class OutputModel(BaseModel):
     to_file: bool = True
 
     @model_validator(mode="after")
-    def validate_output(cls, values):
-        fmt = values.format.lower()
+    def validate_output(self):
+        fmt = self.format.lower()
 
         # Supported format?
         if fmt not in {f.lower() for f in SUPPORTED_OUTPUT_FORMATS}:
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    f"Unsupported output format: '{values.format}'. "
+                    f"Unsupported output format: '{self.format}'. "
                     f"Supported formats are: {', '.join(SUPPORTED_OUTPUT_FORMATS)}"
                 ),
             )
 
         # If not writing to a file, only GeoJSON is allowed
-        if values.to_file is False and fmt != "geojson":
+        if self.to_file is False and fmt != "geojson":
             raise HTTPException(
                 status_code=400,
                 detail="`to_file=false` is only supported when `format` is 'geojson'.",
             )
 
         # normalise back to original case
-        values.format = fmt
-        return values
+        self.format = fmt
+        return self
