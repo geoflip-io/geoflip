@@ -11,18 +11,18 @@ class InputModel(BaseModel):
     epsg: Optional[int] = None
 
     @model_validator(mode="after")
-    def validate_format(cls, values):
-        if values.format not in SUPPORTED_INPUT_FORMATS:
+    def validate_format(self):
+        if self.format not in SUPPORTED_INPUT_FORMATS:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unsupported input format: '{values.format}'. Supported formats are: {', '.join(SUPPORTED_INPUT_FORMATS)}",
+                detail=f"Unsupported input format: '{self.format}'. Supported formats are: {', '.join(SUPPORTED_INPUT_FORMATS)}",
             )
 
-        match values.format:
+        match self.format:
             case "dxf" | "csv":
-                if values.epsg is None:
+                if self.epsg is None:
                     raise HTTPException(
                         status_code=400,
-                        detail=f"field 'input.epsg' is required for {values.format}",
+                        detail=f"field 'input.epsg' is required for {self.format}",
                     )
-        return values
+        return self

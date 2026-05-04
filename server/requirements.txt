@@ -1,11 +1,9 @@
 uvicorn[standard]
 gunicorn
 python-dotenv
-pydantic_settings
+pydantic-settings
 databases[postgresql]
 psycopg2-binary
-fastapi==0.116.2
-pydantic==2.11.9
 rich
 asgi-correlation-id
 python-json-logger
@@ -15,6 +13,8 @@ passlib[bcrypt]
 werkzeug
 celery
 redis
-geopandas
-fiona
 ezdxf
+fiona==1.10.1
+fastapi==0.136.1
+pydantic==2.13.3
+geopandas==1.1.3
