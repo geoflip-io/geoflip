@@ -3,7 +3,7 @@ from pydantic import BaseModel, model_validator
 from fastapi import HTTPException
 
 # --- Output Section ---
-SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp", "dxf", "csv"]
+SUPPORTED_OUTPUT_FORMATS = ["geojson", "shp", "dxf", "csv", "gpkg"]
 
 
 class OutputModel(BaseModel):
@@ -29,7 +29,7 @@ class OutputModel(BaseModel):
         if self.to_file is False and fmt != "geojson":
             raise HTTPException(
                 status_code=400,
-                detail="`to_file=false` is only supported when `format` is 'geojson'.",
+                detail="`to_file=false` is only supported when `output.format` is 'geojson'.",
             )
 
         # normalise back to original case

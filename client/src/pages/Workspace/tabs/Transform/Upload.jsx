@@ -16,14 +16,14 @@ import { useUpdateActiveLayer, useClearActiveLayer } from "./utils/MapOperations
 import {StyledTextField, StyledInputLabel, StyledSelect, StyledButton, StyledLongButton, StyledUploadIcon} from "../../../../utils/InputStyles";
 
 const Upload = () => {
-    const theme = useTheme();
-    const updateActiveLayer = useUpdateActiveLayer();
-    const clearActiveLayer = useClearActiveLayer();
-    const { activeFeatures } = useContext(TransformContext);
-    const [loading, setLoading] = useState(false);
+  const theme = useTheme();
+  const updateActiveLayer = useUpdateActiveLayer();
+  const clearActiveLayer = useClearActiveLayer();
+  const { activeFeatures } = useContext(TransformContext);
+  const [loading, setLoading] = useState(false);
 	const [inputFormat, setInputFormat] = useState("shp");
 	const [selectedFile, setSelectedFile] = useState(null);
-    const [uploadAvailable, setUploadAvailable] = useState(false);
+  const [uploadAvailable, setUploadAvailable] = useState(false);
 	const [inputCRS, setInputCRS] = useState(4326);
 	const fileInputRef = useRef(null);
 
@@ -40,7 +40,7 @@ const Upload = () => {
 
 	const handleInputFormatChange = (event) => {
 		const value = event.target.value;
-		if (value === "shp" || value === "dxf" || value === "gpkg" || value === "csv") {
+		if (value === "shp" || value === "dxf" || value === "gpkg" || value === "csv" || value === "gpkg") {
 			setInputFormat(value);
             setSelectedFile(null);
             setUploadAvailable(false);
@@ -133,7 +133,7 @@ const Upload = () => {
                         IconComponent={ArrowDropDownIcon}
                     >
                         <MenuItem value={"shp"}>Shapefile</MenuItem>
-                        <MenuItem disabled value={"gpkg"}>Geopackage</MenuItem>
+                        <MenuItem value={"gpkg"}>Geopackage</MenuItem>
                         <MenuItem value={"dxf"}>DXF</MenuItem>
                         <MenuItem value={"csv"}>CSV (WKT)</MenuItem>
                     </StyledSelect>

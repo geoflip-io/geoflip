@@ -3,7 +3,7 @@ from pydantic import BaseModel, model_validator
 from fastapi import HTTPException
 
 # --- Input Section ---
-SUPPORTED_INPUT_FORMATS = ["geojson", "shp", "dxf", "csv"]
+SUPPORTED_INPUT_FORMATS = ["geojson", "shp", "dxf", "csv", "gpkg"]
 
 
 class InputModel(BaseModel):

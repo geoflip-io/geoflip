@@ -130,7 +130,7 @@ const Export = () => {
                     IconComponent={ArrowDropDownIcon}
                 >
                     <MenuItem value={"shp"}>Shapefile</MenuItem>
-                    <MenuItem disabled value={"gpkg"}>Geopackage</MenuItem>
+                    <MenuItem value={"gpkg"}>Geopackage</MenuItem>
                     <MenuItem value={"dxf"}>DXF</MenuItem>
                     <MenuItem value={"csv"}>CSV (WKT)</MenuItem>
                 </StyledSelect> 
