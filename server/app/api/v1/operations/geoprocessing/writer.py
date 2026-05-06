@@ -8,6 +8,22 @@ from shapely.validation import make_valid
 import geopandas as gpd
 from app.core.config import config as app_config
 
+def gdf_to_gpkg(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
+    output_file_name = f"geoflip_gpkg_{output_epsg}"
+    output_path= os.path.join(output_dir, f"{output_file_name}.gpkg")
+
+    # Reproject if needed
+    if gdf.crs is None:
+        raise ValueError("Input GeoDataFrame has no CRS defined.")
+
+    if gdf.crs.to_epsg() != output_epsg:
+        gdf = gdf.to_crs(epsg=output_epsg)
+
+    # Save to .shp
+    gdf.to_file(output_path, driver="GPKG", layer="geoflip_output")
+
+    return output_path
+
 
 def gdf_to_shp(gdf: gpd.GeoDataFrame, output_dir: str, output_epsg: int) -> str:
     """
@@ -227,6 +243,9 @@ def gdf_to_output(
     os.makedirs(output_dir, exist_ok=True)
 
     match output_format:
+        case "gpkg":
+            output_gpkg_path = gdf_to_gpkg(gdf, output_dir, output_epsg)
+            return ("filepath", output_gpkg_path)
         case "shp":
             output_shp_path = gdf_to_shp(gdf, output_dir, output_epsg)
             return ("filepath", output_shp_path)

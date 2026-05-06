@@ -9,6 +9,14 @@ from typing import Optional
 logger = logging.getLogger("api")
 
 
+def gpkg_to_gdf(input_filepath: str) -> gpd.GeoDataFrame:
+    try:
+        gdf = gpd.read_file(input_filepath)
+    except Exception as e:
+        logger.error(f"Error handling the gpkg file: {e}.")
+        raise ValueError(f"Error hanlding the gpkg file: {e} - api usage has not been recorded.")
+    return gdf
+
 def shp_to_gdf(input_zip_path: str) -> gpd.GeoDataFrame:
     try:
         # Get the directory where the zip file is located
@@ -33,7 +41,7 @@ def shp_to_gdf(input_zip_path: str) -> gpd.GeoDataFrame:
     except Exception as e:
         logger.error(f"Error handling the zipped shape file: {e}")
         raise ValueError(
-            f"Error handling zipped shape file: {e} - api usage as not been recorded."
+            f"Error handling zipped shape file: {e} - api usage has not been recorded."
         )
 
     return gdf
@@ -186,6 +194,8 @@ def input_to_gdf(
     input_format: str, input_filepath: str, input_epsg: int | None
 ) -> gpd.GeoDataFrame:
     match input_format:
+        case "gpkg":
+            return gpkg_to_gdf(input_filepath)
         case "shp":
             return shp_to_gdf(input_filepath)
         case "geojson":
