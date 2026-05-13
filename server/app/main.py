@@ -53,9 +53,9 @@ app = FastAPI(
     description="""
 Geoflip is a **FastAPI-based geospatial transformation engine** that makes working with spatial data **simple, scalable, and automation-friendly**.
 
-- 📥 **Input formats**: GeoJSON, Shapefile (SHP), DXF  
-- 📤 **Output formats**: GeoJSON (file or inline), Shapefile (zipped), DXF (R2018)  
-- 🔧 **Transformations**: buffer, union (with more coming soon)  
+- 📥 **Input formats**: GeoJSON, Shapefile (SHP), DXF, Geopackage (GPKG), CSV (WKT) 
+- 📤 **Output formats**: GeoJSON (file or inline), Shapefile (zipped), DXF (R2018), Geopackage (GPKG), CSV (WKT)
+- 🔧 **Transformations**: buffer, union, erase (check ./erase endpoint)
 - 🌐 **Reprojection**: automatic reprojection into any EPSG code via `output.epsg`  
 - ⏳ **Asynchronous jobs**: submit, poll status, download results  
 - 🐳 **Deployment**: free public API at [api.geoflip.io](https://api.geoflip.io) or private enterprise hosting with Docker  
@@ -67,8 +67,8 @@ Geoflip is a **FastAPI-based geospatial transformation engine** that makes worki
         "email": "support@geoflip.io",
     },
     license_info={
-        "name": "Business Source License (BSL)",
-        "url": "https://mariadb.com/bsl11/",
+        "name": "Apache 2.0 License",
+        "url": "http://www.apache.org/licenses/",
     },
     lifespan=lifespan,
 )
